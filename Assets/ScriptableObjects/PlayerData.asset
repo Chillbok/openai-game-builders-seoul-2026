@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4533f32c189814a4695b0019f66919e6, type: 3}
+  m_Name: PlayerData
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerData
+  maxHP: 100
+  hitInvincibilityTime: 0.1
+  defaultMoveSpeed: 5
+  dodgeLength: 5
+  dodgeSpeed: 5
+  dodgeRechargeTime: 2
+  exhaustedDodgeRechargeTime: 4
+  perfectDodgeAcceptanceTime: 0.1
+  perfectDodgeAttackDamageMultiplier: 2
+  defenseDamageReductionRate: 70
+  parryAcceptanceTime: 0.1
+  parryDamageMultiplier: 3
+  executionDistance: 10
+  attackDamage: 30
+  attackCooldown: 0
+  attackDistance: 0
+  attackAngle: 0
