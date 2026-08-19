@@ -1,0 +1,663 @@
+fileFormatVersion: 2
+guid: e10bdba4a72d147d3a56e4c682a3a3cd
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -1469624343491252330
+    second: attack_down_stay_0
+  - first:
+      213: 4741603858763505143
+    second: attack_down_stay_1
+  - first:
+      213: 5367960689962510501
+    second: attack_down_stay_2
+  - first:
+      213: -4838487099679841554
+    second: attack_down_stay_3
+  - first:
+      213: 226925982761186473
+    second: attack_down_stay_4
+  - first:
+      213: 8233346916631094157
+    second: attack_down_stay_5
+  - first:
+      213: -2069641327185600701
+    second: attack_down_stay_6
+  - first:
+      213: -1260229430848290377
+    second: attack_down_stay_7
+  - first:
+      213: 3048358084796514647
+    second: attack_down_stay_8
+  - first:
+      213: -5791242836024084747
+    second: attack_down_stay_9
+  - first:
+      213: 2037303171862744416
+    second: attack_down_stay_10
+  - first:
+      213: -5772324382130127817
+    second: attack_down_stay_11
+  - first:
+      213: -8753526118680875488
+    second: attack_down_stay_12
+  - first:
+      213: 6455853601314828318
+    second: attack_down_stay_13
+  - first:
+      213: -2064447628895088338
+    second: attack_down_stay_14
+  - first:
+      213: -5421472936230278698
+    second: attack_down_stay_15
+  - first:
+      213: 2251200364735443282
+    second: attack_down_stay_16
+  - first:
+      213: -1048640846747081177
+    second: attack_down_stay_17
+  - first:
+      213: 8661350380293775548
+    second: attack_down_stay_18
+  - first:
+      213: -4328479956004250769
+    second: attack_down_stay_19
+  - first:
+      213: -1959301981999583895
+    second: attack_down_stay_20
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 64
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: attack_down_stay_0
+      rect:
+        serializedVersion: 2
+        x: 49
+        y: 177
+        width: 29
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 69fefec2278da9be0800000000000000
+      internalID: -1469624343491252330
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_down_stay_1
+      rect:
+        serializedVersion: 2
+        x: 182
+        y: 177
+        width: 32
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7fd5833669f8dc140800000000000000
+      internalID: 4741603858763505143
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_down_stay_2
+      rect:
+        serializedVersion: 2
+        x: 310
+        y: 177
+        width: 35
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5a8e97d8ec3de7a40800000000000000
+      internalID: 5367960689962510501
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_down_stay_3
+      rect:
+        serializedVersion: 2
+        x: 423
+        y: 157
+        width: 49
+        height: 45
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ee2e5454e9d3adcb0800000000000000
+      internalID: -4838487099679841554
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_down_stay_4
+      rect:
+        serializedVersion: 2
+        x: 551
+        y: 167
+        width: 39
+        height: 36
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9a479c0aaf3362300800000000000000
+      internalID: 226925982761186473
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_down_stay_5
+      rect:
+        serializedVersion: 2
+        x: 685
+        y: 174
+        width: 32
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d83aa560669b24270800000000000000
+      internalID: 8233346916631094157
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_down_stay_6
+      rect:
+        serializedVersion: 2
+        x: 815
+        y: 175
+        width: 30
+        height: 33
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 34f52a8ad282743e0800000000000000
+      internalID: -2069641327185600701
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_down_stay_7
+      rect:
+        serializedVersion: 2
+        x: 943
+        y: 175
+        width: 31
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7b18bc67204c28ee0800000000000000
+      internalID: -1260229430848290377
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_down_stay_8
+      rect:
+        serializedVersion: 2
+        x: 1067
+        y: 176
+        width: 35
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7518c78f681fd4a20800000000000000
+      internalID: 3048358084796514647
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_down_stay_9
+      rect:
+        serializedVersion: 2
+        x: 1196
+        y: 176
+        width: 34
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5f632cee25f51afa0800000000000000
+      internalID: -5791242836024084747
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_down_stay_10
+      rect:
+        serializedVersion: 2
+        x: 1328
+        y: 168
+        width: 31
+        height: 53
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 06dc7a2d074f54c10800000000000000
+      internalID: 2037303171862744416
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_down_stay_11
+      rect:
+        serializedVersion: 2
+        x: 1458
+        y: 168
+        width: 29
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 73cbecabe8594efa0800000000000000
+      internalID: -5772324382130127817
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_down_stay_12
+      rect:
+        serializedVersion: 2
+        x: 1585
+        y: 172
+        width: 29
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 02e2ceb8f5a358680800000000000000
+      internalID: -8753526118680875488
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_down_stay_13
+      rect:
+        serializedVersion: 2
+        x: 1713
+        y: 176
+        width: 29
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e10fb4455acc79950800000000000000
+      internalID: 6455853601314828318
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_down_stay_14
+      rect:
+        serializedVersion: 2
+        x: 1839
+        y: 176
+        width: 31
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e219f46c1db9953e0800000000000000
+      internalID: -2064447628895088338
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_down_stay_15
+      rect:
+        serializedVersion: 2
+        x: 1966
+        y: 176
+        width: 32
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6d9a994b61f03c4b0800000000000000
+      internalID: -5421472936230278698
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_down_stay_16
+      rect:
+        serializedVersion: 2
+        x: 49
+        y: 40
+        width: 29
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 251394aedcedd3f10800000000000000
+      internalID: 2251200364735443282
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_down_stay_17
+      rect:
+        serializedVersion: 2
+        x: 177
+        y: 38
+        width: 29
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 726eca0b4ba7271f0800000000000000
+      internalID: -1048640846747081177
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_down_stay_18
+      rect:
+        serializedVersion: 2
+        x: 306
+        y: 37
+        width: 28
+        height: 36
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cb0ea94f74c433870800000000000000
+      internalID: 8661350380293775548
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_down_stay_19
+      rect:
+        serializedVersion: 2
+        x: 435
+        y: 36
+        width: 11
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f6bd7fcc9662ee3c0800000000000000
+      internalID: -4328479956004250769
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_down_stay_20
+      rect:
+        serializedVersion: 2
+        x: 438
+        y: 48
+        width: 25
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 96d223b6a392fc4e0800000000000000
+      internalID: -1959301981999583895
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      attack_down_stay_0: -1469624343491252330
+      attack_down_stay_1: 4741603858763505143
+      attack_down_stay_10: 2037303171862744416
+      attack_down_stay_11: -5772324382130127817
+      attack_down_stay_12: -8753526118680875488
+      attack_down_stay_13: 6455853601314828318
+      attack_down_stay_14: -2064447628895088338
+      attack_down_stay_15: -5421472936230278698
+      attack_down_stay_16: 2251200364735443282
+      attack_down_stay_17: -1048640846747081177
+      attack_down_stay_18: 8661350380293775548
+      attack_down_stay_19: -4328479956004250769
+      attack_down_stay_2: 5367960689962510501
+      attack_down_stay_20: -1959301981999583895
+      attack_down_stay_3: -4838487099679841554
+      attack_down_stay_4: 226925982761186473
+      attack_down_stay_5: 8233346916631094157
+      attack_down_stay_6: -2069641327185600701
+      attack_down_stay_7: -1260229430848290377
+      attack_down_stay_8: 3048358084796514647
+      attack_down_stay_9: -5791242836024084747
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

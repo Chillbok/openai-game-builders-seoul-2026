@@ -1,0 +1,585 @@
+fileFormatVersion: 2
+guid: d5b634d5dd7a24e9c9df2936d1724a44
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -8991657262006625149
+    second: attack_right_stay_0
+  - first:
+      213: 2358148822118936591
+    second: attack_right_stay_1
+  - first:
+      213: 1596818483781346839
+    second: attack_right_stay_2
+  - first:
+      213: 420202464652206866
+    second: attack_right_stay_3
+  - first:
+      213: -4038529974502418976
+    second: attack_right_stay_4
+  - first:
+      213: 7931508819719646817
+    second: attack_right_stay_5
+  - first:
+      213: 5433393279204266855
+    second: attack_right_stay_6
+  - first:
+      213: -6294344253987312937
+    second: attack_right_stay_7
+  - first:
+      213: 2617508758570241100
+    second: attack_right_stay_8
+  - first:
+      213: 7683651118752429516
+    second: attack_right_stay_9
+  - first:
+      213: -2971662597833277948
+    second: attack_right_stay_10
+  - first:
+      213: 1150465409150250506
+    second: attack_right_stay_11
+  - first:
+      213: -2386707505781790972
+    second: attack_right_stay_12
+  - first:
+      213: -1181559360416918273
+    second: attack_right_stay_13
+  - first:
+      213: 6054135161545799793
+    second: attack_right_stay_14
+  - first:
+      213: -2305053152049730906
+    second: attack_right_stay_15
+  - first:
+      213: 9185367158901785784
+    second: attack_right_stay_16
+  - first:
+      213: -8179494334675685138
+    second: attack_right_stay_17
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 64
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: attack_right_stay_0
+      rect:
+        serializedVersion: 2
+        x: 52
+        y: 178
+        width: 24
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 38c980c2c57373380800000000000000
+      internalID: -8991657262006625149
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_right_stay_1
+      rect:
+        serializedVersion: 2
+        x: 182
+        y: 178
+        width: 23
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f00b7e51cd3d9b020800000000000000
+      internalID: 2358148822118936591
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_right_stay_2
+      rect:
+        serializedVersion: 2
+        x: 309
+        y: 178
+        width: 23
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 716a09063f9092610800000000000000
+      internalID: 1596818483781346839
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_right_stay_3
+      rect:
+        serializedVersion: 2
+        x: 416
+        y: 178
+        width: 64
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 213a65f4aebd4d500800000000000000
+      internalID: 420202464652206866
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_right_stay_4
+      rect:
+        serializedVersion: 2
+        x: 562
+        y: 178
+        width: 44
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0e5140f926244f7c0800000000000000
+      internalID: -4038529974502418976
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_right_stay_5
+      rect:
+        serializedVersion: 2
+        x: 689
+        y: 177
+        width: 38
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 16e6444af31621e60800000000000000
+      internalID: 7931508819719646817
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_right_stay_6
+      rect:
+        serializedVersion: 2
+        x: 814
+        y: 184
+        width: 41
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 76317fb666a476b40800000000000000
+      internalID: 5433393279204266855
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_right_stay_7
+      rect:
+        serializedVersion: 2
+        x: 949
+        y: 189
+        width: 35
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7daa017ff3ff5a8a0800000000000000
+      internalID: -6294344253987312937
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_right_stay_8
+      rect:
+        serializedVersion: 2
+        x: 1063
+        y: 177
+        width: 34
+        height: 39
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c4c8d070952435420800000000000000
+      internalID: 2617508758570241100
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_right_stay_9
+      rect:
+        serializedVersion: 2
+        x: 1199
+        y: 176
+        width: 26
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cc575479bffc1aa60800000000000000
+      internalID: 7683651118752429516
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_right_stay_10
+      rect:
+        serializedVersion: 2
+        x: 1333
+        y: 177
+        width: 28
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 40e35df9c9882c6d0800000000000000
+      internalID: -2971662597833277948
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_right_stay_11
+      rect:
+        serializedVersion: 2
+        x: 1458
+        y: 178
+        width: 29
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a0e66c6b13647ff00800000000000000
+      internalID: 1150465409150250506
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_right_stay_12
+      rect:
+        serializedVersion: 2
+        x: 1572
+        y: 178
+        width: 45
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4072e173b26b0eed0800000000000000
+      internalID: -2386707505781790972
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_right_stay_13
+      rect:
+        serializedVersion: 2
+        x: 1700
+        y: 178
+        width: 37
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ff4df4995024a9fe0800000000000000
+      internalID: -1181559360416918273
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_right_stay_14
+      rect:
+        serializedVersion: 2
+        x: 1828
+        y: 178
+        width: 36
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 178b32e6adb940450800000000000000
+      internalID: 6054135161545799793
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_right_stay_15
+      rect:
+        serializedVersion: 2
+        x: 1956
+        y: 178
+        width: 36
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6aa6ea3fe5ec200e0800000000000000
+      internalID: -2305053152049730906
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_right_stay_16
+      rect:
+        serializedVersion: 2
+        x: 36
+        y: 50
+        width: 36
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8b441edc3caf87f70800000000000000
+      internalID: 9185367158901785784
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_right_stay_17
+      rect:
+        serializedVersion: 2
+        x: 164
+        y: 50
+        width: 36
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ee0f55b4d399c7e80800000000000000
+      internalID: -8179494334675685138
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      attack_right_stay_0: -8991657262006625149
+      attack_right_stay_1: 2358148822118936591
+      attack_right_stay_10: -2971662597833277948
+      attack_right_stay_11: 1150465409150250506
+      attack_right_stay_12: -2386707505781790972
+      attack_right_stay_13: -1181559360416918273
+      attack_right_stay_14: 6054135161545799793
+      attack_right_stay_15: -2305053152049730906
+      attack_right_stay_16: 9185367158901785784
+      attack_right_stay_17: -8179494334675685138
+      attack_right_stay_2: 1596818483781346839
+      attack_right_stay_3: 420202464652206866
+      attack_right_stay_4: -4038529974502418976
+      attack_right_stay_5: 7931508819719646817
+      attack_right_stay_6: 5433393279204266855
+      attack_right_stay_7: -6294344253987312937
+      attack_right_stay_8: 2617508758570241100
+      attack_right_stay_9: 7683651118752429516
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

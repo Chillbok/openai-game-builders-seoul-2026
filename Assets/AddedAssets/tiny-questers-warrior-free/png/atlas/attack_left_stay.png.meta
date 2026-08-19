@@ -1,0 +1,585 @@
+fileFormatVersion: 2
+guid: ad498a6551a574e8eacf74f01ba909e9
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -3758545463572260499
+    second: attack_left_stay_0
+  - first:
+      213: 1907772918536401572
+    second: attack_left_stay_1
+  - first:
+      213: 209500417981611354
+    second: attack_left_stay_2
+  - first:
+      213: 8591275721224607966
+    second: attack_left_stay_3
+  - first:
+      213: -8361363473038822306
+    second: attack_left_stay_4
+  - first:
+      213: 3641213202344339789
+    second: attack_left_stay_5
+  - first:
+      213: -4033774901813535781
+    second: attack_left_stay_6
+  - first:
+      213: 980388910433087368
+    second: attack_left_stay_7
+  - first:
+      213: 6126912952122349490
+    second: attack_left_stay_8
+  - first:
+      213: 8130289450274158174
+    second: attack_left_stay_9
+  - first:
+      213: -3467030585961472641
+    second: attack_left_stay_10
+  - first:
+      213: -326792610529615459
+    second: attack_left_stay_11
+  - first:
+      213: 8873467469939230341
+    second: attack_left_stay_12
+  - first:
+      213: 5881634030249961103
+    second: attack_left_stay_13
+  - first:
+      213: -556072428641412371
+    second: attack_left_stay_14
+  - first:
+      213: -7721933343000138094
+    second: attack_left_stay_15
+  - first:
+      213: 1194905626676437938
+    second: attack_left_stay_16
+  - first:
+      213: 8421725603976835714
+    second: attack_left_stay_17
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 64
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: attack_left_stay_0
+      rect:
+        serializedVersion: 2
+        x: 52
+        y: 178
+        width: 24
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d699e9380d6f6dbc0800000000000000
+      internalID: -3758545463572260499
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_left_stay_1
+      rect:
+        serializedVersion: 2
+        x: 179
+        y: 178
+        width: 23
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4a2f8719c55c97a10800000000000000
+      internalID: 1907772918536401572
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_left_stay_2
+      rect:
+        serializedVersion: 2
+        x: 308
+        y: 178
+        width: 23
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a5df61a258b48e200800000000000000
+      internalID: 209500417981611354
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_left_stay_3
+      rect:
+        serializedVersion: 2
+        x: 416
+        y: 178
+        width: 64
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ed8d70bffb75a3770800000000000000
+      internalID: 8591275721224607966
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_left_stay_4
+      rect:
+        serializedVersion: 2
+        x: 546
+        y: 178
+        width: 44
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e54389fb83876fb80800000000000000
+      internalID: -8361363473038822306
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_left_stay_5
+      rect:
+        serializedVersion: 2
+        x: 681
+        y: 177
+        width: 38
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d4962359d10388230800000000000000
+      internalID: 3641213202344339789
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_left_stay_6
+      rect:
+        serializedVersion: 2
+        x: 809
+        y: 184
+        width: 41
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bdb948149172508c0800000000000000
+      internalID: -4033774901813535781
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_left_stay_7
+      rect:
+        serializedVersion: 2
+        x: 936
+        y: 189
+        width: 35
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 88fa81c058a0b9d00800000000000000
+      internalID: 980388910433087368
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_left_stay_8
+      rect:
+        serializedVersion: 2
+        x: 1079
+        y: 177
+        width: 34
+        height: 39
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2b71ef04eda270550800000000000000
+      internalID: 6126912952122349490
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_left_stay_9
+      rect:
+        serializedVersion: 2
+        x: 1207
+        y: 176
+        width: 26
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e5672bccd2794d070800000000000000
+      internalID: 8130289450274158174
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_left_stay_10
+      rect:
+        serializedVersion: 2
+        x: 1327
+        y: 177
+        width: 28
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f7d1a5a1d02a2efc0800000000000000
+      internalID: -3467030585961472641
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_left_stay_11
+      rect:
+        serializedVersion: 2
+        x: 1457
+        y: 178
+        width: 29
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d91e8262adff67bf0800000000000000
+      internalID: -326792610529615459
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_left_stay_12
+      rect:
+        serializedVersion: 2
+        x: 1583
+        y: 178
+        width: 45
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 58646b776a3e42b70800000000000000
+      internalID: 8873467469939230341
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_left_stay_13
+      rect:
+        serializedVersion: 2
+        x: 1719
+        y: 178
+        width: 37
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f86e5effcf2cf9150800000000000000
+      internalID: 5881634030249961103
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_left_stay_14
+      rect:
+        serializedVersion: 2
+        x: 1848
+        y: 178
+        width: 36
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dea9075821f6848f0800000000000000
+      internalID: -556072428641412371
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_left_stay_15
+      rect:
+        serializedVersion: 2
+        x: 1976
+        y: 178
+        width: 36
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 29e6b3f798e26d490800000000000000
+      internalID: -7721933343000138094
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_left_stay_16
+      rect:
+        serializedVersion: 2
+        x: 56
+        y: 50
+        width: 36
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2b32a2a2658259010800000000000000
+      internalID: 1194905626676437938
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_left_stay_17
+      rect:
+        serializedVersion: 2
+        x: 184
+        y: 50
+        width: 36
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 282f9dc01daffd470800000000000000
+      internalID: 8421725603976835714
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      attack_left_stay_0: -3758545463572260499
+      attack_left_stay_1: 1907772918536401572
+      attack_left_stay_10: -3467030585961472641
+      attack_left_stay_11: -326792610529615459
+      attack_left_stay_12: 8873467469939230341
+      attack_left_stay_13: 5881634030249961103
+      attack_left_stay_14: -556072428641412371
+      attack_left_stay_15: -7721933343000138094
+      attack_left_stay_16: 1194905626676437938
+      attack_left_stay_17: 8421725603976835714
+      attack_left_stay_2: 209500417981611354
+      attack_left_stay_3: 8591275721224607966
+      attack_left_stay_4: -8361363473038822306
+      attack_left_stay_5: 3641213202344339789
+      attack_left_stay_6: -4033774901813535781
+      attack_left_stay_7: 980388910433087368
+      attack_left_stay_8: 6126912952122349490
+      attack_left_stay_9: 8130289450274158174
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
