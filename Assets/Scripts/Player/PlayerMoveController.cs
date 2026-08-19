@@ -1,15 +1,32 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
-[RequireComponent(typeof(Animator))]
+[RequireComponent(typeof(Animator), typeof(Rigidbody2D), typeof(PlayerInput))]
 public class PlayerMoveController : MonoBehaviour
 {
-    void Start()
+    [Header("플레이어 데이터")]
+    [SerializeField]
+    private PlayerData playerData;
+
+    private float currentMoveSpeed;
+    private Rigidbody2D playerRigidbody;
+    private InputAction moveAction;
+
+    private void Awake()
     {
-        
+        playerRigidbody = GetComponent<Rigidbody2D>();
+        moveAction = GetComponent<PlayerInput>().actions.FindAction("Move", true);
     }
 
-    void Update()
+    private void Start()
     {
-        
+        currentMoveSpeed = playerData.DefaultMoveSpeed;
+    }
+
+    private void FixedUpdate()
+    {
+        Vector2 movement = moveAction.ReadValue<Vector2>();
+        playerRigidbody.MovePosition(
+            playerRigidbody.position + movement * currentMoveSpeed * Time.fixedDeltaTime);
     }
 }
