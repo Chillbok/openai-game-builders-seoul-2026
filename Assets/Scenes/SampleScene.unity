@@ -340,37 +340,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &2095593488 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8739377747892958056, guid: 28bc3bf3748434e1b9acf521d0eafd29, type: 3}
-  m_PrefabInstance: {fileID: 2940320934019260156}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &2095593492
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2095593488}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2c7f9e7bff9c8478880e36ea9f8b9c71, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerMoveController
---- !u!114 &2095593493
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2095593488}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4f20dd385d5854802bbd4c867583d9a7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SpriteFlip
-  animator: {fileID: 0}
-  rightAnimatorParameterName: MoveRight
 --- !u!1001 &2940320934019260156
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -426,13 +395,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 8739377747892958056, guid: 28bc3bf3748434e1b9acf521d0eafd29, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 2095593493}
-    - targetCorrespondingSourceObject: {fileID: 8739377747892958056, guid: 28bc3bf3748434e1b9acf521d0eafd29, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 2095593492}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 28bc3bf3748434e1b9acf521d0eafd29, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
