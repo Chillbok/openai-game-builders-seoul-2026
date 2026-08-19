@@ -12,6 +12,8 @@ public class PlayerMoveController : MonoBehaviour
     private Rigidbody2D playerRigidbody;
     private InputAction moveAction;
 
+    public Vector2 MovementInput { get; private set; }
+
     private void Awake()
     {
         playerRigidbody = GetComponent<Rigidbody2D>();
@@ -25,8 +27,8 @@ public class PlayerMoveController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        Vector2 movement = moveAction.ReadValue<Vector2>();
+        MovementInput = moveAction.ReadValue<Vector2>();
         playerRigidbody.MovePosition(
-            playerRigidbody.position + movement * currentMoveSpeed * Time.fixedDeltaTime);
+            playerRigidbody.position + MovementInput * currentMoveSpeed * Time.fixedDeltaTime);
     }
 }

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[RequireComponent(typeof(Animator), typeof(SpriteRenderer))]
+[RequireComponent(typeof(Animator), typeof(SpriteRenderer), typeof(PlayerMoveController))]
 public class SpriteFlip : MonoBehaviour
 {
     [Header("애니메이터")]
@@ -8,6 +8,7 @@ public class SpriteFlip : MonoBehaviour
     private Animator animator;
 
     private SpriteRenderer spriteRenderer;
+    private PlayerMoveController playerMoveController;
 
     [Header("애니메이션 패러미터 이름")]
     [SerializeField]
@@ -19,16 +20,36 @@ public class SpriteFlip : MonoBehaviour
     {
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
+        playerMoveController = GetComponent<PlayerMoveController>();
+
+        isFacingRight = true;
+        FlipSpriteToMoveDirection(isFacingRight);
     }
 
-    private void Update()
+    private void LateUpdate()
     {
         DefineSpriteDirection();
     }
 
     private void DefineSpriteDirection()
     {
-        isFacingRight = animator.GetBool(rightAnimatorParameterName);
+        float horizontalInput = playerMoveController.MovementInput.x;
+
+        if (horizontalInput > 0f)
+        {
+            isFacingRight = true;
+        }
+        else if (horizontalInput < 0f)
+        {
+            isFacingRight = false;
+        }
+
+        FlipSpriteToMoveDirection(isFacingRight);
+    }
+
+    private void FlipSpriteToMoveDirection(bool isFacingRight)
+    {
         spriteRenderer.flipX = !isFacingRight;
+        animator.SetBool(rightAnimatorParameterName, isFacingRight);
     }
 }
