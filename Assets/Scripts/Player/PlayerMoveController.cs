@@ -27,7 +27,7 @@ public class PlayerMoveController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        MovementInput = moveAction.ReadValue<Vector2>();
+        MovementInput = Vector2.ClampMagnitude(moveAction.ReadValue<Vector2>(), 1f);
         playerRigidbody.MovePosition(
             playerRigidbody.position + MovementInput * currentMoveSpeed * Time.fixedDeltaTime);
     }
