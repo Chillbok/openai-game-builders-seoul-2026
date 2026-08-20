@@ -83,16 +83,16 @@ AnimationClip:
   m_HasMotionFloatCurves: 0
   m_Events:
   - time: 0.25
-    functionName: 
+    functionName: EnableHitbox
     data: 
-    objectReferenceParameter: {fileID: 0}
+    objectReferenceParameter: {fileID: 8739377747892958056, guid: 28bc3bf3748434e1b9acf521d0eafd29, type: 3}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
   - time: 0.41666666
-    functionName: 
+    functionName: DisableHitbox
     data: 
-    objectReferenceParameter: {fileID: 0}
+    objectReferenceParameter: {fileID: 8739377747892958056, guid: 28bc3bf3748434e1b9acf521d0eafd29, type: 3}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
