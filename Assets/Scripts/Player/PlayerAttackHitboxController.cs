@@ -38,7 +38,7 @@ public class PlayerAttackHitboxController : MonoBehaviour
     }
 
     // 공격 애니메이션 이벤트에서 호출해 현재 공격 방향과 콤보 단계에 해당하는 히트박스를 활성화한다.
-    public void EnableHitbox()
+    public void ActivateHitbox()
     {
         HitboxController[] hitboxes = GetCurrentDirectionHitboxes();
         if (hitboxes == null)
@@ -60,7 +60,7 @@ public class PlayerAttackHitboxController : MonoBehaviour
     }
 
     // 공격 애니메이션 이벤트에서 호출해 현재 공격 방향의 모든 히트박스를 비활성화한다.
-    public void DisableHitbox()
+    public void DeactivateHitbox()
     {
         HitboxController[] hitboxes = GetCurrentDirectionHitboxes();
         if (hitboxes == null)
