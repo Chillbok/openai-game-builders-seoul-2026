@@ -265,3 +265,4 @@ MonoBehaviour:
   animatorMoveParameterName: IsMoving
   attackTriggerParameterName: Attack
   attackCountParameterName: AttackCounter
+  comboInputWindow: 0.5

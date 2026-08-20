@@ -32,7 +32,7 @@ public class PlayerAnimationController : MonoBehaviour
     [Header("공격 설정")]
     [SerializeField, Min(0f)]
     [Tooltip("공격 모션이 끝난 뒤 다음 타 입력을 받을 수 있는 시간(초)")]
-    private float comboInputWindow = 0.25f;
+    private float comboInputWindow = 0.5f;
 
     private Animator animator;
     private PlayerMoveController playerMoveController;
@@ -45,6 +45,7 @@ public class PlayerAnimationController : MonoBehaviour
     private int moveUpParameterHash;
     private int currentAttackCount;
     private float comboWindowRemaining;
+    private bool comboWindowWasOpened;
     private bool isAttacking;
     private bool attackAnimationHasStarted;
     private bool isFacingRight = true;
@@ -119,6 +120,7 @@ public class PlayerAnimationController : MonoBehaviour
         attackAnimationHasStarted = false;
         currentAttackCount = 1;
         comboWindowRemaining = 0f;
+        comboWindowWasOpened = false;
         SetAttackDirection(playerMoveController.MovementInput);
         animator.SetInteger(attackCountParameterHash, currentAttackCount);
         animator.SetTrigger(attackTriggerParameterHash);
@@ -128,6 +130,7 @@ public class PlayerAnimationController : MonoBehaviour
     {
         currentAttackCount++;
         comboWindowRemaining = 0f;
+        comboWindowWasOpened = false;
         SetAttackDirection(playerMoveController.MovementInput);
         animator.SetInteger(attackCountParameterHash, currentAttackCount);
         animator.SetTrigger(attackTriggerParameterHash);
@@ -185,6 +188,7 @@ public class PlayerAnimationController : MonoBehaviour
             if (stateInfo.normalizedTime >= 1f && comboWindowRemaining <= 0f)
             {
                 comboWindowRemaining = comboInputWindow;
+                comboWindowWasOpened = true;
             }
 
             if (comboWindowRemaining > 0f)
@@ -192,6 +196,18 @@ public class PlayerAnimationController : MonoBehaviour
                 comboWindowRemaining -= Time.deltaTime;
             }
 
+            return;
+        }
+
+        if (attackAnimationHasStarted && !comboWindowWasOpened)
+        {
+            comboWindowRemaining = comboInputWindow;
+            comboWindowWasOpened = true;
+        }
+
+        if (comboWindowRemaining > 0f)
+        {
+            comboWindowRemaining -= Time.deltaTime;
             return;
         }
 
@@ -211,6 +227,7 @@ public class PlayerAnimationController : MonoBehaviour
         attackAnimationHasStarted = false;
         currentAttackCount = 0;
         comboWindowRemaining = 0f;
+        comboWindowWasOpened = false;
         animator.SetInteger(attackCountParameterHash, 0);
     }
 }
