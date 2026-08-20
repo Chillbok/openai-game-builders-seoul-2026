@@ -14,6 +14,8 @@ public class PlayerMoveController : MonoBehaviour
 
     public Vector2 MovementInput { get; private set; }
 
+    public bool CanMove { get; set; } = true;
+
     private void Awake()
     {
         playerRigidbody = GetComponent<Rigidbody2D>();
@@ -28,6 +30,12 @@ public class PlayerMoveController : MonoBehaviour
     private void FixedUpdate()
     {
         MovementInput = Vector2.ClampMagnitude(moveAction.ReadValue<Vector2>(), 1f);
+
+        if (!CanMove)
+        {
+            return;
+        }
+
         playerRigidbody.MovePosition(
             playerRigidbody.position + MovementInput * currentMoveSpeed * Time.fixedDeltaTime);
     }

@@ -117,6 +117,7 @@ public class PlayerAnimationController : MonoBehaviour
     private void StartAttack()
     {
         isAttacking = true;
+        playerMoveController.CanMove = false;
         attackAnimationHasStarted = false;
         currentAttackCount = 1;
         comboWindowRemaining = 0f;
@@ -224,6 +225,7 @@ public class PlayerAnimationController : MonoBehaviour
     private void ResetAttackState()
     {
         isAttacking = false;
+        playerMoveController.CanMove = true;
         attackAnimationHasStarted = false;
         currentAttackCount = 0;
         comboWindowRemaining = 0f;
