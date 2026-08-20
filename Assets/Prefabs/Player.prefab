@@ -263,3 +263,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerAnimationController
   animatorMoveParameterName: IsMoving
+  attackTriggerParameterName: Attack
+  attackCountParameterName: AttackCounter
