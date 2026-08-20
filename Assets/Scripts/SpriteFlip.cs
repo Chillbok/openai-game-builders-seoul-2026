@@ -15,6 +15,7 @@ public class SpriteFlip : MonoBehaviour
     private string rightAnimatorParameterName;
 
     private bool isFacingRight;
+    private bool? flipXOverride;
 
     private void Awake()
     {
@@ -45,6 +46,21 @@ public class SpriteFlip : MonoBehaviour
         }
 
         FlipSpriteToMoveDirection(isFacingRight);
+
+        if (flipXOverride.HasValue)
+        {
+            spriteRenderer.flipX = flipXOverride.Value;
+        }
+    }
+
+    public void SetFlipXOverride(bool flipX)
+    {
+        flipXOverride = flipX;
+    }
+
+    public void ClearFlipXOverride()
+    {
+        flipXOverride = null;
     }
 
     private void FlipSpriteToMoveDirection(bool isFacingRight)

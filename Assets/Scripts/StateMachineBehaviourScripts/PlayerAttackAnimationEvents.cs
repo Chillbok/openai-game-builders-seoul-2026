@@ -2,6 +2,11 @@ using UnityEngine;
 
 public class PlayerAttackAnimationEvents : StateMachineBehaviour
 {
+    private const string AttackYParameterName = "AttackY";
+    private const float VerticalAttackDeadZone = 0.0001f;
+
+    private static readonly int AttackYParameterHash = Animator.StringToHash(AttackYParameterName);
+
     // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
@@ -10,6 +15,8 @@ public class PlayerAttackAnimationEvents : StateMachineBehaviour
         {
             moveController.CanMove = false;
         }
+
+        ApplyVerticalAttackFlip(animator);
     }
 
     // OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks
@@ -26,6 +33,12 @@ public class PlayerAttackAnimationEvents : StateMachineBehaviour
         {
             moveController.CanMove = true;
         }
+
+        SpriteFlip spriteFlip = animator.GetComponent<SpriteFlip>();
+        if (spriteFlip != null)
+        {
+            spriteFlip.ClearFlipXOverride();
+        }
     }
 
     // OnStateMove is called right after Animator.OnAnimatorMove()
@@ -39,4 +52,23 @@ public class PlayerAttackAnimationEvents : StateMachineBehaviour
     //{
     //    // Implement code that sets up animation IK (inverse kinematics)
     //}
+
+    // 위/아래 공격 상태에서는 원본 스프라이트 방향이 어울리도록 좌우 반전을 취소한다.
+    private void ApplyVerticalAttackFlip(Animator animator)
+    {
+        SpriteFlip spriteFlip = animator.GetComponent<SpriteFlip>();
+        if (spriteFlip == null)
+        {
+            return;
+        }
+
+        if (Mathf.Abs(animator.GetFloat(AttackYParameterHash)) > VerticalAttackDeadZone)
+        {
+            spriteFlip.SetFlipXOverride(false);
+        }
+        else
+        {
+            spriteFlip.ClearFlipXOverride();
+        }
+    }
 }
