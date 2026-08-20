@@ -1,14 +1,13 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-[RequireComponent(typeof(Animator), typeof(PlayerMoveController))]
+[RequireComponent(typeof(Animator), typeof(PlayerMoveController), typeof(PlayerStatController))]
 public class PlayerAnimationController : MonoBehaviour
 {
     private const string AttackActionName = "Attack";
     private const string MoveRightParameterName = "MoveRight";
     private const string AttackXParameterName = "AttackX";
     private const string AttackYParameterName = "AttackY";
-    private const int MaxAttackCount = 3;
 
     [Header("패러미터 이름들")]
     [Header("이동 관련")]
@@ -34,6 +33,7 @@ public class PlayerAnimationController : MonoBehaviour
 
     private Animator animator;
     private PlayerMoveController playerMoveController;
+    private PlayerStatController playerStatController;
     private InputAction attackAction;
     private SpriteRenderer spriteRenderer;
     private int animatorMoveParameterHash;
@@ -42,7 +42,6 @@ public class PlayerAnimationController : MonoBehaviour
     private int moveRightParameterHash;
     private int attackXParameterHash;
     private int attackYParameterHash;
-    private int currentAttackCount;
     private float comboWindowRemaining;
     private bool comboWindowWasOpened;
     private bool isAttacking;
@@ -54,6 +53,7 @@ public class PlayerAnimationController : MonoBehaviour
     {
         animator = GetComponent<Animator>();
         playerMoveController = GetComponent<PlayerMoveController>();
+        playerStatController = GetComponent<PlayerStatController>();
         attackAction = GetComponent<PlayerInput>().actions.FindAction(AttackActionName, true);
         spriteRenderer = GetComponent<SpriteRenderer>();
 
@@ -113,7 +113,7 @@ public class PlayerAnimationController : MonoBehaviour
             return;
         }
 
-        if (currentAttackCount < MaxAttackCount && comboWindowRemaining > 0f)
+        if (playerStatController.CurrentAttackCount < PlayerStatController.MaxAttackCount && comboWindowRemaining > 0f)
         {
             StartNextAttack();
         }
@@ -125,23 +125,23 @@ public class PlayerAnimationController : MonoBehaviour
         isAttacking = true;
         playerMoveController.CanMove = false;
         attackAnimationHasStarted = false;
-        currentAttackCount = 1;
+        playerStatController.SetAttackCount(1);
         comboWindowRemaining = 0f;
         comboWindowWasOpened = false;
         SetAttackDirection(playerMoveController.MovementInput);
-        animator.SetInteger(attackCountParameterHash, currentAttackCount);
+        animator.SetInteger(attackCountParameterHash, playerStatController.CurrentAttackCount);
         animator.SetTrigger(attackTriggerParameterHash);
     }
 
     // 콤보 공격을 시작하고 이번 타격의 입력 방향을 저장한다.
     private void StartNextAttack()
     {
-        currentAttackCount++;
+        playerStatController.SetAttackCount(playerStatController.CurrentAttackCount + 1);
         playerMoveController.CanMove = false;
         comboWindowRemaining = 0f;
         comboWindowWasOpened = false;
         SetAttackDirection(playerMoveController.MovementInput);
-        animator.SetInteger(attackCountParameterHash, currentAttackCount);
+        animator.SetInteger(attackCountParameterHash, playerStatController.CurrentAttackCount);
         animator.SetTrigger(attackTriggerParameterHash);
     }
 
@@ -251,10 +251,10 @@ public class PlayerAnimationController : MonoBehaviour
     {
         isAttacking = false;
         attackAnimationHasStarted = false;
-        currentAttackCount = 0;
+        playerStatController.ResetAttackCount();
         comboWindowRemaining = 0f;
         comboWindowWasOpened = false;
         playerMoveController.CanMove = true;
-        animator.SetInteger(attackCountParameterHash, 0);
+        animator.SetInteger(attackCountParameterHash, playerStatController.CurrentAttackCount);
     }
 }

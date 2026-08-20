@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: 3999238427273082895}
   - component: {fileID: 1106856155103073783}
   - component: {fileID: 8250609298067822839}
+  - component: {fileID: 5098000252934883261}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -249,7 +250,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c7f9e7bff9c8478880e36ea9f8b9c71, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMoveController
-  playerData: {fileID: 11400000, guid: d4ea0cfd0c9d24f80a0bf1ab502682f2, type: 2}
 --- !u!114 &8250609298067822839
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -266,3 +266,16 @@ MonoBehaviour:
   attackTriggerParameterName: Attack
   attackCountParameterName: AttackCounter
   comboInputWindow: 0.5
+--- !u!114 &5098000252934883261
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8739377747892958056}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b0964c641eca4113b91deee8b82b7ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerStatController
+  playerData: {fileID: 11400000, guid: d4ea0cfd0c9d24f80a0bf1ab502682f2, type: 2}
