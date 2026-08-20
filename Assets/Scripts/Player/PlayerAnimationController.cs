@@ -130,6 +130,7 @@ public class PlayerAnimationController : MonoBehaviour
     private void StartNextAttack()
     {
         currentAttackCount++;
+        playerMoveController.CanMove = false;
         comboWindowRemaining = 0f;
         comboWindowWasOpened = false;
         SetAttackDirection(playerMoveController.MovementInput);
@@ -164,6 +165,13 @@ public class PlayerAnimationController : MonoBehaviour
         }
 
         AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+
+        // 공격 상태가 유지되는 동안은 이동을 차단한다. 콤보 전환 시 이전 타의
+        // OnStateExit(CanMove = true)가 뒤늦게 발동해도 다음 프레임에 다시 잠근다.
+        if (IsAttackState(stateInfo) && comboWindowRemaining <= 0f)
+        {
+            playerMoveController.CanMove = false;
+        }
 
         // The trigger is evaluated by Animator after this Update. Keep the
         // counter until the attack state has actually been entered.
@@ -225,7 +233,6 @@ public class PlayerAnimationController : MonoBehaviour
     private void ResetAttackState()
     {
         isAttacking = false;
-        playerMoveController.CanMove = true;
         attackAnimationHasStarted = false;
         currentAttackCount = 0;
         comboWindowRemaining = 0f;
