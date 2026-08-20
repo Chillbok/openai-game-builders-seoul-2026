@@ -6,11 +6,9 @@ public class PlayerAnimationController : MonoBehaviour
 {
     private const string AttackActionName = "Attack";
     private const string MoveRightParameterName = "MoveRight";
-    private const string MoveUpParameterName = "MoveUp";
+    private const string AttackXParameterName = "AttackX";
+    private const string AttackYParameterName = "AttackY";
     private const int MaxAttackCount = 3;
-    private static readonly int AttackState1Hash = Animator.StringToHash("player_attack_right_1");
-    private static readonly int AttackState2Hash = Animator.StringToHash("player_attack_right_2");
-    private static readonly int AttackState3Hash = Animator.StringToHash("player_attack_right_3");
 
     [Header("패러미터 이름들")]
     [Header("이동 관련")]
@@ -42,7 +40,8 @@ public class PlayerAnimationController : MonoBehaviour
     private int attackTriggerParameterHash;
     private int attackCountParameterHash;
     private int moveRightParameterHash;
-    private int moveUpParameterHash;
+    private int attackXParameterHash;
+    private int attackYParameterHash;
     private int currentAttackCount;
     private float comboWindowRemaining;
     private bool comboWindowWasOpened;
@@ -50,6 +49,7 @@ public class PlayerAnimationController : MonoBehaviour
     private bool attackAnimationHasStarted;
     private bool isFacingRight = true;
 
+    // 애니메이터와 입력 액션, 방향 관련 참조와 파라미터 해시를 초기화한다.
     private void Awake()
     {
         animator = GetComponent<Animator>();
@@ -61,7 +61,8 @@ public class PlayerAnimationController : MonoBehaviour
         attackTriggerParameterHash = Animator.StringToHash(attackTriggerParameterName);
         attackCountParameterHash = Animator.StringToHash(attackCountParameterName);
         moveRightParameterHash = Animator.StringToHash(MoveRightParameterName);
-        moveUpParameterHash = Animator.StringToHash(MoveUpParameterName);
+        attackXParameterHash = Animator.StringToHash(AttackXParameterName);
+        attackYParameterHash = Animator.StringToHash(AttackYParameterName);
 
         if (spriteRenderer != null)
         {
@@ -69,6 +70,7 @@ public class PlayerAnimationController : MonoBehaviour
         }
     }
 
+    // 매 프레임 이동 방향, 이동 애니메이션, 공격 상태와 공격 입력을 갱신한다.
     private void Update()
     {
         UpdateFacingDirection();
@@ -76,13 +78,15 @@ public class PlayerAnimationController : MonoBehaviour
         UpdateAttackAnimationState();
         ProcessAttackInput();
     }
-    
+
+    // 이동 입력의 유무를 애니메이터의 이동 Bool 파라미터에 반영한다.
     void ChangePlayerMoveAnimationPerFrame()
     {
         bool isMoving = playerMoveController.MovementInput.sqrMagnitude > 0.0001f;
         animator.SetBool(animatorMoveParameterHash, isMoving);
     }
 
+    // 좌우 이동 입력이 있을 때 현재 플레이어가 바라보는 좌우 방향을 갱신한다.
     private void UpdateFacingDirection()
     {
         if (playerMoveController.MovementInput.x > 0f)
@@ -95,6 +99,7 @@ public class PlayerAnimationController : MonoBehaviour
         }
     }
 
+    // 공격 입력을 읽고 신규 공격 또는 콤보 공격을 시작한다.
     private void ProcessAttackInput()
     {
         if (!attackAction.WasPressedThisFrame())
@@ -114,6 +119,7 @@ public class PlayerAnimationController : MonoBehaviour
         }
     }
 
+    // 첫 번째 공격을 시작하고 입력 시점의 공격 방향을 저장한다.
     private void StartAttack()
     {
         isAttacking = true;
@@ -127,6 +133,7 @@ public class PlayerAnimationController : MonoBehaviour
         animator.SetTrigger(attackTriggerParameterHash);
     }
 
+    // 콤보 공격을 시작하고 이번 타격의 입력 방향을 저장한다.
     private void StartNextAttack()
     {
         currentAttackCount++;
@@ -138,25 +145,35 @@ public class PlayerAnimationController : MonoBehaviour
         animator.SetTrigger(attackTriggerParameterHash);
     }
 
+    // 좌우 입력을 우선으로 판단하고, 좌우 입력이 없을 때만 위아래 방향을 선택한다.
     private void SetAttackDirection(Vector2 movementInput)
     {
-        bool hasVerticalInput = Mathf.Abs(movementInput.x) < 0.0001f &&
-                                Mathf.Abs(movementInput.y) > 0.0001f;
-        bool attackUp = hasVerticalInput && movementInput.y > 0f;
+        const float deadZone = 0.0001f;
+        Vector2 attackDirection;
 
-        if (movementInput.x > 0f)
+        // 대각선 입력도 X 값이 조금이라도 있으면 좌우 공격으로 처리한다.
+        if (Mathf.Abs(movementInput.x) > deadZone)
         {
-            isFacingRight = true;
+            isFacingRight = movementInput.x > 0f;
+            attackDirection = new Vector2(isFacingRight ? 1f : -1f, 0f);
         }
-        else if (movementInput.x < 0f)
+        // 좌우 입력이 없을 때만 Y 값으로 위아래 공격을 결정한다.
+        else if (Mathf.Abs(movementInput.y) > deadZone)
         {
-            isFacingRight = false;
+            attackDirection = new Vector2(0f, movementInput.y > 0f ? 1f : -1f);
+        }
+        // 공격 방향 입력이 없으면 기존 좌우 바라보기 방향으로 공격한다.
+        else
+        {
+            attackDirection = new Vector2(isFacingRight ? 1f : -1f, 0f);
         }
 
         animator.SetBool(moveRightParameterHash, isFacingRight);
-        animator.SetBool(moveUpParameterHash, attackUp);
+        animator.SetFloat(attackXParameterHash, attackDirection.x);
+        animator.SetFloat(attackYParameterHash, attackDirection.y);
     }
 
+    // 공격 애니메이션의 진행 상태와 콤보 입력 가능 시간을 관리한다.
     private void UpdateAttackAnimationState()
     {
         if (!isAttacking)
@@ -223,13 +240,13 @@ public class PlayerAnimationController : MonoBehaviour
         ResetAttackState();
     }
 
+    // 애니메이터 상태에 Attack 태그가 붙어 있는지 확인한다.
     private bool IsAttackState(AnimatorStateInfo stateInfo)
     {
-        return stateInfo.shortNameHash == AttackState1Hash ||
-               stateInfo.shortNameHash == AttackState2Hash ||
-               stateInfo.shortNameHash == AttackState3Hash;
+        return stateInfo.IsTag("Attack");
     }
 
+    // 공격 상태와 콤보 카운터를 초기값으로 되돌린다.
     private void ResetAttackState()
     {
         isAttacking = false;
@@ -237,6 +254,7 @@ public class PlayerAnimationController : MonoBehaviour
         currentAttackCount = 0;
         comboWindowRemaining = 0f;
         comboWindowWasOpened = false;
+        playerMoveController.CanMove = true;
         animator.SetInteger(attackCountParameterHash, 0);
     }
 }
