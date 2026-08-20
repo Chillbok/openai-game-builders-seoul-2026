@@ -11,6 +11,7 @@
 ## 기본 작업 원칙
 
 - 작업 전에 현재 프로젝트 구조, `ProjectSettings/ProjectVersion.txt`, `Packages/manifest.json`과 기존 코드 관례를 확인한다.
+- 작업 시작 시 `unity status`로 실행 중인 Unity Editor 연결 여부를 확인한다.
 - Unity 버전, 렌더 파이프라인, 입력 시스템 또는 패키지를 임의로 변경하지 않는다.
 - 새 패키지나 외부 에셋을 추가하기 전에 필요성, 라이선스 및 웹 빌드 호환성을 확인한다.
 - 사용자가 요청한 범위만 수정하고 관련 없는 변경은 보존한다.
@@ -37,6 +38,7 @@
 - `Assets/` 안의 자산을 추가, 이동 또는 삭제할 때 대응하는 `.meta` 파일도 함께 관리한다.
 - 기존 `.meta` 파일의 GUID를 임의로 바꾸거나 재생성하지 않는다.
 - `.unity`, `.prefab`, `.asset` 등 Unity YAML 파일은 가능하면 Unity Editor 또는 검증된 Editor 스크립트를 통해 수정한다.
+- 씬·프리팹·에셋 작업 전 `unity status`로 연결된 Editor를 확인하고, 있으면 `unity-cli` 스킬을 로드해 live 조작한다. 연결된 Editor가 없을 때만 파일 직접 편집으로 폴백한다.
 - 직렬화 파일을 텍스트로 직접 수정해야 한다면 변경 범위를 최소화하고 파일 ID, GUID 및 참조가 보존되는지 확인한다.
 - `Library/`, `Temp/`, `Obj/`, `Logs/`, `UserSettings/`, 빌드 출력물과 IDE 생성 파일을 커밋하지 않는다.
 - `.gitignore`와 `.gitattributes`의 기존 Unity 및 줄바꿈 정책을 유지한다.
@@ -55,6 +57,7 @@
 - 변경 후 컴파일 오류와 Unity Console의 새 오류 또는 경고를 확인한다.
 - 로직 변경에는 가능하면 Unity Test Framework의 Edit Mode 또는 Play Mode 테스트를 추가하거나 갱신한다.
 - 관련 테스트가 있으면 실행하고, 실행할 수 없다면 그 이유와 수동 검증 방법을 보고한다.
+- 테스트는 `unity test`, 웹 빌드는 `unity build --target WebGL` 등 Unity CLI를 우선 사용하고, `unity logs --follow`로 Console 에러를 확인한다.
 - 씬, 프리팹 또는 자산을 변경했다면 참조 누락과 직렬화 손상을 확인한다.
 - 사용자에게 보이는 변경은 서로 다른 화면 비율에서 확인한다.
 - 웹 관련 변경은 브라우저 웹 빌드에서 로딩, 입력, 오디오, 저장 및 네트워크 동작 중 관련 항목을 검증한다.

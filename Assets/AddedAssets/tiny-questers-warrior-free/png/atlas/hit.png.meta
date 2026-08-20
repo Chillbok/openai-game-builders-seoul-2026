@@ -114,7 +114,7 @@ TextureImporter:
         width: 31
         height: 25
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -133,10 +133,10 @@ TextureImporter:
         serializedVersion: 2
         x: 80
         y: 10
-        width: 24
+        width: 32
         height: 25
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -149,33 +149,11 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
-    - serializedVersion: 2
-      name: hit_2
-      rect:
-        serializedVersion: 2
-        x: 101
-        y: 12
-        width: 12
-        height: 16
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 8033b24e9bdf9f570800000000000000
-      internalID: 8501104746477335304
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
     outline: []
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: de6f60000d12d43e4a521274da38777e
     internalID: 0
     vertices: []
     indices: 

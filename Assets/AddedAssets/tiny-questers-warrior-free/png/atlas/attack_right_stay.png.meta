@@ -1,61 +1,61 @@
 fileFormatVersion: 2
-guid: d5b634d5dd7a24e9c9df2936d1724a44
+guid: ad498a6551a574e8eacf74f01ba909e9
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -8991657262006625149
-    second: attack_right_stay_0
+      213: -3758545463572260499
+    second: attack_left_stay_0
   - first:
-      213: 2358148822118936591
-    second: attack_right_stay_1
+      213: 1907772918536401572
+    second: attack_left_stay_1
   - first:
-      213: 1596818483781346839
-    second: attack_right_stay_2
+      213: 209500417981611354
+    second: attack_left_stay_2
   - first:
-      213: 420202464652206866
-    second: attack_right_stay_3
+      213: 8591275721224607966
+    second: attack_left_stay_3
   - first:
-      213: -4038529974502418976
-    second: attack_right_stay_4
+      213: -8361363473038822306
+    second: attack_left_stay_4
   - first:
-      213: 7931508819719646817
-    second: attack_right_stay_5
+      213: 3641213202344339789
+    second: attack_left_stay_5
   - first:
-      213: 5433393279204266855
-    second: attack_right_stay_6
+      213: -4033774901813535781
+    second: attack_left_stay_6
   - first:
-      213: -6294344253987312937
-    second: attack_right_stay_7
+      213: 980388910433087368
+    second: attack_left_stay_7
   - first:
-      213: 2617508758570241100
-    second: attack_right_stay_8
+      213: 6126912952122349490
+    second: attack_left_stay_8
   - first:
-      213: 7683651118752429516
-    second: attack_right_stay_9
+      213: 8130289450274158174
+    second: attack_left_stay_9
   - first:
-      213: -2971662597833277948
-    second: attack_right_stay_10
+      213: -3467030585961472641
+    second: attack_left_stay_10
   - first:
-      213: 1150465409150250506
-    second: attack_right_stay_11
+      213: -326792610529615459
+    second: attack_left_stay_11
   - first:
-      213: -2386707505781790972
-    second: attack_right_stay_12
+      213: 8873467469939230341
+    second: attack_left_stay_12
   - first:
-      213: -1181559360416918273
-    second: attack_right_stay_13
+      213: 5881634030249961103
+    second: attack_left_stay_13
   - first:
-      213: 6054135161545799793
-    second: attack_right_stay_14
+      213: -556072428641412371
+    second: attack_left_stay_14
   - first:
-      213: -2305053152049730906
-    second: attack_right_stay_15
+      213: -7721933343000138094
+    second: attack_left_stay_15
   - first:
-      213: 9185367158901785784
-    second: attack_right_stay_16
+      213: 1194905626676437938
+    second: attack_left_stay_16
   - first:
-      213: -8179494334675685138
-    second: attack_right_stay_17
+      213: 8421725603976835714
+    second: attack_left_stay_17
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -151,73 +151,73 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: attack_right_stay_0
+      name: attack_left_stay_0
       rect:
         serializedVersion: 2
         x: 52
         y: 178
         width: 24
         height: 25
-      alignment: 0
-      pivot: {x: 0, y: 0}
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 38c980c2c57373380800000000000000
-      internalID: -8991657262006625149
+      spriteID: d699e9380d6f6dbc0800000000000000
+      internalID: -3758545463572260499
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: attack_right_stay_1
+      name: attack_left_stay_1
       rect:
         serializedVersion: 2
-        x: 182
+        x: 179
         y: 178
         width: 23
         height: 25
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: f00b7e51cd3d9b020800000000000000
-      internalID: 2358148822118936591
+      spriteID: 4a2f8719c55c97a10800000000000000
+      internalID: 1907772918536401572
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: attack_right_stay_2
+      name: attack_left_stay_2
       rect:
         serializedVersion: 2
-        x: 309
+        x: 308
         y: 178
         width: 23
         height: 23
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 716a09063f9092610800000000000000
-      internalID: 1596818483781346839
+      spriteID: a5df61a258b48e200800000000000000
+      internalID: 209500417981611354
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: attack_right_stay_3
+      name: attack_left_stay_3
       rect:
         serializedVersion: 2
         x: 416
@@ -225,323 +225,323 @@ TextureImporter:
         width: 64
         height: 25
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 213a65f4aebd4d500800000000000000
-      internalID: 420202464652206866
+      spriteID: ed8d70bffb75a3770800000000000000
+      internalID: 8591275721224607966
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: attack_right_stay_4
+      name: attack_left_stay_4
       rect:
         serializedVersion: 2
-        x: 562
+        x: 546
         y: 178
         width: 44
         height: 25
-      alignment: 0
-      pivot: {x: 0, y: 0}
+      alignment: 9
+      pivot: {x: 0.65, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 0e5140f926244f7c0800000000000000
-      internalID: -4038529974502418976
+      spriteID: e54389fb83876fb80800000000000000
+      internalID: -8361363473038822306
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: attack_right_stay_5
+      name: attack_left_stay_5
       rect:
         serializedVersion: 2
-        x: 689
+        x: 681
         y: 177
         width: 38
         height: 24
-      alignment: 0
-      pivot: {x: 0, y: 0}
+      alignment: 9
+      pivot: {x: 0.59, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 16e6444af31621e60800000000000000
-      internalID: 7931508819719646817
+      spriteID: d4962359d10388230800000000000000
+      internalID: 3641213202344339789
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: attack_right_stay_6
+      name: attack_left_stay_6
       rect:
         serializedVersion: 2
-        x: 814
+        x: 809
         y: 184
         width: 41
         height: 25
-      alignment: 0
-      pivot: {x: 0, y: 0}
+      alignment: 9
+      pivot: {x: 0.61, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 76317fb666a476b40800000000000000
-      internalID: 5433393279204266855
+      spriteID: bdb948149172508c0800000000000000
+      internalID: -4033774901813535781
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: attack_right_stay_7
+      name: attack_left_stay_7
       rect:
         serializedVersion: 2
-        x: 949
+        x: 936
         y: 189
         width: 35
         height: 24
-      alignment: 0
-      pivot: {x: 0, y: 0}
+      alignment: 9
+      pivot: {x: 0.68, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 7daa017ff3ff5a8a0800000000000000
-      internalID: -6294344253987312937
+      spriteID: 88fa81c058a0b9d00800000000000000
+      internalID: 980388910433087368
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: attack_right_stay_8
+      name: attack_left_stay_8
       rect:
         serializedVersion: 2
-        x: 1063
+        x: 1079
         y: 177
         width: 34
         height: 39
-      alignment: 0
-      pivot: {x: 0, y: 0}
+      alignment: 9
+      pivot: {x: 0.31, y: 0.32}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: c4c8d070952435420800000000000000
-      internalID: 2617508758570241100
+      spriteID: 2b71ef04eda270550800000000000000
+      internalID: 6126912952122349490
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: attack_right_stay_9
+      name: attack_left_stay_9
       rect:
         serializedVersion: 2
-        x: 1199
+        x: 1207
         y: 176
         width: 26
         height: 29
-      alignment: 0
-      pivot: {x: 0, y: 0}
+      alignment: 9
+      pivot: {x: 0.3599572, y: 0.44626486}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: cc575479bffc1aa60800000000000000
-      internalID: 7683651118752429516
+      spriteID: e5672bccd2794d070800000000000000
+      internalID: 8130289450274158174
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: attack_right_stay_10
+      name: attack_left_stay_10
       rect:
         serializedVersion: 2
-        x: 1333
+        x: 1327
         y: 177
         width: 28
         height: 24
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 40e35df9c9882c6d0800000000000000
-      internalID: -2971662597833277948
+      spriteID: f7d1a5a1d02a2efc0800000000000000
+      internalID: -3467030585961472641
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: attack_right_stay_11
+      name: attack_left_stay_11
       rect:
         serializedVersion: 2
-        x: 1458
+        x: 1457
         y: 178
         width: 29
         height: 24
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: a0e66c6b13647ff00800000000000000
-      internalID: 1150465409150250506
+      spriteID: d91e8262adff67bf0800000000000000
+      internalID: -326792610529615459
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: attack_right_stay_12
+      name: attack_left_stay_12
       rect:
         serializedVersion: 2
-        x: 1572
+        x: 1583
         y: 178
         width: 45
         height: 24
-      alignment: 0
-      pivot: {x: 0, y: 0}
+      alignment: 9
+      pivot: {x: 0.4076579, y: 0.4783567}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 4072e173b26b0eed0800000000000000
-      internalID: -2386707505781790972
+      spriteID: 58646b776a3e42b70800000000000000
+      internalID: 8873467469939230341
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: attack_right_stay_13
+      name: attack_left_stay_13
       rect:
         serializedVersion: 2
-        x: 1700
+        x: 1719
         y: 178
         width: 37
         height: 24
-      alignment: 0
-      pivot: {x: 0, y: 0}
+      alignment: 9
+      pivot: {x: 0.31750157, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: ff4df4995024a9fe0800000000000000
-      internalID: -1181559360416918273
+      spriteID: f86e5effcf2cf9150800000000000000
+      internalID: 5881634030249961103
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: attack_right_stay_14
+      name: attack_left_stay_14
       rect:
         serializedVersion: 2
-        x: 1828
+        x: 1848
         y: 178
         width: 36
         height: 24
-      alignment: 0
-      pivot: {x: 0, y: 0}
+      alignment: 9
+      pivot: {x: 0.26914468, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 178b32e6adb940450800000000000000
-      internalID: 6054135161545799793
+      spriteID: dea9075821f6848f0800000000000000
+      internalID: -556072428641412371
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: attack_right_stay_15
+      name: attack_left_stay_15
       rect:
         serializedVersion: 2
-        x: 1956
+        x: 1976
         y: 178
         width: 36
         height: 24
-      alignment: 0
-      pivot: {x: 0, y: 0}
+      alignment: 9
+      pivot: {x: 0.26914468, y: 0.52164334}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 6aa6ea3fe5ec200e0800000000000000
-      internalID: -2305053152049730906
+      spriteID: 29e6b3f798e26d490800000000000000
+      internalID: -7721933343000138094
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: attack_right_stay_16
+      name: attack_left_stay_16
       rect:
         serializedVersion: 2
-        x: 36
+        x: 56
         y: 50
         width: 36
         height: 24
-      alignment: 0
-      pivot: {x: 0, y: 0}
+      alignment: 9
+      pivot: {x: 0.3124252, y: 0.521643}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 8b441edc3caf87f70800000000000000
-      internalID: 9185367158901785784
+      spriteID: 2b32a2a2658259010800000000000000
+      internalID: 1194905626676437938
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: attack_right_stay_17
+      name: attack_left_stay_17
       rect:
         serializedVersion: 2
-        x: 164
+        x: 184
         y: 50
         width: 36
         height: 24
-      alignment: 0
-      pivot: {x: 0, y: 0}
+      alignment: 9
+      pivot: {x: 0.31242624, y: 0.49999967}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: ee0f55b4d399c7e80800000000000000
-      internalID: -8179494334675685138
+      spriteID: 282f9dc01daffd470800000000000000
+      internalID: 8421725603976835714
       vertices: []
       indices: 
       edges: []
@@ -550,7 +550,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 0fcdc9ddc91794e8bb238ab42443b194
     internalID: 0
     vertices: []
     indices: 
@@ -560,24 +560,24 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      attack_right_stay_0: -8991657262006625149
-      attack_right_stay_1: 2358148822118936591
-      attack_right_stay_10: -2971662597833277948
-      attack_right_stay_11: 1150465409150250506
-      attack_right_stay_12: -2386707505781790972
-      attack_right_stay_13: -1181559360416918273
-      attack_right_stay_14: 6054135161545799793
-      attack_right_stay_15: -2305053152049730906
-      attack_right_stay_16: 9185367158901785784
-      attack_right_stay_17: -8179494334675685138
-      attack_right_stay_2: 1596818483781346839
-      attack_right_stay_3: 420202464652206866
-      attack_right_stay_4: -4038529974502418976
-      attack_right_stay_5: 7931508819719646817
-      attack_right_stay_6: 5433393279204266855
-      attack_right_stay_7: -6294344253987312937
-      attack_right_stay_8: 2617508758570241100
-      attack_right_stay_9: 7683651118752429516
+      attack_left_stay_0: -3758545463572260499
+      attack_left_stay_1: 1907772918536401572
+      attack_left_stay_10: -3467030585961472641
+      attack_left_stay_11: -326792610529615459
+      attack_left_stay_12: 8873467469939230341
+      attack_left_stay_13: 5881634030249961103
+      attack_left_stay_14: -556072428641412371
+      attack_left_stay_15: -7721933343000138094
+      attack_left_stay_16: 1194905626676437938
+      attack_left_stay_17: 8421725603976835714
+      attack_left_stay_2: 209500417981611354
+      attack_left_stay_3: 8591275721224607966
+      attack_left_stay_4: -8361363473038822306
+      attack_left_stay_5: 3641213202344339789
+      attack_left_stay_6: -4033774901813535781
+      attack_left_stay_7: 980388910433087368
+      attack_left_stay_8: 6126912952122349490
+      attack_left_stay_9: 8130289450274158174
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

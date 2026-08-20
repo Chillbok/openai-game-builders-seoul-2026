@@ -26,6 +26,12 @@ MonoBehaviour:
   parryDamageMultiplier: 3
   executionDistance: 10
   attackDamage: 30
-  attackCooldown: 0
+  attackSpeed: 1
   attackDistance: 0
   attackAngle: 0
+  soulChargeDuration: 12
+  soulChargeDamageReductionRate: 30
+  soulChargeAttackSpeedIncreaseRate: 30
+  soulChargeAttackDamageMultiplier: 2
+  soulChargeExplosionDamage: 0
+  soulChargeExplosionRadius: 0
