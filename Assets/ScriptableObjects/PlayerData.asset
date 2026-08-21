@@ -16,10 +16,10 @@ MonoBehaviour:
   hitInvincibilityTime: 0.1
   defaultMoveSpeed: 5
   dodgeLength: 1
-  dodgeSpeed: 50
+  dodgeSpeed: 10
   dodgeRechargeTime: 2
   exhaustedDodgeRechargeTime: 4
-  perfectDodgeAcceptanceTime: 0.1
+  perfectDodgeAcceptanceTime: 0.05
   perfectDodgeAttackDamageMultiplier: 2
   defenseDamageReductionRate: 70
   parryAcceptanceTime: 0.1

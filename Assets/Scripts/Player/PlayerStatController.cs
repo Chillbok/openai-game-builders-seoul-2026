@@ -17,6 +17,7 @@ public sealed class PlayerStatController : MonoBehaviour
     private float dodgeFillProgress;
     private bool isRecharging;
     private PlayerDodge playerDodge;
+    private float nextAttackDamageMultiplier = 1f;
 
     public PlayerData Data => playerData;
     public bool IsInitialized => runtimeState != null;
@@ -53,6 +54,8 @@ public sealed class PlayerStatController : MonoBehaviour
     public int NormalKillCount => runtimeState != null ? runtimeState.NormalKillCount : 0;
     public float SoulChargeRemainingTime => runtimeState != null ? runtimeState.SoulChargeRemainingTime : 0f;
     public float DamageInvincibilityRemaining => damageInvincibilityRemaining;
+    public float NextAttackDamageMultiplier => nextAttackDamageMultiplier;
+    public bool IsPerfectDodgeAttackReady => nextAttackDamageMultiplier > 0f && !Mathf.Approximately(nextAttackDamageMultiplier, 1f);
 
     public event Action<float> CurrentHPChanged;
     public event Action Damaged;
@@ -61,6 +64,7 @@ public sealed class PlayerStatController : MonoBehaviour
     public event Action<int> CurrentAttackCountChanged;
     public event Action<int> SoulChargeStageChanged;
     public event Action<int> NormalKillCountChanged;
+    public event Action PerfectDodgePerformed;
 
     // 컴포넌트가 활성화될 때 플레이어의 런타임 스탯을 초기화한다.
     private void Awake()
@@ -180,9 +184,24 @@ public sealed class PlayerStatController : MonoBehaviour
     // 피격 무적 여부를 확인한 뒤 플레이어에게 피해를 적용한다.
     public bool TryTakeDamage(float damage)
     {
-        // 회피 중에는 무적이므로 모든 피해를 무효화한다.
-        if (!IsInitialized || IsDead || damage <= 0f || damageInvincibilityRemaining > 0f
-            || (playerDodge != null && playerDodge.IsDodging))
+        // 회피 중에는 무적이므로 모든 피해를 무효화한다. 인정 시간 안이면 완벽한 회피로 처리한다.
+        if (playerDodge != null && playerDodge.IsDodging)
+        {
+            if (playerDodge.TryMarkPerfectDodge())
+            {
+                nextAttackDamageMultiplier = PerfectDodgeAttackDamageMultiplier;
+                PerfectDodgePerformed?.Invoke();
+                Debug.Log("완벽한 회피: 다음 공격이 강화된다.");
+            }
+            else
+            {
+                Debug.Log("일반 회피: 피해를 무효화했다.");
+            }
+
+            return false;
+        }
+
+        if (!IsInitialized || IsDead || damage <= 0f || damageInvincibilityRemaining > 0f)
         {
             return false;
         }
@@ -289,6 +308,14 @@ public sealed class PlayerStatController : MonoBehaviour
     public void ResetAttackCount()
     {
         SetAttackCount(0);
+    }
+
+    // 완벽한 회피로 강화된 다음 공격의 데미지를 계산하고 준비 상태를 해제한다.
+    public float CalculateNextAttackDamage()
+    {
+        float damage = AttackDamage * nextAttackDamageMultiplier;
+        nextAttackDamageMultiplier = 1f;
+        return damage;
     }
 
     // 일반 처치 누적 수를 올리고 조건을 충족하면 영혼 충전 단계를 올린다.

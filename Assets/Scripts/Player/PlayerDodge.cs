@@ -14,6 +14,8 @@ public class PlayerDodge : MonoBehaviour
     private bool isDodging;
     private float dodgeTimer;
     private Vector2 dodgeDirection;
+    private float dodgeStartTime;
+    private bool perfectDodgeConsumed;
 
     // 컴포넌트 참조와 입력 액션을 초기화한다.
     private void Awake()
@@ -79,7 +81,27 @@ public class PlayerDodge : MonoBehaviour
 
         isDodging = true;
         dodgeTimer = dodgeDuration;
+        dodgeStartTime = Time.time;
+        perfectDodgeConsumed = false;
         playerMoveController.CanMove = false;
+    }
+
+    // 회피 시작 후 완벽한 회피 인정 시간이 지났는지 확인한다.
+    private bool IsPastPerfectDodgeAcceptance()
+    {
+        return Time.time - dodgeStartTime > playerStatController.PerfectDodgeAcceptanceTime;
+    }
+
+    // 회피 시작 후 인정 시간 안에 피해 판정이 들어오면 완벽한 회피로 인정한다. 회피당 한 번만 인정된다.
+    public bool TryMarkPerfectDodge()
+    {
+        if (!isDodging || perfectDodgeConsumed || IsPastPerfectDodgeAcceptance())
+        {
+            return false;
+        }
+
+        perfectDodgeConsumed = true;
+        return true;
     }
 
     // 회피 상태를 해제하고 일반 이동을 다시 허용한다.
@@ -87,6 +109,7 @@ public class PlayerDodge : MonoBehaviour
     {
         isDodging = false;
         dodgeTimer = 0f;
+        perfectDodgeConsumed = false;
         playerMoveController.CanMove = true;
     }
 
