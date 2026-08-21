@@ -16,6 +16,7 @@ public sealed class PlayerStatController : MonoBehaviour
     private float damageInvincibilityRemaining;
     private float dodgeFillProgress;
     private bool isRecharging;
+    private PlayerDodge playerDodge;
 
     public PlayerData Data => playerData;
     public bool IsInitialized => runtimeState != null;
@@ -64,6 +65,7 @@ public sealed class PlayerStatController : MonoBehaviour
     // 컴포넌트가 활성화될 때 플레이어의 런타임 스탯을 초기화한다.
     private void Awake()
     {
+        playerDodge = GetComponent<PlayerDodge>();
         Initialize();
     }
 
@@ -178,7 +180,9 @@ public sealed class PlayerStatController : MonoBehaviour
     // 피격 무적 여부를 확인한 뒤 플레이어에게 피해를 적용한다.
     public bool TryTakeDamage(float damage)
     {
-        if (!IsInitialized || IsDead || damage <= 0f || damageInvincibilityRemaining > 0f)
+        // 회피 중에는 무적이므로 모든 피해를 무효화한다.
+        if (!IsInitialized || IsDead || damage <= 0f || damageInvincibilityRemaining > 0f
+            || (playerDodge != null && playerDodge.IsDodging))
         {
             return false;
         }

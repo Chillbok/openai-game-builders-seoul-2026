@@ -90,6 +90,6 @@ public class PlayerDodge : MonoBehaviour
         playerMoveController.CanMove = true;
     }
 
-    // 현재 회피 중인지 여부를 반환한다.
+    // 현재 회피 중인지 반환한다. 회피 중에는 무적이므로 피해 판정 무효화에도 사용된다.
     public bool IsDodging => isDodging;
 }

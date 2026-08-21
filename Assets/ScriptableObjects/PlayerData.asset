@@ -15,7 +15,7 @@ MonoBehaviour:
   maxHP: 100
   hitInvincibilityTime: 0.1
   defaultMoveSpeed: 5
-  dodgeLength: 5
+  dodgeLength: 1
   dodgeSpeed: 50
   dodgeRechargeTime: 2
   exhaustedDodgeRechargeTime: 4
