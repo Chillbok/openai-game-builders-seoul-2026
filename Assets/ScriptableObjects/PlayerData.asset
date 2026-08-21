@@ -16,7 +16,7 @@ MonoBehaviour:
   hitInvincibilityTime: 0.1
   defaultMoveSpeed: 5
   dodgeLength: 5
-  dodgeSpeed: 5
+  dodgeSpeed: 50
   dodgeRechargeTime: 2
   exhaustedDodgeRechargeTime: 4
   perfectDodgeAcceptanceTime: 0.1
