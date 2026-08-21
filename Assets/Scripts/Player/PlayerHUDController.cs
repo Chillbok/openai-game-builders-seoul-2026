@@ -102,9 +102,10 @@ public sealed class PlayerHUDController : MonoBehaviour
             return;
         }
 
-        bool hasCharge = currentDodgeCount > 0;
-        dodgeFillImage.fillAmount = hasCharge ? 1f : rechargeProgress;
-        dodgeFillImage.color = hasCharge ? availableDodgeColor : usedDodgeColor;
+        dodgeFillImage.fillAmount = Mathf.Clamp01(rechargeProgress);
+        dodgeFillImage.color = currentDodgeCount >= PlayerRuntimeState.MaxDodgeCount
+            ? availableDodgeColor
+            : usedDodgeColor;
     }
 
     private void UpdateCountText(int currentDodgeCount)
