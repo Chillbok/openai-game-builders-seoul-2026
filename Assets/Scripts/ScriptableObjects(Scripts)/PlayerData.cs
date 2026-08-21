@@ -44,20 +44,6 @@ public class PlayerData : ScriptableObject
 	[SerializeField, Min(0f)]
 	private float perfectDodgeAttackDamageMultiplier = 2f;
 
-	[Header("방어 관련 스테이터스")]
-	[Tooltip("방어 상태에서 감소시키는 받는 피해의 비율(0~100)")]
-	[SerializeField, Range(0f, 100f)]
-	private float defenseDamageReductionRate = 70f;
-
-	[Header("패링 관련 스테이터스")]
-	[Tooltip("방어 시작 후 공격 피해 판정이 패링으로 인정되는 시간(초)")]
-	[SerializeField, Min(0f)]
-	private float parryAcceptanceTime;
-
-	[Tooltip("패링 성공 후 다음 일반 공격에 적용되는 피해 배율")]
-	[SerializeField, Min(0f)]
-	private float parryDamageMultiplier = 3f;
-
 	[Header("처형 관련 스테이터스")]
 	[Tooltip("처형이 가능한 적과의 최대 거리")]
 	[SerializeField, Min(0f)]
@@ -113,9 +99,6 @@ public class PlayerData : ScriptableObject
 	public float ExhaustedDodgeRechargeTime => exhaustedDodgeRechargeTime;
 	public float PerfectDodgeAcceptanceTime => perfectDodgeAcceptanceTime;
 	public float PerfectDodgeAttackDamageMultiplier => perfectDodgeAttackDamageMultiplier;
-	public float DefenseDamageReductionRate => defenseDamageReductionRate;
-	public float ParryAcceptanceTime => parryAcceptanceTime;
-	public float ParryDamageMultiplier => parryDamageMultiplier;
 	public float HitInvincibilityTime => hitInvincibilityTime;
 	public float ExecutionDistance => executionDistance;
 	public float AttackDamage => attackDamage;

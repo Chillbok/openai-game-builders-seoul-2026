@@ -21,9 +21,6 @@ MonoBehaviour:
   exhaustedDodgeRechargeTime: 4
   perfectDodgeAcceptanceTime: 0.05
   perfectDodgeAttackDamageMultiplier: 2
-  defenseDamageReductionRate: 70
-  parryAcceptanceTime: 0.1
-  parryDamageMultiplier: 3
   executionDistance: 10
   attackDamage: 30
   attackSpeed: 1

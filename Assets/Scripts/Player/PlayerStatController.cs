@@ -34,9 +34,6 @@ public sealed class PlayerStatController : MonoBehaviour
     public float DodgeFillProgress => GetDodgeFillProgress();
     public float PerfectDodgeAcceptanceTime => playerData != null ? playerData.PerfectDodgeAcceptanceTime : 0f;
     public float PerfectDodgeAttackDamageMultiplier => playerData != null ? playerData.PerfectDodgeAttackDamageMultiplier : 0f;
-    public float DefenseDamageReductionRate => playerData != null ? playerData.DefenseDamageReductionRate : 0f;
-    public float ParryAcceptanceTime => playerData != null ? playerData.ParryAcceptanceTime : 0f;
-    public float ParryDamageMultiplier => playerData != null ? playerData.ParryDamageMultiplier : 0f;
     public float HitInvincibilityTime => playerData != null ? playerData.HitInvincibilityTime : 0f;
     public float ExecutionDistance => playerData != null ? playerData.ExecutionDistance : 0f;
     public float AttackDamage => playerData != null ? playerData.AttackDamage : 0f;
