@@ -14,6 +14,10 @@ public sealed class PlayerStatController : MonoBehaviour
 
     private PlayerRuntimeState runtimeState;
     private float damageInvincibilityRemaining;
+    private float dodgeFillProgress;
+    private bool isRecharging;
+    private PlayerDodge playerDodge;
+    private float nextAttackDamageMultiplier = 1f;
 
     public PlayerData Data => playerData;
     public bool IsInitialized => runtimeState != null;
@@ -27,11 +31,9 @@ public sealed class PlayerStatController : MonoBehaviour
     public float DodgeRechargeTime => playerData != null ? playerData.DodgeRechargeTime : 0f;
     public float ExhaustedDodgeRechargeTime => playerData != null ? playerData.ExhaustedDodgeRechargeTime : 0f;
     public int CurrentDodgeCount => runtimeState != null ? runtimeState.CurrentDodgeCount : 0;
+    public float DodgeFillProgress => GetDodgeFillProgress();
     public float PerfectDodgeAcceptanceTime => playerData != null ? playerData.PerfectDodgeAcceptanceTime : 0f;
     public float PerfectDodgeAttackDamageMultiplier => playerData != null ? playerData.PerfectDodgeAttackDamageMultiplier : 0f;
-    public float DefenseDamageReductionRate => playerData != null ? playerData.DefenseDamageReductionRate : 0f;
-    public float ParryAcceptanceTime => playerData != null ? playerData.ParryAcceptanceTime : 0f;
-    public float ParryDamageMultiplier => playerData != null ? playerData.ParryDamageMultiplier : 0f;
     public float HitInvincibilityTime => playerData != null ? playerData.HitInvincibilityTime : 0f;
     public float ExecutionDistance => playerData != null ? playerData.ExecutionDistance : 0f;
     public float AttackDamage => playerData != null ? playerData.AttackDamage : 0f;
@@ -49,21 +51,26 @@ public sealed class PlayerStatController : MonoBehaviour
     public int NormalKillCount => runtimeState != null ? runtimeState.NormalKillCount : 0;
     public float SoulChargeRemainingTime => runtimeState != null ? runtimeState.SoulChargeRemainingTime : 0f;
     public float DamageInvincibilityRemaining => damageInvincibilityRemaining;
+    public float NextAttackDamageMultiplier => nextAttackDamageMultiplier;
+    public bool IsPerfectDodgeAttackReady => nextAttackDamageMultiplier > 0f && !Mathf.Approximately(nextAttackDamageMultiplier, 1f);
 
     public event Action<float> CurrentHPChanged;
+    public event Action Damaged;
     public event Action Died;
     public event Action<int> CurrentDodgeCountChanged;
     public event Action<int> CurrentAttackCountChanged;
     public event Action<int> SoulChargeStageChanged;
     public event Action<int> NormalKillCountChanged;
+    public event Action PerfectDodgePerformed;
 
     // 컴포넌트가 활성화될 때 플레이어의 런타임 스탯을 초기화한다.
     private void Awake()
     {
+        playerDodge = GetComponent<PlayerDodge>();
         Initialize();
     }
 
-    // 매 프레임 피격 무적 시간과 영혼 충전 유지 시간을 갱신한다.
+    // 매 프레임 피격 무적 시간, 영혼 충전 유지 시간, 회피 충전 회복을 갱신한다.
     private void Update()
     {
         if (!IsInitialized)
@@ -76,7 +83,63 @@ public sealed class PlayerStatController : MonoBehaviour
             damageInvincibilityRemaining = Mathf.Max(0f, damageInvincibilityRemaining - Time.deltaTime);
         }
 
+        TickDodgeRecharge(Time.deltaTime);
         TickSoulCharge(Time.deltaTime);
+    }
+
+    // 회피 충전을 자동으로 회복한다. (회피 사용 후에만 작동)
+    private void TickDodgeRecharge(float deltaTime)
+    {
+        if (!IsInitialized || deltaTime <= 0f || !isRecharging)
+        {
+            return;
+        }
+
+        int current = runtimeState.CurrentDodgeCount;
+        int max = PlayerRuntimeState.MaxDodgeCount;
+        if (current >= max)
+        {
+            isRecharging = false;
+            dodgeFillProgress = 0f;
+            return;
+        }
+
+        float rechargeTime = current == 0
+            ? ExhaustedDodgeRechargeTime
+            : DodgeRechargeTime;
+
+        if (rechargeTime <= 0f)
+        {
+            return;
+        }
+
+        dodgeFillProgress += deltaTime / rechargeTime;
+
+        while (dodgeFillProgress >= 1f)
+        {
+            dodgeFillProgress -= 1f;
+
+            if (current == 0)
+            {
+                runtimeState.CurrentDodgeCount = max;
+                CurrentDodgeCountChanged?.Invoke(max);
+                isRecharging = false;
+                dodgeFillProgress = 0f;
+                break;
+            }
+            else
+            {
+                runtimeState.CurrentDodgeCount++;
+                CurrentDodgeCountChanged?.Invoke(runtimeState.CurrentDodgeCount);
+                current = runtimeState.CurrentDodgeCount;
+                if (current >= max)
+                {
+                    isRecharging = false;
+                    dodgeFillProgress = 0f;
+                    break;
+                }
+            }
+        }
     }
 
     // PlayerData 설정으로 전투 중 사용할 런타임 상태를 생성한다.
@@ -96,6 +159,8 @@ public sealed class PlayerStatController : MonoBehaviour
 
         runtimeState = playerData.CreateRuntimeState();
         damageInvincibilityRemaining = 0f;
+        isRecharging = false;
+        dodgeFillProgress = 0f;
     }
 
     // 플레이어의 런타임 스탯을 초기 상태로 되돌린다.
@@ -108,12 +173,31 @@ public sealed class PlayerStatController : MonoBehaviour
 
         runtimeState = playerData.CreateRuntimeState();
         damageInvincibilityRemaining = 0f;
+        isRecharging = false;
+        dodgeFillProgress = 0f;
         RaiseRuntimeStateChanged();
     }
 
     // 피격 무적 여부를 확인한 뒤 플레이어에게 피해를 적용한다.
     public bool TryTakeDamage(float damage)
     {
+        // 회피 중에는 무적이므로 모든 피해를 무효화한다. 인정 시간 안이면 완벽한 회피로 처리한다.
+        if (playerDodge != null && playerDodge.IsDodging)
+        {
+            if (playerDodge.TryMarkPerfectDodge())
+            {
+                nextAttackDamageMultiplier = PerfectDodgeAttackDamageMultiplier;
+                PerfectDodgePerformed?.Invoke();
+                Debug.Log("완벽한 회피: 다음 공격이 강화된다.");
+            }
+            else
+            {
+                Debug.Log("일반 회피: 피해를 무효화했다.");
+            }
+
+            return false;
+        }
+
         if (!IsInitialized || IsDead || damage <= 0f || damageInvincibilityRemaining > 0f)
         {
             return false;
@@ -128,10 +212,14 @@ public sealed class PlayerStatController : MonoBehaviour
             CurrentHPChanged?.Invoke(runtimeState.CurrentHP);
         }
 
+        Damaged?.Invoke();
+
         if (previousHP > 0f && runtimeState.CurrentHP <= 0f)
         {
             Died?.Invoke();
         }
+        
+		Debug.Log($"플레이어에게 {previousHP - runtimeState.CurrentHP} 피해 입음, 남은 체력: {runtimeState.CurrentHP}");
 
         return true;
     }
@@ -166,10 +254,15 @@ public sealed class PlayerStatController : MonoBehaviour
 
         runtimeState.CurrentDodgeCount--;
         CurrentDodgeCountChanged?.Invoke(runtimeState.CurrentDodgeCount);
+
+        // 회피 사용 시 회복 시작
+        isRecharging = true;
+        dodgeFillProgress = 0f;
+
         return true;
     }
 
-    // 회피 충전을 하나 회복한다.
+    // 회피 충전을 하나 회복한다. (외부에서 호출 시 회복 중단)
     public bool RestoreDodge()
     {
         if (!IsInitialized || runtimeState.CurrentDodgeCount >= PlayerRuntimeState.MaxDodgeCount)
@@ -179,6 +272,14 @@ public sealed class PlayerStatController : MonoBehaviour
 
         runtimeState.CurrentDodgeCount++;
         CurrentDodgeCountChanged?.Invoke(runtimeState.CurrentDodgeCount);
+
+        // 외부 회복(아이템 등) 시 자동 회복 중단
+        if (runtimeState.CurrentDodgeCount >= PlayerRuntimeState.MaxDodgeCount)
+        {
+            isRecharging = false;
+            dodgeFillProgress = 0f;
+        }
+
         return true;
     }
 
@@ -204,6 +305,14 @@ public sealed class PlayerStatController : MonoBehaviour
     public void ResetAttackCount()
     {
         SetAttackCount(0);
+    }
+
+    // 완벽한 회피로 강화된 다음 공격의 데미지를 계산하고 준비 상태를 해제한다.
+    public float CalculateNextAttackDamage()
+    {
+        float damage = AttackDamage * nextAttackDamageMultiplier;
+        nextAttackDamageMultiplier = 1f;
+        return damage;
     }
 
     // 일반 처치 누적 수를 올리고 조건을 충족하면 영혼 충전 단계를 올린다.
@@ -277,5 +386,28 @@ public sealed class PlayerStatController : MonoBehaviour
         CurrentAttackCountChanged?.Invoke(CurrentAttackCount);
         SoulChargeStageChanged?.Invoke(CurrentSoulChargeStage);
         NormalKillCountChanged?.Invoke(NormalKillCount);
+    }
+
+    // 현재 회피 충전 회복 진행도(0~1)를 반환한다. 최대 충전 시 1, 회복 중이 아니면 0을 반환한다.
+    private float GetDodgeFillProgress()
+    {
+        if (!IsInitialized)
+        {
+            return 1f;
+        }
+
+        int current = runtimeState.CurrentDodgeCount;
+        int max = PlayerRuntimeState.MaxDodgeCount;
+        if (current >= max)
+        {
+            return 1f;
+        }
+
+        if (!isRecharging)
+        {
+            return 0f;
+        }
+
+        return dodgeFillProgress;
     }
 }

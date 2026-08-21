@@ -7,11 +7,12 @@ using UnityEngine;
 // 재실행하면 기존 히트박스 이벤트를 제거하고 기본 타이밍으로 다시 적용한다.
 public static class AttackHitboxAnimationEventSetup
 {
-    private const string EnableFunctionName = "EnableHitbox";
-    private const string DisableFunctionName = "DisableHitbox";
+    private const string EnableFunctionName = "ActivateHitbox";
+    private const string DisableFunctionName = "DeactivateHitbox";
 
     private static readonly string[] ClipPaths =
     {
+        "Assets/Animations/Player/RightAttack/player_attack_right_1.anim",
         "Assets/Animations/Player/RightAttack/player_attack_right_2.anim",
         "Assets/Animations/Player/RightAttack/player_attack_right_3.anim",
         "Assets/Animations/Player/UpAttack/player_attack_up_1.anim",
@@ -25,6 +26,7 @@ public static class AttackHitboxAnimationEventSetup
     // 클립 순서에 대응하는 히트박스 활성화(Enable) 시점. 비활성화는 클립 끝에 배치한다.
     private static readonly float[] EnableTimes =
     {
+        0.25f,
         0.25f,
         0.3333f,
         0.25f,
@@ -67,8 +69,11 @@ public static class AttackHitboxAnimationEventSetup
 
     private static bool IsHitboxEvent(AnimationEvent animationEvent)
     {
+        // 이전 이름(EnableHitbox/DisableHitbox)도 함께 제거해 재실행 시 잔여 이벤트를 정리한다.
         return animationEvent.functionName == EnableFunctionName
-            || animationEvent.functionName == DisableFunctionName;
+            || animationEvent.functionName == DisableFunctionName
+            || animationEvent.functionName == "EnableHitbox"
+            || animationEvent.functionName == "DisableHitbox";
     }
 
     private static AnimationEvent CreateEvent(string functionName, float time)

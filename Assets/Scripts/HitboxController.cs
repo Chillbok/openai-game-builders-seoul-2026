@@ -72,7 +72,7 @@ public class HitboxController : MonoBehaviour
         }
 
         // 적 구현 전 임시 확인용 로그. 적 데미지 처리 로직은 추후 구현한다.
-        Debug.Log($"적이 데미지 {playerStatController.AttackDamage} 입음", other.gameObject);
+        Debug.Log($"적이 데미지 {playerStatController.CalculateNextAttackDamage()} 입음", other.gameObject);
     }
 
     private bool IsTargetLayer(int layer)
