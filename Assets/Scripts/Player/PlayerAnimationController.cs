@@ -8,6 +8,7 @@ public class PlayerAnimationController : MonoBehaviour
     private const string MoveRightParameterName = "MoveRight";
     private const string AttackXParameterName = "AttackX";
     private const string AttackYParameterName = "AttackY";
+    private const string HitParameterName = "Hit";
 
     [Header("패러미터 이름들")]
     [Header("이동 관련")]
@@ -42,10 +43,13 @@ public class PlayerAnimationController : MonoBehaviour
     private int moveRightParameterHash;
     private int attackXParameterHash;
     private int attackYParameterHash;
+    private int hitParameterHash;
+    private int hitStateHash;
     private float comboWindowRemaining;
     private bool comboWindowWasOpened;
     private bool isAttacking;
     private bool attackAnimationHasStarted;
+    private bool isHit;
     private bool isFacingRight = true;
 
     // 애니메이터와 입력 액션, 방향 관련 참조와 파라미터 해시를 초기화한다.
@@ -63,10 +67,29 @@ public class PlayerAnimationController : MonoBehaviour
         moveRightParameterHash = Animator.StringToHash(MoveRightParameterName);
         attackXParameterHash = Animator.StringToHash(AttackXParameterName);
         attackYParameterHash = Animator.StringToHash(AttackYParameterName);
+        hitParameterHash = Animator.StringToHash(HitParameterName);
+        hitStateHash = Animator.StringToHash("player_hit 0");
 
         if (spriteRenderer != null)
         {
             isFacingRight = !spriteRenderer.flipX;
+        }
+    }
+
+    // 실제 피해가 적용되었을 때 공격 상태를 끊고 피격 애니메이션을 시작한다.
+    private void OnEnable()
+    {
+        if (playerStatController != null)
+        {
+            playerStatController.Damaged += HandleDamaged;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (playerStatController != null)
+        {
+            playerStatController.Damaged -= HandleDamaged;
         }
     }
 
@@ -76,7 +99,45 @@ public class PlayerAnimationController : MonoBehaviour
         UpdateFacingDirection();
         ChangePlayerMoveAnimationPerFrame();
         UpdateAttackAnimationState();
+        UpdateHitAnimationState();
         ProcessAttackInput();
+    }
+
+    // 피격 애니메이션이 끝날 때까지 이동과 신규 공격 입력을 막는다.
+    private void UpdateHitAnimationState()
+    {
+        if (!isHit)
+        {
+            return;
+        }
+
+        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+        if (stateInfo.shortNameHash == hitStateHash || animator.IsInTransition(0))
+        {
+            playerMoveController.CanMove = false;
+            return;
+        }
+
+        isHit = false;
+        playerMoveController.CanMove = true;
+    }
+
+    private void HandleDamaged()
+    {
+        if (playerStatController.IsDead)
+        {
+            return;
+        }
+
+        isAttacking = false;
+        attackAnimationHasStarted = false;
+        comboWindowRemaining = 0f;
+        comboWindowWasOpened = false;
+        playerStatController.ResetAttackCount();
+        animator.ResetTrigger(attackTriggerParameterHash);
+        animator.SetTrigger(hitParameterHash);
+        isHit = true;
+        playerMoveController.CanMove = false;
     }
 
     // 이동 입력의 유무를 애니메이터의 이동 Bool 파라미터에 반영한다.
@@ -102,6 +163,11 @@ public class PlayerAnimationController : MonoBehaviour
     // 공격 입력을 읽고 신규 공격 또는 콤보 공격을 시작한다.
     private void ProcessAttackInput()
     {
+        if (isHit || playerStatController.IsDead)
+        {
+            return;
+        }
+
         if (!attackAction.WasPressedThisFrame())
         {
             return;

@@ -54,6 +54,7 @@ public sealed class PlayerStatController : MonoBehaviour
     public float DamageInvincibilityRemaining => damageInvincibilityRemaining;
 
     public event Action<float> CurrentHPChanged;
+    public event Action Damaged;
     public event Action Died;
     public event Action<int> CurrentDodgeCountChanged;
     public event Action<int> CurrentAttackCountChanged;
@@ -190,6 +191,8 @@ public sealed class PlayerStatController : MonoBehaviour
         {
             CurrentHPChanged?.Invoke(runtimeState.CurrentHP);
         }
+
+        Damaged?.Invoke();
 
         if (previousHP > 0f && runtimeState.CurrentHP <= 0f)
         {
