@@ -986,6 +986,14 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6747535176136349468, guid: 08bf90d44e4bd48838243186333ccf49, type: 3}
+      propertyPath: dodgeCountText
+      value: 
+      objectReference: {fileID: 3950399565933624124}
+    - target: {fileID: 6747535176136349468, guid: 08bf90d44e4bd48838243186333ccf49, type: 3}
+      propertyPath: dodgeFillImage
+      value: 
+      objectReference: {fileID: 4153586346327409401}
+    - target: {fileID: 6747535176136349468, guid: 08bf90d44e4bd48838243186333ccf49, type: 3}
       propertyPath: playerStatController
       value: 
       objectReference: {fileID: 5098000252934883261}
@@ -999,6 +1007,28 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 4084822530129598144, guid: 08bf90d44e4bd48838243186333ccf49, type: 3}
   m_PrefabInstance: {fileID: 2766695520885121722}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &3950399565933624124 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1204683846148233606, guid: 08bf90d44e4bd48838243186333ccf49, type: 3}
+  m_PrefabInstance: {fileID: 2766695520885121722}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
+--- !u!114 &4153586346327409401 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2288327980390785091, guid: 08bf90d44e4bd48838243186333ccf49, type: 3}
+  m_PrefabInstance: {fileID: 2766695520885121722}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
 --- !u!1001 &4946423640494326075
 PrefabInstance:
   m_ObjectHideFlags: 0
