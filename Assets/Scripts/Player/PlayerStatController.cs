@@ -195,6 +195,8 @@ public sealed class PlayerStatController : MonoBehaviour
         {
             Died?.Invoke();
         }
+        
+		Debug.Log($"플레이어에게 {previousHP - runtimeState.CurrentHP} 피해 입음, 남은 체력: {runtimeState.CurrentHP}");
 
         return true;
     }
