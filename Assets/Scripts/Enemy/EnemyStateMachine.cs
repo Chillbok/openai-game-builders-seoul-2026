@@ -22,7 +22,7 @@ public class EnemyStateMachine : MonoBehaviour
     private Rigidbody2D enemyRigidbody;
     private EnemyStatController enemyStatController;
     private EnemyAnimationController enemyAnimationController;
-    private EnemyAttackHitbox attackHitbox;
+    private EnemyAttackRangeSensor rangeSensor;
     private Collider2D bodyCollider;
 
     private Transform playerTransform;
@@ -38,8 +38,14 @@ public class EnemyStateMachine : MonoBehaviour
         enemyRigidbody = GetComponent<Rigidbody2D>();
         enemyStatController = GetComponent<EnemyStatController>();
         enemyAnimationController = GetComponent<EnemyAnimationController>();
-        attackHitbox = GetComponentInChildren<EnemyAttackHitbox>();
+        rangeSensor = GetComponentInChildren<EnemyAttackRangeSensor>();
         bodyCollider = GetComponent<Collider2D>();
+
+        if (rangeSensor == null)
+        {
+            EnsureRangeSensor();
+            rangeSensor = GetComponentInChildren<EnemyAttackRangeSensor>();
+        }
 
         state = EnemyState.Chase;
         playerTransform = FindPlayerTransform();
@@ -78,6 +84,12 @@ public class EnemyStateMachine : MonoBehaviour
         if (!enemyStatController.IsInitialized || state == EnemyState.Dead)
         {
             return;
+        }
+
+        if (rangeSensor == null)
+        {
+            EnsureRangeSensor();
+            rangeSensor = GetComponentInChildren<EnemyAttackRangeSensor>();
         }
 
         if (playerTransform == null)
@@ -156,7 +168,6 @@ public class EnemyStateMachine : MonoBehaviour
             return;
         }
 
-        DisableAttackHitbox();
         enemyStatController.ConsumeAttack();
         state = EnemyState.Chase;
     }
@@ -179,17 +190,31 @@ public class EnemyStateMachine : MonoBehaviour
         stateTimer = enemyStatController.AttackPrepareTime;
     }
 
-    // 공격 애니메이션을 시작하고 히트박스를 활성화한다.
+    // 공격 애니메이션을 시작하고 플레이어 위치에 일회성 피해 오브젝트를 생성한다.
     private void BeginAttack()
     {
         enemyAnimationController.PlayAttack();
-        if (attackHitbox != null)
-        {
-            attackHitbox.EnableHitbox();
-        }
+        SpawnDamageInstance();
 
         state = EnemyState.Attack;
         stateTimer = AttackAnimationDuration;
+    }
+
+    // 사거리 내 플레이어 위치에 일회성 피해 오브젝트를 생성한다. 수명은 애니메이션 1회와 동일.
+    private void SpawnDamageInstance()
+    {
+        if (playerTransform == null || enemyStatController == null || !enemyStatController.IsInitialized)
+        {
+            return;
+        }
+
+        // AttackRangeSensor가 CanAttack을 보장하므로 추가 거리 검사 없이 생성
+        Vector3 spawnPosition = playerTransform.position;
+        GameObject damageObject = new GameObject("EnemyDamageInstance");
+        damageObject.transform.position = spawnPosition;
+
+        EnemyDamageInstance damageInstance = damageObject.AddComponent<EnemyDamageInstance>();
+        damageInstance.Initialize(enemyStatController.AttackDamage, AttackAnimationDuration);
     }
 
     // 피해를 받으면 넉백 상태로 전환하고 피격 애니메이션을 재생한다.
@@ -220,7 +245,6 @@ public class EnemyStateMachine : MonoBehaviour
         enemyAnimationController.SetMoving(false);
         enemyAnimationController.PlayDeath();
 
-        DisableAttackHitbox();
         if (bodyCollider != null)
         {
             bodyCollider.enabled = false;
@@ -235,10 +259,60 @@ public class EnemyStateMachine : MonoBehaviour
         Destroy(gameObject, DeathAnimationDuration);
     }
 
-    // 현재 플레이어가 공격 사거리 안에 있는지 확인한다.
+    // 현재 플레이어가 공격 사거리 안에 있는지 확인한다. (콜라이더 센서 기반, 폴백으로 피벗 거리)
     private bool IsInAttackRange()
     {
+        if (rangeSensor != null)
+        {
+            return rangeSensor.CanAttack;
+        }
+
+        if (playerTransform == null)
+        {
+            return false;
+        }
+
         return (playerTransform.position - transform.position).sqrMagnitude <= enemyStatController.AttackRange * enemyStatController.AttackRange;
+    }
+
+    // 사거리 센서가 없으면 런타임에 생성하고 반경을 AttackRange로 동기화한다.
+    private void EnsureRangeSensor()
+    {
+        if (enemyStatController == null)
+        {
+            return;
+        }
+
+        float range = 1.5f;
+        if (enemyStatController.Data != null)
+        {
+            range = enemyStatController.Data.AttackRange;
+        }
+        else if (enemyStatController.IsInitialized)
+        {
+            range = enemyStatController.AttackRange;
+        }
+
+        GameObject sensorObject = new GameObject("AttackRangeSensor");
+        sensorObject.transform.SetParent(transform, false);
+        sensorObject.transform.localPosition = Vector3.zero;
+        sensorObject.transform.localRotation = Quaternion.identity;
+        sensorObject.transform.localScale = Vector3.one;
+
+        CircleCollider2D circle = sensorObject.AddComponent<CircleCollider2D>();
+        circle.isTrigger = true;
+        float parentScale = Mathf.Max(Mathf.Abs(transform.lossyScale.x), Mathf.Abs(transform.lossyScale.y), Mathf.Abs(transform.localScale.x), Mathf.Abs(transform.localScale.y));
+        if (parentScale < 0.0001f) parentScale = 1f;
+        // Sensor의 월드 반경이 range가 되도록 로컬 반경을 보정 (부모 스케일 고려)
+        circle.radius = Mathf.Max(0f, range / parentScale);
+        circle.offset = Vector2.zero;
+
+        EnemyAttackRangeSensor sensor = sensorObject.AddComponent<EnemyAttackRangeSensor>();
+        int playerLayer = LayerMask.NameToLayer("Player");
+        if (playerLayer >= 0)
+        {
+            sensor.TargetLayer = 1 << playerLayer;
+        }
     }
 
     // 플레이어를 향해 이동한다. (플레이어/다른 적/장애물에 가로막히되 밀어내지 않음)
@@ -322,15 +396,6 @@ public class EnemyStateMachine : MonoBehaviour
         }
 
         return true;
-    }
-
-    // 공격 히트박스를 비활성화한다.
-    private void DisableAttackHitbox()
-    {
-        if (attackHitbox != null)
-        {
-            attackHitbox.DisableHitbox();
-        }
     }
 
     // 씬의 플레이어 오브젝트를 태그로 찾는다.
