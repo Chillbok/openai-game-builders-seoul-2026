@@ -50,7 +50,20 @@ public class PlayerDodge : MonoBehaviour
         }
     }
 
-    // 회피 중일 때 물리 이동을 적용한다.
+    private Collider2D bodyCollider;
+    private int dodgeBlockingMask;
+
+    private void Start()
+    {
+        bodyCollider = GetComponent<Collider2D>();
+        int enemyLayer = LayerMask.NameToLayer("Enemy");
+        int obstacleLayer = LayerMask.NameToLayer("Obstacle");
+        dodgeBlockingMask = 0;
+        if (enemyLayer >= 0) dodgeBlockingMask |= 1 << enemyLayer;
+        if (obstacleLayer >= 0) dodgeBlockingMask |= 1 << obstacleLayer;
+    }
+
+    // 회피 중일 때 물리 이동을 적용한다. (벽/적에 가로막히되 밀어내지 않음)
     private void FixedUpdate()
     {
         if (!isDodging)
@@ -58,8 +71,33 @@ public class PlayerDodge : MonoBehaviour
             return;
         }
 
-        playerRigidbody.MovePosition(
-            playerRigidbody.position + dodgeDirection * playerStatController.DodgeSpeed * Time.fixedDeltaTime);
+        Vector2 delta = dodgeDirection * playerStatController.DodgeSpeed * Time.fixedDeltaTime;
+        Vector2 target = playerRigidbody.position + delta;
+
+        if (bodyCollider != null && dodgeBlockingMask != 0)
+        {
+            Vector2 worldOffset = transform.TransformVector(bodyCollider.offset);
+            Vector2 worldCenter = target + worldOffset;
+            Vector2 worldSize = bodyCollider.bounds.size;
+            Collider2D hit = Physics2D.OverlapBox(worldCenter, worldSize, 0f, dodgeBlockingMask);
+            bool isBlocked = hit != null && hit != bodyCollider && !hit.isTrigger && !hit.transform.IsChildOf(transform);
+            if (isBlocked)
+            {
+                // 이미 겹쳐있고 멀어지는 중이면 허용
+                Vector2 toHit = (Vector2)hit.bounds.center - worldCenter;
+                if (Vector2.Dot(delta.normalized, toHit.normalized) < -0.2f)
+                {
+                    isBlocked = false;
+                }
+            }
+            if (isBlocked)
+            {
+                // 가로막히면 해당 프레임 이동을 중단하되 회피 상태는 유지 (밀어내지 않음)
+                return;
+            }
+        }
+
+        playerRigidbody.MovePosition(target);
     }
 
     // 회피 차지 소모 후 방향과 지속시간을 설정하고 회피를 시작한다.
