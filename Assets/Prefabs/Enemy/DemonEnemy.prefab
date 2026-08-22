@@ -153,6 +153,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8307994240038675969, guid: 5f19f14afa8954a189a15487ee9c9540, type: 3}
+      propertyPath: slashPrefab
+      value: 
+      objectReference: {fileID: 100100000, guid: 3ea15e1ba2e004ec698c620c709d6763, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
@@ -296,3 +300,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4bdc6bbaf38ab4185879480a41e07d43, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyStateMachine
+  slashPrefab: {fileID: 8774077213248560371, guid: 3ea15e1ba2e004ec698c620c709d6763, type: 3}
