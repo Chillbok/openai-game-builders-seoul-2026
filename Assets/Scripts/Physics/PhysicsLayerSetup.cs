@@ -2,9 +2,10 @@ using UnityEngine;
 
 /// <summary>
 /// 물리 레이어 충돌 매트릭스를 런타임에 보장한다.
-/// Player(6)-Enemy(7) 충돌은 비활성화해 이동 밀림을 제거하고,
+/// Player(6)-Enemy(7) 접촉은 활성화해 충돌 콜백을 유지하고,
 /// Player-Obstacle(8)/Enemy-Obstacle 충돌은 활성화해 벽 막힘을 유지한다.
-/// ProjectSettings/Physics2DSettings.asset 의 m_LayerCollisionMatrix 편집과 이중 보장한다. (웹 빌드 포함)
+/// ProjectSettings 설정과 런타임에서 이중 보장하며,
+/// Player-Enemy 사이의 힘 전달과 이동 차단은 NoPushCollisionMover2D가 담당한다. (웹 빌드 포함)
 /// </summary>
 public static class PhysicsLayerSetup
 {
@@ -21,7 +22,7 @@ public static class PhysicsLayerSetup
 
         if (playerLayer >= 0 && enemyLayer >= 0)
         {
-            Physics2D.IgnoreLayerCollision(playerLayer, enemyLayer, true);
+            Physics2D.IgnoreLayerCollision(playerLayer, enemyLayer, false);
         }
 
         if (playerLayer >= 0 && obstacleLayer >= 0)

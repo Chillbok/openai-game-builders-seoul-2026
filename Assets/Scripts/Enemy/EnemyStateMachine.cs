@@ -39,7 +39,7 @@ public class EnemyStateMachine : MonoBehaviour
     private bool diedHandled;
     private bool attackPreparePaused;
     private bool attackHitTriggered;
-    private int blockingLayerMask;
+    private NoPushCollisionMover2D collisionMover;
 
     // 컴포넌트 참조와 플레이어를 초기화하고 추적 상태로 시작한다.
     private void Awake()
@@ -56,10 +56,17 @@ public class EnemyStateMachine : MonoBehaviour
         int playerLayer = LayerMask.NameToLayer("Player");
         int enemyLayer = LayerMask.NameToLayer("Enemy");
         int obstacleLayer = LayerMask.NameToLayer("Obstacle");
-        blockingLayerMask = 0;
+        int blockingLayerMask = 0;
         if (playerLayer >= 0) blockingLayerMask |= 1 << playerLayer;
         if (enemyLayer >= 0) blockingLayerMask |= 1 << enemyLayer;
         if (obstacleLayer >= 0) blockingLayerMask |= 1 << obstacleLayer;
+
+        NoPushCollisionMover2D.ConfigureNoPushContact(bodyCollider, playerLayer);
+        collisionMover = new NoPushCollisionMover2D(
+            enemyRigidbody,
+            bodyCollider,
+            transform,
+            blockingLayerMask);
     }
 
     // 적이 피해를 받거나 사망했을 때 상태를 갱신한다.
@@ -441,67 +448,7 @@ public class EnemyStateMachine : MonoBehaviour
 
     private void TryEnemyMove(Vector2 delta)
     {
-        if (delta.sqrMagnitude < 0.000001f)
-        {
-            return;
-        }
-
-        Vector2 target = enemyRigidbody.position + delta;
-        if (!IsEnemyBlocked(target, delta))
-        {
-            enemyRigidbody.MovePosition(target);
-            return;
-        }
-
-        Vector2 deltaX = new Vector2(delta.x, 0f);
-        Vector2 deltaY = new Vector2(0f, delta.y);
-        Vector2 targetX = enemyRigidbody.position + deltaX;
-        Vector2 targetY = enemyRigidbody.position + deltaY;
-        bool blockedX = Mathf.Abs(delta.x) < 0.000001f || IsEnemyBlocked(targetX, deltaX);
-        bool blockedY = Mathf.Abs(delta.y) < 0.000001f || IsEnemyBlocked(targetY, deltaY);
-
-        if (!blockedX && blockedY)
-        {
-            enemyRigidbody.MovePosition(targetX);
-        }
-        else if (blockedX && !blockedY)
-        {
-            enemyRigidbody.MovePosition(targetY);
-        }
-    }
-
-    private bool IsEnemyBlocked(Vector2 targetPosition, Vector2 delta)
-    {
-        if (bodyCollider == null || blockingLayerMask == 0)
-        {
-            return false;
-        }
-
-        Vector2 worldOffset = transform.TransformVector(bodyCollider.offset);
-        Vector2 worldCenter = targetPosition + worldOffset;
-        Vector2 worldSize = bodyCollider.bounds.size;
-
-        Collider2D hit = Physics2D.OverlapBox(worldCenter, worldSize, 0f, blockingLayerMask);
-        if (hit == null || hit == bodyCollider || hit.isTrigger)
-        {
-            return false;
-        }
-
-        if (hit.transform.IsChildOf(transform))
-        {
-            return false;
-        }
-
-        if (delta.sqrMagnitude > 0.000001f)
-        {
-            Vector2 toHit = (Vector2)hit.bounds.center - worldCenter;
-            if (Vector2.Dot(delta.normalized, toHit.normalized) < -0.2f)
-            {
-                return false;
-            }
-        }
-
-        return true;
+        collisionMover?.Move(delta);
     }
 
     // 씬의 플레이어와 공격 판정에 필요한 본체 컴포넌트를 캐시한다.
