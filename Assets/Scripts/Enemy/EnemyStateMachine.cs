@@ -15,21 +15,30 @@ public class EnemyStateMachine : MonoBehaviour
     }
 
     private const string PlayerTag = "Player";
-    private const float AttackAnimationDuration = 0.7f;
+    private const float AttackAnimationFallbackDuration = 0.7f;
     private const float DeathAnimationDuration = 1f;
     private const float DefaultKnockbackDuration = 0.2f;
+
+    [Header("공격 예고")]
+    [SerializeField]
+    [Tooltip("공격 준비 시작부터 실제 타격 직전까지 적 중심에 표시할 비콘 자식 오브젝트")]
+    private Transform attackBeaconTransform;
 
     private Rigidbody2D enemyRigidbody;
     private EnemyStatController enemyStatController;
     private EnemyAnimationController enemyAnimationController;
-    private EnemyAttackRangeSensor rangeSensor;
     private Collider2D bodyCollider;
 
     private Transform playerTransform;
+    private PlayerStatController playerStatController;
+    private Collider2D playerBodyCollider;
     private EnemyState state;
     private float stateTimer;
     private Vector2 knockbackDirection;
+    private Animator attackBeaconAnimator;
     private bool diedHandled;
+    private bool attackPreparePaused;
+    private bool attackHitTriggered;
     private int blockingLayerMask;
 
     // 컴포넌트 참조와 플레이어를 초기화하고 추적 상태로 시작한다.
@@ -38,17 +47,11 @@ public class EnemyStateMachine : MonoBehaviour
         enemyRigidbody = GetComponent<Rigidbody2D>();
         enemyStatController = GetComponent<EnemyStatController>();
         enemyAnimationController = GetComponent<EnemyAnimationController>();
-        rangeSensor = GetComponentInChildren<EnemyAttackRangeSensor>();
         bodyCollider = GetComponent<Collider2D>();
-
-        if (rangeSensor == null)
-        {
-            EnsureRangeSensor();
-            rangeSensor = GetComponentInChildren<EnemyAttackRangeSensor>();
-        }
+        CacheAttackBeacon();
 
         state = EnemyState.Chase;
-        playerTransform = FindPlayerTransform();
+        CachePlayerReferences();
 
         int playerLayer = LayerMask.NameToLayer("Player");
         int enemyLayer = LayerMask.NameToLayer("Enemy");
@@ -71,6 +74,9 @@ public class EnemyStateMachine : MonoBehaviour
 
     private void OnDisable()
     {
+        HideAttackBeacon();
+        ResetAttackAnimation();
+
         if (enemyStatController != null)
         {
             enemyStatController.Damaged -= HandleDamaged;
@@ -86,15 +92,9 @@ public class EnemyStateMachine : MonoBehaviour
             return;
         }
 
-        if (rangeSensor == null)
-        {
-            EnsureRangeSensor();
-            rangeSensor = GetComponentInChildren<EnemyAttackRangeSensor>();
-        }
-
         if (playerTransform == null)
         {
-            playerTransform = FindPlayerTransform();
+            CachePlayerReferences();
             return;
         }
 
@@ -151,10 +151,19 @@ public class EnemyStateMachine : MonoBehaviour
     private void UpdatePrepareAttackState()
     {
         enemyAnimationController.SetMoving(false);
+
+        if (!attackPreparePaused)
+        {
+            return;
+        }
+
         stateTimer -= Time.deltaTime;
         if (stateTimer <= 0f)
         {
-            BeginAttack();
+            attackPreparePaused = false;
+            enemyAnimationController.ResumeAnimation();
+            state = EnemyState.Attack;
+            stateTimer = AttackAnimationFallbackDuration;
         }
     }
 
@@ -168,8 +177,7 @@ public class EnemyStateMachine : MonoBehaviour
             return;
         }
 
-        enemyStatController.ConsumeAttack();
-        state = EnemyState.Chase;
+        FinishAttack();
     }
 
     // 넉백 이동을 진행하고 종료 후 추적으로 돌아간다.
@@ -182,39 +190,78 @@ public class EnemyStateMachine : MonoBehaviour
         }
     }
 
-    // 공격을 준비하고 이동을 멈춘다.
+    // 공격 애니메이션을 즉시 시작하고 준비 구간 이벤트를 기다린다.
     private void BeginPrepareAttack()
     {
+        attackPreparePaused = false;
+        attackHitTriggered = false;
         enemyAnimationController.SetMoving(false);
         state = EnemyState.PrepareAttack;
-        stateTimer = enemyStatController.AttackPrepareTime;
-    }
-
-    // 공격 애니메이션을 시작하고 플레이어 위치에 일회성 피해 오브젝트를 생성한다.
-    private void BeginAttack()
-    {
         enemyAnimationController.PlayAttack();
-        SpawnDamageInstance();
-
-        state = EnemyState.Attack;
-        stateTimer = AttackAnimationDuration;
     }
 
-    // 사거리 내 플레이어 위치에 일회성 피해 오브젝트를 생성한다. 수명은 애니메이션 1회와 동일.
-    private void SpawnDamageInstance()
+    // Attack 애니메이션의 준비 동작이 끝나는 이벤트에서 호출된다.
+    public void OnAttackPreparePause()
     {
-        if (playerTransform == null || enemyStatController == null || !enemyStatController.IsInitialized)
+        if (state != EnemyState.PrepareAttack || attackPreparePaused)
         {
             return;
         }
 
-        // AttackRangeSensor가 CanAttack을 보장하므로 추가 거리 검사 없이 생성
-        Vector3 spawnPosition = playerTransform.position;
-        GameObject damageObject = new GameObject("EnemyDamageInstance");
-        damageObject.transform.position = spawnPosition;
+        attackPreparePaused = true;
+        stateTimer = enemyStatController.AttackPrepareTime;
+        enemyAnimationController.PauseAttackAnimation();
+        ShowAttackBeacon(stateTimer);
+    }
 
-        EnemyDamageInstance damageInstance = damageObject.AddComponent<EnemyDamageInstance>();
-        damageInstance.Initialize(enemyStatController.AttackDamage, AttackAnimationDuration);
+    // Attack 애니메이션의 실제 타격 프레임에서 호출된다.
+    public void OnAttackHit()
+    {
+        if (state != EnemyState.Attack || attackHitTriggered)
+        {
+            return;
+        }
+
+        attackHitTriggered = true;
+        HideAttackBeacon();
+        TryDealAttackDamage();
+    }
+
+    // Attack 애니메이션의 마지막 프레임에서 호출된다.
+    public void OnAttackFinished()
+    {
+        if (state != EnemyState.Attack)
+        {
+            return;
+        }
+
+        FinishAttack();
+    }
+
+    // 실제 타격 프레임의 플레이어 위치와 회피 상태를 기준으로 피해를 시도한다.
+    private void TryDealAttackDamage()
+    {
+        if (enemyStatController == null || !enemyStatController.IsInitialized || playerTransform == null)
+        {
+            return;
+        }
+
+        CacheMissingPlayerComponents();
+        if (playerStatController == null || !IsInAttackRange())
+        {
+            return;
+        }
+
+        playerStatController.TryTakeDamage(enemyStatController.AttackDamage);
+    }
+
+    // 공격 종료 이벤트 또는 타이머 폴백에서 공격 상태를 종료한다.
+    private void FinishAttack()
+    {
+        HideAttackBeacon();
+        enemyAnimationController.ResumeAnimation();
+        enemyStatController.ConsumeAttack();
+        state = EnemyState.Chase;
     }
 
     // 피해를 받으면 넉백 상태로 전환하고 피격 애니메이션을 재생한다.
@@ -225,6 +272,9 @@ public class EnemyStateMachine : MonoBehaviour
             return;
         }
 
+        HideAttackBeacon();
+        ResetAttackAnimation();
+        attackPreparePaused = false;
         knockbackDirection = newKnockbackDirection.normalized;
         state = EnemyState.Knockback;
         stateTimer = DefaultKnockbackDuration;
@@ -240,8 +290,10 @@ public class EnemyStateMachine : MonoBehaviour
         }
 
         diedHandled = true;
+        HideAttackBeacon();
+        ResetAttackAnimation();
+        attackPreparePaused = false;
         state = EnemyState.Dead;
-        enemyAnimationController.ResetTriggers();
         enemyAnimationController.SetMoving(false);
         enemyAnimationController.PlayDeath();
 
@@ -250,69 +302,123 @@ public class EnemyStateMachine : MonoBehaviour
             bodyCollider.enabled = false;
         }
 
-        PlayerStatController playerStatController = FindFirstObjectByType<PlayerStatController>();
-        if (playerStatController != null && playerStatController.IsInitialized)
+        PlayerStatController playerStats = playerStatController != null
+            ? playerStatController
+            : FindFirstObjectByType<PlayerStatController>();
+        if (playerStats != null && playerStats.IsInitialized)
         {
-            playerStatController.RegisterNormalKill();
+            playerStats.RegisterNormalKill();
         }
 
         Destroy(gameObject, DeathAnimationDuration);
     }
 
-    // 현재 플레이어가 공격 사거리 안에 있는지 확인한다. (콜라이더 센서 기반, 폴백으로 피벗 거리)
-    private bool IsInAttackRange()
+    // 공격 준비를 알리는 자식 비콘을 켜고 준비 시간에 맞춰 재생 속도를 조절한다.
+    private void ShowAttackBeacon(float duration)
     {
-        if (rangeSensor != null)
+        if (attackBeaconTransform == null || duration <= 0f)
         {
-            return rangeSensor.CanAttack;
+            return;
         }
 
+        GameObject beaconObject = attackBeaconTransform.gameObject;
+        beaconObject.SetActive(true);
+
+        if (attackBeaconAnimator == null)
+        {
+            attackBeaconAnimator = attackBeaconTransform.GetComponent<Animator>();
+        }
+
+        if (attackBeaconAnimator != null)
+        {
+            float animationDuration = GetAnimationDuration(attackBeaconAnimator);
+            if (animationDuration > 0f)
+            {
+                // 클립 전체가 준비 시간에 정확히 끝나도록 재생 속도를 보정한다.
+                attackBeaconAnimator.speed = animationDuration / duration;
+            }
+
+            // 이전 재생 상태를 남기지 않고 매 공격 준비마다 처음부터 재생한다.
+            attackBeaconAnimator.Rebind();
+            attackBeaconAnimator.Update(0f);
+        }
+    }
+
+    // 비콘 Animator의 기본 상태에서 재생되는 클립 길이를 가져온다.
+    private static float GetAnimationDuration(Animator animator)
+    {
+        RuntimeAnimatorController controller = animator.runtimeAnimatorController;
+        if (controller == null || controller.animationClips == null || controller.animationClips.Length == 0)
+        {
+            return 0f;
+        }
+
+        float duration = 0f;
+        foreach (AnimationClip clip in controller.animationClips)
+        {
+            if (clip != null)
+            {
+                duration = Mathf.Max(duration, clip.length);
+            }
+        }
+
+        return duration;
+    }
+
+    // 프리팹에 배치된 자식 비콘과 Animator 참조를 캐시한다.
+    private void CacheAttackBeacon()
+    {
+        if (attackBeaconTransform == null)
+        {
+            return;
+        }
+
+        attackBeaconAnimator = attackBeaconTransform.GetComponent<Animator>();
+    }
+
+    // 현재 공격 예고 비콘을 비활성화해 다음 공격에 재사용한다.
+    private void HideAttackBeacon()
+    {
+        if (attackBeaconTransform == null)
+        {
+            return;
+        }
+
+        attackBeaconTransform.gameObject.SetActive(false);
+    }
+
+    // 피격·사망·비활성화 시 일시정지된 공격 애니메이션을 안전하게 복구한다.
+    private void ResetAttackAnimation()
+    {
+        if (enemyAnimationController == null)
+        {
+            return;
+        }
+
+        enemyAnimationController.ResumeAnimation();
+        enemyAnimationController.ResetTriggers();
+    }
+
+    // 본체 콜라이더 사이의 간격을 기준으로 현재 플레이어가 공격 사거리 안에 있는지 확인한다.
+    private bool IsInAttackRange()
+    {
         if (playerTransform == null)
         {
             return false;
         }
 
-        return (playerTransform.position - transform.position).sqrMagnitude <= enemyStatController.AttackRange * enemyStatController.AttackRange;
-    }
-
-    // 사거리 센서가 없으면 런타임에 생성하고 반경을 AttackRange로 동기화한다.
-    private void EnsureRangeSensor()
-    {
-        if (enemyStatController == null)
+        CacheMissingPlayerComponents();
+        if (bodyCollider != null && playerBodyCollider != null)
         {
-            return;
+            ColliderDistance2D colliderDistance = bodyCollider.Distance(playerBodyCollider);
+            if (colliderDistance.isValid)
+            {
+                return colliderDistance.distance <= enemyStatController.AttackRange;
+            }
         }
 
-        float range = 1.5f;
-        if (enemyStatController.Data != null)
-        {
-            range = enemyStatController.Data.AttackRange;
-        }
-        else if (enemyStatController.IsInitialized)
-        {
-            range = enemyStatController.AttackRange;
-        }
-
-        GameObject sensorObject = new GameObject("AttackRangeSensor");
-        sensorObject.transform.SetParent(transform, false);
-        sensorObject.transform.localPosition = Vector3.zero;
-        sensorObject.transform.localRotation = Quaternion.identity;
-        sensorObject.transform.localScale = Vector3.one;
-
-        CircleCollider2D circle = sensorObject.AddComponent<CircleCollider2D>();
-        circle.isTrigger = true;
-        float parentScale = Mathf.Max(Mathf.Abs(transform.lossyScale.x), Mathf.Abs(transform.lossyScale.y), Mathf.Abs(transform.localScale.x), Mathf.Abs(transform.localScale.y));
-        if (parentScale < 0.0001f) parentScale = 1f;
-        // Sensor의 월드 반경이 range가 되도록 로컬 반경을 보정 (부모 스케일 고려)
-        circle.radius = Mathf.Max(0f, range / parentScale);
-        circle.offset = Vector2.zero;
-
-        EnemyAttackRangeSensor sensor = sensorObject.AddComponent<EnemyAttackRangeSensor>();
-        int playerLayer = LayerMask.NameToLayer("Player");
-        if (playerLayer >= 0)
-        {
-            sensor.TargetLayer = 1 << playerLayer;
-        }
+        float attackRange = enemyStatController.AttackRange;
+        return (playerTransform.position - transform.position).sqrMagnitude <= attackRange * attackRange;
     }
 
     // 플레이어를 향해 이동한다. (플레이어/다른 적/장애물에 가로막히되 밀어내지 않음)
@@ -398,10 +504,31 @@ public class EnemyStateMachine : MonoBehaviour
         return true;
     }
 
-    // 씬의 플레이어 오브젝트를 태그로 찾는다.
-    private Transform FindPlayerTransform()
+    // 씬의 플레이어와 공격 판정에 필요한 본체 컴포넌트를 캐시한다.
+    private void CachePlayerReferences()
     {
         GameObject playerObject = GameObject.FindGameObjectWithTag(PlayerTag);
-        return playerObject != null ? playerObject.transform : null;
+        playerTransform = playerObject != null ? playerObject.transform : null;
+        playerStatController = playerObject != null ? playerObject.GetComponent<PlayerStatController>() : null;
+        playerBodyCollider = playerObject != null ? playerObject.GetComponent<Collider2D>() : null;
+    }
+
+    // 플레이어 오브젝트는 유지된 채 컴포넌트 캐시만 비어 있는 경우를 보정한다.
+    private void CacheMissingPlayerComponents()
+    {
+        if (playerTransform == null)
+        {
+            return;
+        }
+
+        if (playerStatController == null)
+        {
+            playerStatController = playerTransform.GetComponent<PlayerStatController>();
+        }
+
+        if (playerBodyCollider == null)
+        {
+            playerBodyCollider = playerTransform.GetComponent<Collider2D>();
+        }
     }
 }

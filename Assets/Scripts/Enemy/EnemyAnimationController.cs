@@ -41,6 +41,18 @@ public class EnemyAnimationController : MonoBehaviour
         animator.SetTrigger(attackParameterHash);
     }
 
+    // 준비 구간에서 공격 애니메이션을 현재 프레임에 멈춘다.
+    public void PauseAttackAnimation()
+    {
+        animator.speed = 0f;
+    }
+
+    // 일시정지한 공격 애니메이션을 현재 프레임부터 재개한다.
+    public void ResumeAnimation()
+    {
+        animator.speed = 1f;
+    }
+
     // 피격 트리거 패러미터를 설정해 피격 애니메이션을 재생한다.
     public void PlayHurt()
     {

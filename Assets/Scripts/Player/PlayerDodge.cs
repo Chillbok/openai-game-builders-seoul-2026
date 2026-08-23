@@ -56,14 +56,12 @@ public class PlayerDodge : MonoBehaviour
     private void Start()
     {
         bodyCollider = GetComponent<Collider2D>();
-        int enemyLayer = LayerMask.NameToLayer("Enemy");
         int obstacleLayer = LayerMask.NameToLayer("Obstacle");
         dodgeBlockingMask = 0;
-        if (enemyLayer >= 0) dodgeBlockingMask |= 1 << enemyLayer;
         if (obstacleLayer >= 0) dodgeBlockingMask |= 1 << obstacleLayer;
     }
 
-    // 회피 중일 때 물리 이동을 적용한다. (벽/적에 가로막히되 밀어내지 않음)
+    // 회피 중에는 적을 통과하되 벽과 장애물에는 막히도록 물리 이동을 적용한다.
     private void FixedUpdate()
     {
         if (!isDodging)
@@ -92,7 +90,7 @@ public class PlayerDodge : MonoBehaviour
             }
             if (isBlocked)
             {
-                // 가로막히면 해당 프레임 이동을 중단하되 회피 상태는 유지 (밀어내지 않음)
+                // 장애물에 가로막히면 해당 프레임 이동을 중단하되 회피 상태는 유지한다.
                 return;
             }
         }
