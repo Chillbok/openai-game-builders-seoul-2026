@@ -19,6 +19,11 @@ public class EnemyStateMachine : MonoBehaviour
     private const float DeathAnimationDuration = 1f;
     private const float DefaultKnockbackDuration = 0.2f;
 
+    [Header("공격 예고")]
+    [SerializeField]
+    [Tooltip("공격 준비 시간 동안 적 중심에 표시할 비콘 자식 오브젝트")]
+    private Transform attackBeaconTransform;
+
     private Rigidbody2D enemyRigidbody;
     private EnemyStatController enemyStatController;
     private EnemyAnimationController enemyAnimationController;
@@ -30,6 +35,7 @@ public class EnemyStateMachine : MonoBehaviour
     private float stateTimer;
     private Vector2 knockbackDirection;
     private Vector3 attackTargetPosition;
+    private Animator attackBeaconAnimator;
     private bool diedHandled;
     private bool attackPreparePaused;
     private bool attackHitTriggered;
@@ -43,6 +49,7 @@ public class EnemyStateMachine : MonoBehaviour
         enemyAnimationController = GetComponent<EnemyAnimationController>();
         rangeSensor = GetComponentInChildren<EnemyAttackRangeSensor>();
         bodyCollider = GetComponent<Collider2D>();
+        CacheAttackBeacon();
 
         if (rangeSensor == null)
         {
@@ -74,6 +81,7 @@ public class EnemyStateMachine : MonoBehaviour
 
     private void OnDisable()
     {
+        HideAttackBeacon();
         ResetAttackAnimation();
 
         if (enemyStatController != null)
@@ -166,6 +174,7 @@ public class EnemyStateMachine : MonoBehaviour
         if (stateTimer <= 0f)
         {
             attackPreparePaused = false;
+            HideAttackBeacon();
             enemyAnimationController.ResumeAnimation();
             state = EnemyState.Attack;
             stateTimer = AttackAnimationFallbackDuration;
@@ -217,6 +226,7 @@ public class EnemyStateMachine : MonoBehaviour
         attackPreparePaused = true;
         stateTimer = enemyStatController.AttackPrepareTime;
         enemyAnimationController.PauseAttackAnimation();
+        ShowAttackBeacon(stateTimer);
     }
 
     // Attack 애니메이션의 실제 타격 프레임에서 호출된다.
@@ -260,6 +270,7 @@ public class EnemyStateMachine : MonoBehaviour
     // 공격 종료 이벤트 또는 타이머 폴백에서 공격 상태를 종료한다.
     private void FinishAttack()
     {
+        HideAttackBeacon();
         enemyAnimationController.ResumeAnimation();
         enemyStatController.ConsumeAttack();
         state = EnemyState.Chase;
@@ -273,6 +284,7 @@ public class EnemyStateMachine : MonoBehaviour
             return;
         }
 
+        HideAttackBeacon();
         ResetAttackAnimation();
         attackPreparePaused = false;
         knockbackDirection = newKnockbackDirection.normalized;
@@ -290,6 +302,7 @@ public class EnemyStateMachine : MonoBehaviour
         }
 
         diedHandled = true;
+        HideAttackBeacon();
         ResetAttackAnimation();
         attackPreparePaused = false;
         state = EnemyState.Dead;
@@ -308,6 +321,80 @@ public class EnemyStateMachine : MonoBehaviour
         }
 
         Destroy(gameObject, DeathAnimationDuration);
+    }
+
+    // 공격 준비 시간 동안 적 중심의 자식 비콘을 켜고 재생 속도를 맞춘다.
+    private void ShowAttackBeacon(float duration)
+    {
+        if (attackBeaconTransform == null || duration <= 0f)
+        {
+            return;
+        }
+
+        GameObject beaconObject = attackBeaconTransform.gameObject;
+        beaconObject.SetActive(true);
+
+        if (attackBeaconAnimator == null)
+        {
+            attackBeaconAnimator = attackBeaconTransform.GetComponent<Animator>();
+        }
+
+        if (attackBeaconAnimator != null)
+        {
+            float animationDuration = GetAnimationDuration(attackBeaconAnimator);
+            if (animationDuration > 0f)
+            {
+                // 클립 전체가 준비 시간에 정확히 끝나도록 재생 속도를 보정한다.
+                attackBeaconAnimator.speed = animationDuration / duration;
+            }
+
+            // 이전 재생 상태를 남기지 않고 매 공격 준비마다 처음부터 재생한다.
+            attackBeaconAnimator.Rebind();
+            attackBeaconAnimator.Update(0f);
+        }
+    }
+
+    // 비콘 Animator의 기본 상태에서 재생되는 클립 길이를 가져온다.
+    private static float GetAnimationDuration(Animator animator)
+    {
+        RuntimeAnimatorController controller = animator.runtimeAnimatorController;
+        if (controller == null || controller.animationClips == null || controller.animationClips.Length == 0)
+        {
+            return 0f;
+        }
+
+        float duration = 0f;
+        foreach (AnimationClip clip in controller.animationClips)
+        {
+            if (clip != null)
+            {
+                duration = Mathf.Max(duration, clip.length);
+            }
+        }
+
+        return duration;
+    }
+
+    // 프리팹에 배치된 자식 비콘과 Animator 참조를 캐시한다.
+    private void CacheAttackBeacon()
+    {
+        if (attackBeaconTransform == null)
+        {
+            return;
+        }
+
+        attackBeaconAnimator = attackBeaconTransform.GetComponent<Animator>();
+    }
+
+    // 현재 공격 예고 비콘을 비활성화해 다음 공격에 재사용한다.
+    private void HideAttackBeacon()
+    {
+        if (attackBeaconTransform == null)
+        {
+            return;
+        }
+
+        attackBeaconTransform.gameObject.SetActive(false);
     }
 
     // 피격·사망·비활성화 시 일시정지된 공격 애니메이션을 안전하게 복구한다.
