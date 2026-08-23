@@ -15,7 +15,7 @@ public class EnemyStateMachine : MonoBehaviour
     }
 
     private const string PlayerTag = "Player";
-    private const float AttackAnimationDuration = 0.7f;
+    private const float AttackAnimationFallbackDuration = 0.7f;
     private const float DeathAnimationDuration = 1f;
     private const float DefaultKnockbackDuration = 0.2f;
 
@@ -29,7 +29,10 @@ public class EnemyStateMachine : MonoBehaviour
     private EnemyState state;
     private float stateTimer;
     private Vector2 knockbackDirection;
+    private Vector3 attackTargetPosition;
     private bool diedHandled;
+    private bool attackPreparePaused;
+    private bool attackHitTriggered;
     private int blockingLayerMask;
 
     // 컴포넌트 참조와 플레이어를 초기화하고 추적 상태로 시작한다.
@@ -71,6 +74,8 @@ public class EnemyStateMachine : MonoBehaviour
 
     private void OnDisable()
     {
+        ResetAttackAnimation();
+
         if (enemyStatController != null)
         {
             enemyStatController.Damaged -= HandleDamaged;
@@ -151,10 +156,19 @@ public class EnemyStateMachine : MonoBehaviour
     private void UpdatePrepareAttackState()
     {
         enemyAnimationController.SetMoving(false);
+
+        if (!attackPreparePaused)
+        {
+            return;
+        }
+
         stateTimer -= Time.deltaTime;
         if (stateTimer <= 0f)
         {
-            BeginAttack();
+            attackPreparePaused = false;
+            enemyAnimationController.ResumeAnimation();
+            state = EnemyState.Attack;
+            stateTimer = AttackAnimationFallbackDuration;
         }
     }
 
@@ -168,8 +182,7 @@ public class EnemyStateMachine : MonoBehaviour
             return;
         }
 
-        enemyStatController.ConsumeAttack();
-        state = EnemyState.Chase;
+        FinishAttack();
     }
 
     // 넉백 이동을 진행하고 종료 후 추적으로 돌아간다.
@@ -182,39 +195,74 @@ public class EnemyStateMachine : MonoBehaviour
         }
     }
 
-    // 공격을 준비하고 이동을 멈춘다.
+    // 공격 애니메이션을 즉시 시작하고 준비 구간 이벤트를 기다린다.
     private void BeginPrepareAttack()
     {
+        attackTargetPosition = playerTransform.position;
+        attackPreparePaused = false;
+        attackHitTriggered = false;
         enemyAnimationController.SetMoving(false);
         state = EnemyState.PrepareAttack;
-        stateTimer = enemyStatController.AttackPrepareTime;
-    }
-
-    // 공격 애니메이션을 시작하고 플레이어 위치에 일회성 피해 오브젝트를 생성한다.
-    private void BeginAttack()
-    {
         enemyAnimationController.PlayAttack();
-        SpawnDamageInstance();
-
-        state = EnemyState.Attack;
-        stateTimer = AttackAnimationDuration;
     }
 
-    // 사거리 내 플레이어 위치에 일회성 피해 오브젝트를 생성한다. 수명은 애니메이션 1회와 동일.
-    private void SpawnDamageInstance()
+    // Attack 애니메이션의 준비 동작이 끝나는 이벤트에서 호출된다.
+    public void OnAttackPreparePause()
     {
-        if (playerTransform == null || enemyStatController == null || !enemyStatController.IsInitialized)
+        if (state != EnemyState.PrepareAttack || attackPreparePaused)
         {
             return;
         }
 
-        // AttackRangeSensor가 CanAttack을 보장하므로 추가 거리 검사 없이 생성
-        Vector3 spawnPosition = playerTransform.position;
+        attackPreparePaused = true;
+        stateTimer = enemyStatController.AttackPrepareTime;
+        enemyAnimationController.PauseAttackAnimation();
+    }
+
+    // Attack 애니메이션의 실제 타격 프레임에서 호출된다.
+    public void OnAttackHit()
+    {
+        if (state != EnemyState.Attack || attackHitTriggered)
+        {
+            return;
+        }
+
+        attackHitTriggered = true;
+        SpawnDamageInstance(attackTargetPosition);
+    }
+
+    // Attack 애니메이션의 마지막 프레임에서 호출된다.
+    public void OnAttackFinished()
+    {
+        if (state != EnemyState.Attack)
+        {
+            return;
+        }
+
+        FinishAttack();
+    }
+
+    // 사거리 내에서 저장한 공격 위치에 일회성 피해 오브젝트를 생성한다.
+    private void SpawnDamageInstance(Vector3 spawnPosition)
+    {
+        if (enemyStatController == null || !enemyStatController.IsInitialized)
+        {
+            return;
+        }
+
         GameObject damageObject = new GameObject("EnemyDamageInstance");
         damageObject.transform.position = spawnPosition;
 
         EnemyDamageInstance damageInstance = damageObject.AddComponent<EnemyDamageInstance>();
-        damageInstance.Initialize(enemyStatController.AttackDamage, AttackAnimationDuration);
+        damageInstance.Initialize(enemyStatController.AttackDamage, AttackAnimationFallbackDuration);
+    }
+
+    // 공격 종료 이벤트 또는 타이머 폴백에서 공격 상태를 종료한다.
+    private void FinishAttack()
+    {
+        enemyAnimationController.ResumeAnimation();
+        enemyStatController.ConsumeAttack();
+        state = EnemyState.Chase;
     }
 
     // 피해를 받으면 넉백 상태로 전환하고 피격 애니메이션을 재생한다.
@@ -225,6 +273,8 @@ public class EnemyStateMachine : MonoBehaviour
             return;
         }
 
+        ResetAttackAnimation();
+        attackPreparePaused = false;
         knockbackDirection = newKnockbackDirection.normalized;
         state = EnemyState.Knockback;
         stateTimer = DefaultKnockbackDuration;
@@ -240,8 +290,9 @@ public class EnemyStateMachine : MonoBehaviour
         }
 
         diedHandled = true;
+        ResetAttackAnimation();
+        attackPreparePaused = false;
         state = EnemyState.Dead;
-        enemyAnimationController.ResetTriggers();
         enemyAnimationController.SetMoving(false);
         enemyAnimationController.PlayDeath();
 
@@ -257,6 +308,18 @@ public class EnemyStateMachine : MonoBehaviour
         }
 
         Destroy(gameObject, DeathAnimationDuration);
+    }
+
+    // 피격·사망·비활성화 시 일시정지된 공격 애니메이션을 안전하게 복구한다.
+    private void ResetAttackAnimation()
+    {
+        if (enemyAnimationController == null)
+        {
+            return;
+        }
+
+        enemyAnimationController.ResumeAnimation();
+        enemyAnimationController.ResetTriggers();
     }
 
     // 현재 플레이어가 공격 사거리 안에 있는지 확인한다. (콜라이더 센서 기반, 폴백으로 피벗 거리)
