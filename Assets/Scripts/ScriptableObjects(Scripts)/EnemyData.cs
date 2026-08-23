@@ -9,6 +9,15 @@ public class EnemyData : ScriptableObject
 	[SerializeField, Min(0f)]
 	private float maxHP = 30f;
 
+	[Header("기절 관련 스테이터스")]
+	[Tooltip("적이 최초 기절에 들어가는 현재 체력 비율(0~100)이다.")]
+	[SerializeField, Range(0f, 100f)]
+	private float stunThresholdPercent = 10f;
+
+	[Tooltip("적의 기절 상태가 유지되는 시간(초)이다.")]
+	[SerializeField, Min(0f)]
+	private float stunDuration = 6f;
+
 	[Header("적 이동 관련 스테이터스")]
 	[Tooltip("추적 상태일 때 플레이어를 향해 이동하는 속도")]
 	[SerializeField, Min(0f)]
@@ -37,6 +46,8 @@ public class EnemyData : ScriptableObject
 	private float knockbackDistance = 1.5f;
 
 	public float MaxHP => maxHP;
+	public float StunThresholdPercent => stunThresholdPercent;
+	public float StunDuration => stunDuration;
 	public float MoveSpeed => moveSpeed;
 	public float AttackDamage => attackDamage;
 	public float AttackCooldown => attackCooldown;
@@ -61,6 +72,7 @@ public sealed class EnemyRuntimeState
 {
 	private float currentHP;
 	private float currentAttackCooldown;
+	private bool canBeStunned;
 
 	private readonly EnemyData data;
 
@@ -76,6 +88,12 @@ public sealed class EnemyRuntimeState
 		set => currentAttackCooldown = Mathf.Max(0f, value);
 	}
 
+	public bool CanBeStunned
+	{
+		get => canBeStunned;
+		set => canBeStunned = value;
+	}
+
 	public EnemyRuntimeState(EnemyData data)
 	{
 		if (data == null)
@@ -87,5 +105,6 @@ public sealed class EnemyRuntimeState
 
 		CurrentHP = data.MaxHP;
 		CurrentAttackCooldown = 0f;
+		CanBeStunned = true;
 	}
 }

@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: EnemyData_Demon
   m_EditorClassIdentifier: Assembly-CSharp::EnemyData
   maxHP: 100
+  stunThresholdPercent: 10
+  stunDuration: 6
   moveSpeed: 1.8
   attackDamage: 12
   attackCooldown: 2

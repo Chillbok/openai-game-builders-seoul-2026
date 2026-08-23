@@ -11,6 +11,7 @@ public class EnemyStateMachine : MonoBehaviour
         PrepareAttack,
         Attack,
         Knockback,
+        Stunned,
         Dead
     }
 
@@ -23,6 +24,11 @@ public class EnemyStateMachine : MonoBehaviour
     [SerializeField]
     [Tooltip("공격 준비 시작부터 실제 타격 직전까지 적 중심에 표시할 비콘 자식 오브젝트")]
     private Transform attackBeaconTransform;
+
+    [Header("기절 표시")]
+    [SerializeField]
+    [Tooltip("기절 상태에서만 활성화할 머리 위 표시의 SpriteRenderer")]
+    private SpriteRenderer stunNotifierRenderer;
 
     private Rigidbody2D enemyRigidbody;
     private EnemyStatController enemyStatController;
@@ -49,6 +55,17 @@ public class EnemyStateMachine : MonoBehaviour
         enemyAnimationController = GetComponent<EnemyAnimationController>();
         bodyCollider = GetComponent<Collider2D>();
         CacheAttackBeacon();
+        CacheStunNotifier();
+        SetStunNotifierVisible(false);
+
+        if (stunNotifierRenderer == null)
+        {
+            Debug.LogWarning("EnemyStateMachine에 StunNotifier SpriteRenderer가 할당되지 않았습니다.", this);
+        }
+        else
+        {
+            Debug.Log($"StunNotifier SpriteRenderer 참조 확인: {stunNotifierRenderer.name}, 초기 표시 여부 {stunNotifierRenderer.enabled}", this);
+        }
 
         state = EnemyState.Chase;
         CachePlayerReferences();
@@ -72,9 +89,12 @@ public class EnemyStateMachine : MonoBehaviour
     // 적이 피해를 받거나 사망했을 때 상태를 갱신한다.
     private void OnEnable()
     {
+        SetStunNotifierVisible(state == EnemyState.Stunned);
+
         if (enemyStatController != null)
         {
             enemyStatController.Damaged += HandleDamaged;
+            enemyStatController.StunStarted += HandleStunStarted;
             enemyStatController.Died += HandleDied;
         }
     }
@@ -82,11 +102,13 @@ public class EnemyStateMachine : MonoBehaviour
     private void OnDisable()
     {
         HideAttackBeacon();
+        SetStunNotifierVisible(false);
         ResetAttackAnimation();
 
         if (enemyStatController != null)
         {
             enemyStatController.Damaged -= HandleDamaged;
+            enemyStatController.StunStarted -= HandleStunStarted;
             enemyStatController.Died -= HandleDied;
         }
     }
@@ -102,6 +124,17 @@ public class EnemyStateMachine : MonoBehaviour
         if (playerTransform == null)
         {
             CachePlayerReferences();
+        }
+
+        // 기절 타이머는 플레이어 참조와 무관하게 계속 갱신한다.
+        if (state == EnemyState.Stunned)
+        {
+            UpdateStunnedState();
+            return;
+        }
+
+        if (playerTransform == null)
+        {
             return;
         }
 
@@ -197,6 +230,21 @@ public class EnemyStateMachine : MonoBehaviour
         }
     }
 
+    // 기절 타이머를 갱신하고 시간이 끝나면 추적 상태로 복귀한다.
+    private void UpdateStunnedState()
+    {
+        enemyAnimationController.SetMoving(false);
+        stateTimer -= Time.deltaTime;
+        if (stateTimer > 0f)
+        {
+            return;
+        }
+
+        state = EnemyState.Chase;
+        SetStunNotifierVisible(false);
+        Debug.Log($"적 기절 종료: {name}", this);
+    }
+
     // 공격 애니메이션을 즉시 시작하고 준비 구간 이벤트를 기다린다.
     private void BeginPrepareAttack()
     {
@@ -245,6 +293,25 @@ public class EnemyStateMachine : MonoBehaviour
         FinishAttack();
     }
 
+    // 최초 기절 이벤트를 받아 공격과 이동을 중지한다.
+    private void HandleStunStarted()
+    {
+        if (state == EnemyState.Dead || enemyStatController.IsDead)
+        {
+            return;
+        }
+
+        HideAttackBeacon();
+        ResetAttackAnimation();
+        attackPreparePaused = false;
+        attackHitTriggered = false;
+        enemyAnimationController.SetMoving(false);
+        state = EnemyState.Stunned;
+        stateTimer = enemyStatController.StunDuration;
+        SetStunNotifierVisible(true);
+        Debug.Log($"적 기절 시작: {name}, 지속 시간 {stateTimer}초, Notifier 표시 상태 {stunNotifierRenderer != null && stunNotifierRenderer.enabled}", this);
+    }
+
     // 실제 타격 프레임의 플레이어 위치와 회피 상태를 기준으로 피해를 시도한다.
     private void TryDealAttackDamage()
     {
@@ -274,7 +341,7 @@ public class EnemyStateMachine : MonoBehaviour
     // 피해를 받으면 넉백 상태로 전환하고 피격 애니메이션을 재생한다.
     private void HandleDamaged(Vector2 newKnockbackDirection)
     {
-        if (state == EnemyState.Dead || enemyStatController.IsDead)
+        if (state == EnemyState.Dead || state == EnemyState.Stunned || enemyStatController.IsDead)
         {
             return;
         }
@@ -298,6 +365,7 @@ public class EnemyStateMachine : MonoBehaviour
 
         diedHandled = true;
         HideAttackBeacon();
+        SetStunNotifierVisible(false);
         ResetAttackAnimation();
         attackPreparePaused = false;
         state = EnemyState.Dead;
@@ -381,6 +449,46 @@ public class EnemyStateMachine : MonoBehaviour
         }
 
         attackBeaconAnimator = attackBeaconTransform.GetComponent<Animator>();
+    }
+
+    // 직렬화 참조가 비어 있거나 에셋을 가리키는 깨진 참조인 경우 자식 StunNotifier를 찾아 보완한다.
+    private void CacheStunNotifier()
+    {
+        if (stunNotifierRenderer != null
+            && stunNotifierRenderer.gameObject.scene.IsValid()
+            && stunNotifierRenderer.transform.IsChildOf(transform))
+        {
+            return;
+        }
+
+        if (stunNotifierRenderer != null)
+        {
+            Debug.LogWarning($"EnemyStateMachine의 StunNotifier 참조가 씬 인스턴스가 아니어서 재탐색합니다. 참조: {stunNotifierRenderer.name} (sceneValid={stunNotifierRenderer.gameObject.scene.IsValid()}, isChild={stunNotifierRenderer.transform.IsChildOf(transform)})", this);
+        }
+
+        SpriteRenderer[] renderers = GetComponentsInChildren<SpriteRenderer>(true);
+        foreach (SpriteRenderer renderer in renderers)
+        {
+            if (renderer != null && renderer.gameObject.name == "StunNotifier")
+            {
+                stunNotifierRenderer = renderer;
+                return;
+            }
+        }
+    }
+
+    // 기절 상태에서만 머리 위 표시를 활성화한다.
+    private void SetStunNotifierVisible(bool visible)
+    {
+        if (stunNotifierRenderer != null)
+        {
+            bool changed = stunNotifierRenderer.enabled != visible;
+            stunNotifierRenderer.enabled = visible;
+            if (changed)
+            {
+                Debug.Log($"StunNotifier {(visible ? "표시" : "숨김")}: {name}", this);
+            }
+        }
     }
 
     // 현재 공격 예고 비콘을 비활성화해 다음 공격에 재사용한다.
@@ -478,4 +586,8 @@ public class EnemyStateMachine : MonoBehaviour
             playerBodyCollider = playerTransform.GetComponent<Collider2D>();
         }
     }
+
+    public bool IsStunned => state == EnemyState.Stunned;
+
+    public bool CanBeExecuted => IsStunned && enemyStatController != null && !enemyStatController.IsDead;
 }

@@ -14,6 +14,7 @@ public sealed class EnemyStatController : MonoBehaviour
     public EnemyData Data => enemyData;
     public bool IsInitialized => runtimeState != null;
     public bool IsDead => IsInitialized && runtimeState.CurrentHP <= 0f;
+    public bool CanBeStunned => runtimeState != null && runtimeState.CanBeStunned;
 
     public float MaxHP => enemyData != null ? enemyData.MaxHP : 0f;
     public float CurrentHP => runtimeState != null ? runtimeState.CurrentHP : 0f;
@@ -23,11 +24,14 @@ public sealed class EnemyStatController : MonoBehaviour
     public float AttackRange => enemyData != null ? enemyData.AttackRange : 0f;
     public float AttackPrepareTime => enemyData != null ? enemyData.AttackPrepareTime : 0f;
     public float KnockbackDistance => enemyData != null ? enemyData.KnockbackDistance : 0f;
+    public float StunThresholdPercent => enemyData != null ? enemyData.StunThresholdPercent : 0f;
+    public float StunDuration => enemyData != null ? enemyData.StunDuration : 0f;
     public float CurrentAttackCooldown => runtimeState != null ? runtimeState.CurrentAttackCooldown : 0f;
     public bool ReadyToAttack => IsInitialized && runtimeState.CurrentAttackCooldown <= 0f;
 
     public event Action<float> CurrentHPChanged;
     public event Action<Vector2> Damaged;
+    public event Action StunStarted;
     public event Action Died;
 
     // 컴포넌트가 활성화될 때 적의 런타임 스탯을 초기화한다.
@@ -71,7 +75,7 @@ public sealed class EnemyStatController : MonoBehaviour
         runtimeState = enemyData.CreateRuntimeState();
     }
 
-    // 적의 현재 체력을 감소시키고 받은 넉백 방향을 전달하며 사망 여부를 판정한다.
+    // 적의 현재 체력을 감소시키고 사망 또는 최초 기절 여부를 판정한다.
     public bool TryTakeDamage(float damage, Vector2 knockbackDirection)
     {
         if (!IsInitialized || IsDead || damage <= 0f)
@@ -87,15 +91,44 @@ public sealed class EnemyStatController : MonoBehaviour
             CurrentHPChanged?.Invoke(runtimeState.CurrentHP);
         }
 
-        Damaged?.Invoke(knockbackDirection);
-
-        if (previousHP > 0f && runtimeState.CurrentHP <= 0f)
+        bool died = previousHP > 0f && runtimeState.CurrentHP <= 0f;
+        if (died)
         {
+            // 기존 사망 흐름처럼 치명타에도 피해 이벤트를 먼저 알린다.
+            Damaged?.Invoke(knockbackDirection);
             Died?.Invoke();
+        }
+        else if (TryEnterStun())
+        {
+            // 기절 진입 피해는 넉백 상태로 전환하지 않는다.
+            StunStarted?.Invoke();
+        }
+        else
+        {
+            Damaged?.Invoke(knockbackDirection);
         }
 
         Debug.Log($"적에게 {previousHP - runtimeState.CurrentHP} 피해 입음, 남은 체력: {runtimeState.CurrentHP}", this);
 
+        return true;
+    }
+
+    // 현재 체력 비율이 기준 이하이고 아직 기절하지 않은 적을 최초 기절시킨다.
+    private bool TryEnterStun()
+    {
+        if (!IsInitialized || IsDead || !runtimeState.CanBeStunned || MaxHP <= 0f)
+        {
+            return false;
+        }
+
+        float currentHPPercent = runtimeState.CurrentHP / MaxHP * 100f;
+        if (currentHPPercent > StunThresholdPercent)
+        {
+            return false;
+        }
+
+        runtimeState.CanBeStunned = false;
+        Debug.Log($"적 기절 진입 판정: 현재 HP {runtimeState.CurrentHP}/{MaxHP}, 기절 기준 {StunThresholdPercent}%", this);
         return true;
     }
 
