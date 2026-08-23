@@ -25,19 +25,12 @@ public class EnemyStateMachine : MonoBehaviour
     private EnemyAttackRangeSensor rangeSensor;
     private Collider2D bodyCollider;
 
-    [Header("슬래시 투사체")]
-    [Tooltip("플레이어 위치에 소환할 슬래시 프리팹 (공유 프리팹, 미할당 시 폴백 생성)")]
-    [SerializeField]
-    private GameObject slashPrefab;
-
     private Transform playerTransform;
     private EnemyState state;
     private float stateTimer;
     private Vector2 knockbackDirection;
     private bool diedHandled;
     private int blockingLayerMask;
-    private Vector3 cachedSlashPosition;
-    private bool hasCachedSlashPosition;
 
     // 컴포넌트 참조와 플레이어를 초기화하고 추적 상태로 시작한다.
     private void Awake()
@@ -189,14 +182,12 @@ public class EnemyStateMachine : MonoBehaviour
         }
     }
 
-    // 공격을 준비하고 이동을 멈춘다. 조건 만족 시점의 플레이어 위치를 저장한다.
+    // 공격을 준비하고 이동을 멈춘다.
     private void BeginPrepareAttack()
     {
         enemyAnimationController.SetMoving(false);
         state = EnemyState.PrepareAttack;
         stateTimer = enemyStatController.AttackPrepareTime;
-        cachedSlashPosition = playerTransform != null ? playerTransform.position : transform.position;
-        hasCachedSlashPosition = true;
     }
 
     // 공격 애니메이션을 시작하고 플레이어 위치에 일회성 피해 오브젝트를 생성한다.
@@ -209,50 +200,21 @@ public class EnemyStateMachine : MonoBehaviour
         stateTimer = AttackAnimationDuration;
     }
 
-    // 저장된 위치에 슬래시 투사체를 생성한다. 위쪽은 적 방향, 아래쪽은 플레이어 방향을 향하도록 회전한다.
+    // 사거리 내 플레이어 위치에 일회성 피해 오브젝트를 생성한다. 수명은 애니메이션 1회와 동일.
     private void SpawnDamageInstance()
     {
-        if (enemyStatController == null || !enemyStatController.IsInitialized)
+        if (playerTransform == null || enemyStatController == null || !enemyStatController.IsInitialized)
         {
             return;
         }
 
-        Vector3 spawnPosition = hasCachedSlashPosition ? cachedSlashPosition : (playerTransform != null ? playerTransform.position : transform.position);
+        // AttackRangeSensor가 CanAttack을 보장하므로 추가 거리 검사 없이 생성
+        Vector3 spawnPosition = playerTransform.position;
+        GameObject damageObject = new GameObject("EnemyDamageInstance");
+        damageObject.transform.position = spawnPosition;
 
-        // 위쪽(up)이 적을 향하도록 회전 계산: slash→enemy 벡터가 up과 일치
-        Vector2 dir = (Vector2)(transform.position - spawnPosition);
-        if (dir.sqrMagnitude < 0.000001f)
-        {
-            dir = Vector2.up;
-        }
-
-        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg - 90f;
-        Quaternion rotation = Quaternion.Euler(0f, 0f, angle);
-        float damage = enemyStatController.AttackDamage;
-
-        GameObject damageObject;
-        if (slashPrefab != null)
-        {
-            damageObject = Instantiate(slashPrefab, spawnPosition, rotation);
-            damageObject.name = slashPrefab.name;
-        }
-        else
-        {
-            damageObject = new GameObject("EnemyDamageInstance");
-            damageObject.transform.position = spawnPosition;
-            damageObject.transform.rotation = rotation;
-            CircleCollider2D fallback = damageObject.AddComponent<CircleCollider2D>();
-            fallback.isTrigger = true;
-            fallback.radius = 0.4f;
-        }
-
-        EnemyDamageInstance damageInstance = damageObject.GetComponent<EnemyDamageInstance>();
-        if (damageInstance == null)
-        {
-            damageInstance = damageObject.AddComponent<EnemyDamageInstance>();
-        }
-
-        damageInstance.Initialize(damage);
+        EnemyDamageInstance damageInstance = damageObject.AddComponent<EnemyDamageInstance>();
+        damageInstance.Initialize(enemyStatController.AttackDamage, AttackAnimationDuration);
     }
 
     // 피해를 받으면 넉백 상태로 전환하고 피격 애니메이션을 재생한다.

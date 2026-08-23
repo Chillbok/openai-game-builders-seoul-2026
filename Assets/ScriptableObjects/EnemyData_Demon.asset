@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f0f313caaee9e45f2b42566bb1195a80, type: 3}
   m_Name: EnemyData_Demon
   m_EditorClassIdentifier: Assembly-CSharp::EnemyData
-  maxHP: 60
+  maxHP: 100
   moveSpeed: 1.8
   attackDamage: 12
   attackCooldown: 2
-  attackRange: 0.5
+  attackRange: 0.13
   attackPrepareTime: 0.8
   knockbackDistance: 1.2
