@@ -407,6 +407,12 @@ public class EnemyStateMachine : MonoBehaviour
         ResetAttackAnimation();
         attackPreparePaused = false;
         UnlockPositionAfterExecution();
+        if (enemyRigidbody != null)
+        {
+            enemyRigidbody.linearVelocity = Vector2.zero;
+            enemyRigidbody.angularVelocity = 0f;
+        }
+
         state = EnemyState.Dead;
         enemyAnimationController.SetMoving(false);
         enemyAnimationController.PlayDeath();
@@ -543,10 +549,11 @@ public class EnemyStateMachine : MonoBehaviour
         if (enemyRigidbody.constraints == RigidbodyConstraints2D.FreezeAll)
         {
             enemyRigidbody.constraints = previousConstraints != RigidbodyConstraints2D.None ? previousConstraints : RigidbodyConstraints2D.FreezeRotation;
-            enemyRigidbody.linearVelocity = Vector2.zero;
-            enemyRigidbody.angularVelocity = 0f;
         }
 
+        // 일반 사망/풀링 경로에서도 MovePosition 잔류 속도를 제거한다.
+        enemyRigidbody.linearVelocity = Vector2.zero;
+        enemyRigidbody.angularVelocity = 0f;
         hasLockedPosition = false;
     }
 
