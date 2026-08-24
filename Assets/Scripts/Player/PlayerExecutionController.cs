@@ -29,6 +29,7 @@ public sealed class PlayerExecutionController : MonoBehaviour
     private const float DefaultAttackPause = 0.08f;
     private const float DefaultAttackRecovery = 0.36f;
     private const float DefaultAttackMoveDistance = 0.5f;
+    private const float DefaultExecutionAnchorOffset = 0.6f;
     private const float DefaultCameraZoomMultiplier = 0.7f;
 
     [Header("접근")]
@@ -64,6 +65,10 @@ public sealed class PlayerExecutionController : MonoBehaviour
     [SerializeField, Min(0f)]
     [Tooltip("검격 시 플레이어가 대상의 오른쪽으로 이동하는 거리")]
     private float attackMoveDistance = DefaultAttackMoveDistance;
+
+    [SerializeField, Min(0f)]
+    [Tooltip("적 중심에서 왼쪽으로 떨어진 처형 시작 위치까지의 거리")]
+    private float executionAnchorOffset = DefaultExecutionAnchorOffset;
 
     [SerializeField, Range(0.1f, 1f)]
     [Tooltip("처형 연출 중 카메라 orthographic size에 곱할 확대 배율")]
@@ -225,14 +230,14 @@ public sealed class PlayerExecutionController : MonoBehaviour
             return;
         }
 
-        Vector2 targetPosition = target.transform.position;
-        if (IsAtTarget(target))
+        Vector2 executionAnchor = GetExecutionAnchor(target);
+        if (IsAtExecutionAnchor(executionAnchor))
         {
             BeginPresentation();
             return;
         }
 
-        Vector2 direction = (targetPosition - playerRigidbody.position).normalized;
+        Vector2 direction = (executionAnchor - playerRigidbody.position).normalized;
         approachMover.Move(direction * approachSpeed * Time.fixedDeltaTime);
         playerMoveController.CanMove = false;
     }
@@ -275,6 +280,11 @@ public sealed class PlayerExecutionController : MonoBehaviour
 
         playerAnimationController.CancelForExecution();
         playerAttackHitboxController.DisableAllHitboxes();
+        if (spriteFlip != null)
+        {
+            spriteFlip.SetFlipXOverride(false);
+        }
+
         previousAnimatorSpeed = animator != null ? animator.speed : 1f;
         playerMoveController.CanMove = false;
         target = selectedTarget;
@@ -323,6 +333,17 @@ public sealed class PlayerExecutionController : MonoBehaviour
             && target.gameObject.activeInHierarchy
             && target.CanBeExecuted
             && !playerStatController.IsDead;
+    }
+
+    private Vector2 GetExecutionAnchor(EnemyStateMachine candidate)
+    {
+        Vector2 targetPosition = candidate != null ? (Vector2)candidate.transform.position : (Vector2)transform.position;
+        return targetPosition + Vector2.left * executionAnchorOffset;
+    }
+
+    private bool IsAtExecutionAnchor(Vector2 anchor)
+    {
+        return (anchor - playerRigidbody.position).sqrMagnitude <= contactDistance * contactDistance;
     }
 
     private bool IsAtTarget(EnemyStateMachine candidate)
@@ -434,10 +455,7 @@ public sealed class PlayerExecutionController : MonoBehaviour
             return;
         }
 
-        Vector2 direction = target.transform.position.x >= transform.position.x
-            ? Vector2.right
-            : Vector2.left;
-        playerRigidbody.MovePosition(playerRigidbody.position + direction * attackMoveDistance);
+        playerRigidbody.MovePosition(playerRigidbody.position + Vector2.right * attackMoveDistance);
     }
 
     private void StoreCameraState()
