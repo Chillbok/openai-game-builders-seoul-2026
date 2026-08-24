@@ -47,6 +47,9 @@ public class EnemyStateMachine : MonoBehaviour
     private bool attackPreparePaused;
     private bool attackHitTriggered;
     private NoPushCollisionMover2D collisionMover;
+    private RigidbodyConstraints2D previousConstraints;
+    private Vector2 executionLockPosition;
+    private bool hasLockedPosition;
 
     // 컴포넌트 참조와 플레이어를 초기화하고 추적 상태로 시작한다.
     private void Awake()
@@ -55,6 +58,8 @@ public class EnemyStateMachine : MonoBehaviour
         enemyStatController = GetComponent<EnemyStatController>();
         enemyAnimationController = GetComponent<EnemyAnimationController>();
         bodyCollider = GetComponent<Collider2D>();
+        previousConstraints = enemyRigidbody != null ? enemyRigidbody.constraints : RigidbodyConstraints2D.FreezeRotation;
+        hasLockedPosition = false;
         CacheAttackBeacon();
         CacheStunNotifier();
         SetStunNotifierVisible(false);
@@ -90,6 +95,22 @@ public class EnemyStateMachine : MonoBehaviour
     // 적이 피해를 받거나 사망했을 때 상태를 갱신한다.
     private void OnEnable()
     {
+        // 풀링/비활성 후 재활성 시 잔존한 FreezeAll을 즉시 복구
+        if (hasLockedPosition || (enemyRigidbody != null && enemyRigidbody.constraints == RigidbodyConstraints2D.FreezeAll))
+        {
+            UnlockPositionAfterExecution();
+        }
+
+        // Executing 상태가 남아 있으면 추적으로 복구 (풀링 재사용 시 영구 정지 방지)
+        if (state == EnemyState.Executing)
+        {
+            bool isActuallyExecuting = enemyStatController != null && enemyStatController.IsExecutionLocked;
+            if (!isActuallyExecuting)
+            {
+                state = EnemyState.Chase;
+            }
+        }
+
         SetStunNotifierVisible(state == EnemyState.Stunned);
 
         if (enemyStatController != null)
@@ -105,6 +126,7 @@ public class EnemyStateMachine : MonoBehaviour
         HideAttackBeacon();
         SetStunNotifierVisible(false);
         ResetAttackAnimation();
+        UnlockPositionAfterExecution();
 
         if (enemyStatController != null)
         {
@@ -164,8 +186,18 @@ public class EnemyStateMachine : MonoBehaviour
     // 물리 이동을 물리 갱신 주기에 맞춰 처리한다.
     private void FixedUpdate()
     {
-        if (!enemyStatController.IsInitialized || state == EnemyState.Dead)
+        if (enemyStatController == null || !enemyStatController.IsInitialized || state == EnemyState.Dead)
         {
+            return;
+        }
+
+        if (state == EnemyState.Executing)
+        {
+            if (hasLockedPosition && enemyRigidbody != null)
+            {
+                enemyRigidbody.MovePosition(executionLockPosition);
+            }
+
             return;
         }
 
@@ -347,7 +379,7 @@ public class EnemyStateMachine : MonoBehaviour
     // 피해를 받으면 넉백 상태로 전환하고 피격 애니메이션을 재생한다.
     private void HandleDamaged(Vector2 newKnockbackDirection)
     {
-        if (state == EnemyState.Dead || state == EnemyState.Stunned || enemyStatController.IsDead)
+        if (state == EnemyState.Dead || state == EnemyState.Stunned || state == EnemyState.Executing || enemyStatController.IsDead)
         {
             return;
         }
@@ -374,6 +406,7 @@ public class EnemyStateMachine : MonoBehaviour
         SetStunNotifierVisible(false);
         ResetAttackAnimation();
         attackPreparePaused = false;
+        UnlockPositionAfterExecution();
         state = EnemyState.Dead;
         enemyAnimationController.SetMoving(false);
         enemyAnimationController.PlayDeath();
@@ -454,6 +487,67 @@ public class EnemyStateMachine : MonoBehaviour
         }
 
         return duration;
+    }
+
+    // 처형 중 물리 이동과 외부 밀림을 방지하도록 해당 위치에 고정한다.
+    private void LockPositionForExecution()
+    {
+        if (enemyRigidbody == null)
+        {
+            enemyRigidbody = GetComponent<Rigidbody2D>();
+        }
+
+        if (enemyRigidbody == null || hasLockedPosition)
+        {
+            return;
+        }
+
+        previousConstraints = enemyRigidbody.constraints;
+        // 프리팹 기본값이 None(0)으로 비어 있는 경우를 대비해 안전값 보정
+        if (previousConstraints == RigidbodyConstraints2D.None)
+        {
+            previousConstraints = RigidbodyConstraints2D.FreezeRotation;
+        }
+
+        executionLockPosition = enemyRigidbody.position;
+        enemyRigidbody.linearVelocity = Vector2.zero;
+        enemyRigidbody.angularVelocity = 0f;
+        enemyRigidbody.constraints = RigidbodyConstraints2D.FreezeAll;
+        hasLockedPosition = true;
+    }
+
+    // 처형 고정으로 변경한 물리 제약을 원래 상태로 복구한다.
+    private void UnlockPositionAfterExecution()
+    {
+        if (enemyRigidbody == null)
+        {
+            enemyRigidbody = GetComponent<Rigidbody2D>();
+        }
+
+        if (enemyRigidbody == null)
+        {
+            hasLockedPosition = false;
+            return;
+        }
+
+        if (hasLockedPosition)
+        {
+            enemyRigidbody.constraints = previousConstraints != RigidbodyConstraints2D.None ? previousConstraints : RigidbodyConstraints2D.FreezeRotation;
+            enemyRigidbody.linearVelocity = Vector2.zero;
+            enemyRigidbody.angularVelocity = 0f;
+            hasLockedPosition = false;
+            return;
+        }
+
+        // hasLockedPosition이 false라도 FreezeAll이 잔존하면 강제 복구 (풀링/예외 경로 대비)
+        if (enemyRigidbody.constraints == RigidbodyConstraints2D.FreezeAll)
+        {
+            enemyRigidbody.constraints = previousConstraints != RigidbodyConstraints2D.None ? previousConstraints : RigidbodyConstraints2D.FreezeRotation;
+            enemyRigidbody.linearVelocity = Vector2.zero;
+            enemyRigidbody.angularVelocity = 0f;
+        }
+
+        hasLockedPosition = false;
     }
 
     // 프리팹에 배치된 자식 비콘과 Animator 참조를 캐시한다.
@@ -611,7 +705,7 @@ public class EnemyStateMachine : MonoBehaviour
 
     public bool IsBoss => enemyStatController != null && enemyStatController.IsBoss;
 
-    // 기절한 적을 처형 연출 상태로 잠근다.
+    // 기절한 적을 처형 연출 상태로 잠그고 해당 위치에 고정한다.
     public bool TryBeginExecution()
     {
         if (!CanBeExecuted || !enemyStatController.TryBeginExecution())
@@ -625,6 +719,7 @@ public class EnemyStateMachine : MonoBehaviour
         attackPreparePaused = false;
         attackHitTriggered = false;
         enemyAnimationController.SetMoving(false);
+        LockPositionForExecution();
         state = EnemyState.Executing;
         return true;
     }
@@ -635,7 +730,7 @@ public class EnemyStateMachine : MonoBehaviour
         return IsExecuting && enemyStatController.TryCompleteExecution();
     }
 
-    // 처형 연출이 중단되면 적을 기절 상태로 되돌린다.
+    // 처형 연출이 중단되면 적을 기절 상태로 되돌리고 물리 고정을 해제한다.
     public bool CancelExecution()
     {
         if (!IsExecuting || !enemyStatController.CancelExecution())
@@ -643,6 +738,7 @@ public class EnemyStateMachine : MonoBehaviour
             return false;
         }
 
+        UnlockPositionAfterExecution();
         state = EnemyState.Stunned;
         stateTimer = enemyStatController.StunDuration;
         SetStunNotifierVisible(true);
