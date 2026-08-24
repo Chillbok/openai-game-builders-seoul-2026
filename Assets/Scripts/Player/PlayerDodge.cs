@@ -9,6 +9,7 @@ public class PlayerDodge : MonoBehaviour
     private Rigidbody2D playerRigidbody;
     private PlayerStatController playerStatController;
     private PlayerMoveController playerMoveController;
+    private PlayerExecutionController playerExecutionController;
     private InputAction dodgeAction;
 
     private bool isDodging;
@@ -23,6 +24,7 @@ public class PlayerDodge : MonoBehaviour
         playerRigidbody = GetComponent<Rigidbody2D>();
         playerStatController = GetComponent<PlayerStatController>();
         playerMoveController = GetComponent<PlayerMoveController>();
+        playerExecutionController = GetComponent<PlayerExecutionController>();
         dodgeAction = GetComponent<PlayerInput>().actions.FindAction("Dodge", true);
     }
 
@@ -30,6 +32,11 @@ public class PlayerDodge : MonoBehaviour
     private void Update()
     {
         if (!playerStatController.IsInitialized)
+        {
+            return;
+        }
+
+        if (playerExecutionController != null && playerExecutionController.IsBusy && !isDodging)
         {
             return;
         }
@@ -127,6 +134,20 @@ public class PlayerDodge : MonoBehaviour
         dodgeTimer = 0f;
         perfectDodgeConsumed = false;
         playerMoveController.CanMove = true;
+    }
+
+    // 처형이 회피를 중단하고 시작할 때 호출한다. 회피 충전 회복 상태는 유지한다.
+    public void CancelForExecution()
+    {
+        if (!isDodging)
+        {
+            return;
+        }
+
+        isDodging = false;
+        dodgeTimer = 0f;
+        perfectDodgeConsumed = false;
+        playerMoveController.CanMove = false;
     }
 
     // 현재 회피 중인지 반환한다. 회피 중에는 무적이므로 피해 판정 무효화에도 사용된다.

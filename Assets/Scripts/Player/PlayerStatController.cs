@@ -16,6 +16,7 @@ public sealed class PlayerStatController : MonoBehaviour
     private float damageInvincibilityRemaining;
     private float dodgeFillProgress;
     private bool isRecharging;
+    private bool executionInvulnerable;
     private PlayerDodge playerDodge;
     private float nextAttackDamageMultiplier = 1f;
 
@@ -43,14 +44,14 @@ public sealed class PlayerStatController : MonoBehaviour
     public int CurrentAttackCount => runtimeState != null ? runtimeState.CurrentAttackCount : 0;
     public float SoulChargeDuration => playerData != null ? playerData.SoulChargeDuration : 0f;
     public float SoulChargeDamageReductionRate => playerData != null ? playerData.SoulChargeDamageReductionRate : 0f;
-    public float SoulChargeAttackSpeedIncreaseRate => playerData != null ? playerData.SoulChargeAttackSpeedIncreaseRate : 0f;
+    public float SoulChargeAttackSpeedMultiplier => playerData != null ? playerData.SoulChargeAttackSpeedMultiplier : 1f;
     public float SoulChargeAttackDamageMultiplier => playerData != null ? playerData.SoulChargeAttackDamageMultiplier : 0f;
-    public float SoulChargeExplosionDamage => playerData != null ? playerData.SoulChargeExplosionDamage : 0f;
-    public float SoulChargeExplosionRadius => playerData != null ? playerData.SoulChargeExplosionRadius : 0f;
+    public GameObject SoulChargeExplosionPrefab => playerData != null ? playerData.SoulChargeExplosionPrefab : null;
     public int CurrentSoulChargeStage => runtimeState != null ? runtimeState.CurrentSoulChargeStage : 0;
     public int NormalKillCount => runtimeState != null ? runtimeState.NormalKillCount : 0;
     public float SoulChargeRemainingTime => runtimeState != null ? runtimeState.SoulChargeRemainingTime : 0f;
     public float DamageInvincibilityRemaining => damageInvincibilityRemaining;
+    public bool IsExecutionInvulnerable => executionInvulnerable;
     public float NextAttackDamageMultiplier => nextAttackDamageMultiplier;
     public bool IsPerfectDodgeAttackReady => nextAttackDamageMultiplier > 0f && !Mathf.Approximately(nextAttackDamageMultiplier, 1f);
 
@@ -61,6 +62,7 @@ public sealed class PlayerStatController : MonoBehaviour
     public event Action<int> CurrentAttackCountChanged;
     public event Action<int> SoulChargeStageChanged;
     public event Action<int> NormalKillCountChanged;
+    public event Action<int> NormalKillRegistered;
     public event Action PerfectDodgePerformed;
 
     // 컴포넌트가 활성화될 때 플레이어의 런타임 스탯을 초기화한다.
@@ -161,6 +163,7 @@ public sealed class PlayerStatController : MonoBehaviour
         damageInvincibilityRemaining = 0f;
         isRecharging = false;
         dodgeFillProgress = 0f;
+        executionInvulnerable = false;
     }
 
     // 플레이어의 런타임 스탯을 초기 상태로 되돌린다.
@@ -175,12 +178,18 @@ public sealed class PlayerStatController : MonoBehaviour
         damageInvincibilityRemaining = 0f;
         isRecharging = false;
         dodgeFillProgress = 0f;
+        executionInvulnerable = false;
         RaiseRuntimeStateChanged();
     }
 
     // 피격 무적 여부를 확인한 뒤 플레이어에게 피해를 적용한다.
     public bool TryTakeDamage(float damage)
     {
+        if (executionInvulnerable)
+        {
+            return false;
+        }
+
         // 회피 중에는 무적이므로 모든 피해를 무효화한다. 인정 시간 안이면 완벽한 회피로 처리한다.
         if (playerDodge != null && playerDodge.IsDodging)
         {
@@ -204,7 +213,8 @@ public sealed class PlayerStatController : MonoBehaviour
         }
 
         float previousHP = runtimeState.CurrentHP;
-        runtimeState.CurrentHP -= damage;
+        float effectiveDamage = ApplySoulChargeDamageReduction(damage);
+        runtimeState.CurrentHP -= effectiveDamage;
         damageInvincibilityRemaining = HitInvincibilityTime;
 
         if (!Mathf.Approximately(previousHP, runtimeState.CurrentHP))
@@ -219,9 +229,15 @@ public sealed class PlayerStatController : MonoBehaviour
             Died?.Invoke();
         }
         
-		Debug.Log($"플레이어에게 {previousHP - runtimeState.CurrentHP} 피해 입음, 남은 체력: {runtimeState.CurrentHP}");
+        Debug.Log($"플레이어에게 {previousHP - runtimeState.CurrentHP} 피해 입음, 남은 체력: {runtimeState.CurrentHP}");
 
         return true;
+    }
+
+    // 처형 연출 중 플레이어 피해 판정을 무효화한다.
+    public void SetExecutionInvulnerable(bool value)
+    {
+        executionInvulnerable = value;
     }
 
     // 플레이어의 현재 체력을 최대 HP까지 회복한다.
@@ -310,9 +326,42 @@ public sealed class PlayerStatController : MonoBehaviour
     // 완벽한 회피로 강화된 다음 공격의 데미지를 계산하고 준비 상태를 해제한다.
     public float CalculateNextAttackDamage()
     {
-        float damage = AttackDamage * nextAttackDamageMultiplier;
+        float damage = AttackDamage * GetSoulChargeAttackDamageMultiplier() * nextAttackDamageMultiplier;
         nextAttackDamageMultiplier = 1f;
         return damage;
+    }
+
+    // 영혼 충전 3단계부터 기본 공격 피해 배율을 적용한다.
+    private float GetSoulChargeAttackDamageMultiplier()
+    {
+        return CurrentSoulChargeStage >= 3
+            ? SoulChargeAttackDamageMultiplier
+            : 1f;
+    }
+
+    // 영혼 충전 1단계부터 받는 피해 감소율을 적용한다.
+    private float ApplySoulChargeDamageReduction(float damage)
+    {
+        if (CurrentSoulChargeStage < 1)
+        {
+            return damage;
+        }
+
+        float reductionRate = Mathf.Clamp01(SoulChargeDamageReductionRate / 100f);
+        return damage * (1f - reductionRate);
+    }
+
+    // 영혼 충전 4단계에서 처치 지점에 광역 폭발 프리팹을 생성한다.
+    public void TrySpawnSoulChargeExplosion(Vector2 position)
+    {
+        if (!IsInitialized
+            || CurrentSoulChargeStage < PlayerRuntimeState.MaxSoulChargeStage
+            || SoulChargeExplosionPrefab == null)
+        {
+            return;
+        }
+
+        Instantiate(SoulChargeExplosionPrefab, position, Quaternion.identity);
     }
 
     // 일반 처치 누적 수를 올리고 조건을 충족하면 영혼 충전 단계를 올린다.
@@ -324,6 +373,7 @@ public sealed class PlayerStatController : MonoBehaviour
         }
 
         runtimeState.NormalKillCount++;
+        int progressForPopup = runtimeState.NormalKillCount;
         if (runtimeState.NormalKillCount >= NormalKillsRequiredForSoulCharge)
         {
             runtimeState.NormalKillCount = 0;
@@ -331,6 +381,7 @@ public sealed class PlayerStatController : MonoBehaviour
         }
 
         NormalKillCountChanged?.Invoke(runtimeState.NormalKillCount);
+        NormalKillRegistered?.Invoke(progressForPopup);
     }
 
     // 처형 처치를 처리해 영혼 충전 단계를 즉시 올린다.

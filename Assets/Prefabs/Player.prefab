@@ -157,6 +157,7 @@ GameObject:
   - component: {fileID: 5098000252934883261}
   - component: {fileID: 484280991851141336}
   - component: {fileID: 8019993255654776742}
+  - component: {fileID: 7341123456789012345}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -228,7 +229,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_MaskInteraction: 0
   m_Sprite: {fileID: 9128384846270689552, guid: 924b45ba7c16f4ba1a227f67b7a2a679, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -345,7 +346,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.PlayerInput
   m_Actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_NotificationBehavior: 0
@@ -460,6 +461,33 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fb7394a39a0a445b897d7f823513fafc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerDodge
+--- !u!114 &7341123456789012345
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8739377747892958056}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6c4f1b0e8bf44e3a2b177a1d0fc28e7, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerExecutionController
+  approachSpeed: 12
+  contactDistance: 0.08
+  approachTimeout: 2
+  executionTargetLayers:
+    serializedVersion: 2
+    m_Bits: 128
+  attackWindup: 0.18
+  attackPause: 1
+  attackRecovery: 0.36
+  attackMoveDistance: 3
+  cameraZoomMultiplier: 0.7
+  cameraZoomDuration: 0.05
+  executionSortingOrder: 10
+  executionHealAmount: 25
+  executionBackgroundEffect: {fileID: 0}
 --- !u!1 &9088135505840155040
 GameObject:
   m_ObjectHideFlags: 0

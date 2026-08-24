@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 [CreateAssetMenu(fileName = "PlayerData", menuName = "Scriptable Objects/PlayerData")]
 public class PlayerData : ScriptableObject
@@ -75,21 +76,18 @@ public class PlayerData : ScriptableObject
 	[SerializeField, Range(0f, 100f)]
 	private float soulChargeDamageReductionRate = 30f;
 
-	[Tooltip("영혼 충전 2단계의 공격 모션 재생 속도 증가율(0~100)")]
-	[SerializeField, Range(0f, 100f)]
-	private float soulChargeAttackSpeedIncreaseRate = 30f;
+	[Tooltip("영혼 충전 2단계의 공격 모션 재생 속도 배율")]
+	[SerializeField, Min(0f)]
+	[FormerlySerializedAs("soulChargeAttackSpeedIncreaseRate")]
+	private float soulChargeAttackSpeedMultiplier = 1.3f;
 
 	[Tooltip("영혼 충전 3단계의 공격 피해 배율")]
 	[SerializeField, Min(0f)]
-	private float soulChargeAttackDamageMultiplier = 2f;
+	private float soulChargeAttackDamageMultiplier = 1.5f;
 
-	[Tooltip("영혼 충전 4단계 처치 시 광역 폭발의 피해량")]
-	[SerializeField, Min(0f)]
-	private float soulChargeExplosionDamage;
-
-	[Tooltip("영혼 충전 4단계 처치 시 광역 폭발의 반경")]
-	[SerializeField, Min(0f)]
-	private float soulChargeExplosionRadius;
+	[Tooltip("영혼 충전 4단계 처치 시 생성할 광역 폭발 프리팹")]
+	[SerializeField]
+	private GameObject soulChargeExplosionPrefab;
 
 	public float MaxHP => maxHP;
 	public float DefaultMoveSpeed => defaultMoveSpeed;
@@ -107,10 +105,9 @@ public class PlayerData : ScriptableObject
 	public float AttackAngle => attackAngle;
 	public float SoulChargeDuration => soulChargeDuration;
 	public float SoulChargeDamageReductionRate => soulChargeDamageReductionRate;
-	public float SoulChargeAttackSpeedIncreaseRate => soulChargeAttackSpeedIncreaseRate;
+	public float SoulChargeAttackSpeedMultiplier => soulChargeAttackSpeedMultiplier;
 	public float SoulChargeAttackDamageMultiplier => soulChargeAttackDamageMultiplier;
-	public float SoulChargeExplosionDamage => soulChargeExplosionDamage;
-	public float SoulChargeExplosionRadius => soulChargeExplosionRadius;
+	public GameObject SoulChargeExplosionPrefab => soulChargeExplosionPrefab;
 
 	/// <summary>
 	/// 설정 에셋을 변경하지 않고, 플레이어 한 명이 사용할 런타임 상태를 생성한다.

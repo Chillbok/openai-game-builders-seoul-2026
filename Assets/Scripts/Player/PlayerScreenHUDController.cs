@@ -37,7 +37,17 @@ public sealed class PlayerScreenHUDController : MonoBehaviour
     [Tooltip("영혼 충전 단계가 비어 있는 핍의 색상")]
     private Color emptySoulColor = new Color(1f, 1f, 1f, 0.25f);
 
+    [Header("단계 변화 사운드")]
+    [SerializeField]
+    [Tooltip("영혼 충전 단계 상승 시 재생할 짧은 효과음")]
+    private AudioClip soulChargeStageUpSound;
+
+    [SerializeField]
+    [Tooltip("영혼 충전 단계 감소 시 재생할 짧은 효과음")]
+    private AudioClip soulChargeStageDownSound;
+
     private bool subscribed;
+    private int displayedSoulChargeStage = -1;
 
     private void Start()
     {
@@ -50,8 +60,20 @@ public sealed class PlayerScreenHUDController : MonoBehaviour
 
         Subscribe();
         UpdateHP(playerStatController.CurrentHP);
+        ConfigureSoulChargePips();
         UpdateSoulChargePips(playerStatController.CurrentSoulChargeStage);
         UpdateSoulChargeProgress();
+        displayedSoulChargeStage = playerStatController.CurrentSoulChargeStage;
+    }
+
+    private void Update()
+    {
+        if (!subscribed || playerStatController == null)
+        {
+            return;
+        }
+
+        UpdateSoulChargePipFill();
     }
 
     private void OnDisable()
@@ -101,8 +123,22 @@ public sealed class PlayerScreenHUDController : MonoBehaviour
 
     private void OnSoulChargeStageChanged(int stage)
     {
+        PlaySoulChargeStageSound(stage);
         UpdateSoulChargePips(stage);
         UpdateSoulChargeProgress();
+    }
+
+    private void PlaySoulChargeStageSound(int stage)
+    {
+        AudioClip clip = stage > displayedSoulChargeStage
+            ? soulChargeStageUpSound
+            : soulChargeStageDownSound;
+        displayedSoulChargeStage = stage;
+
+        if (clip != null)
+        {
+            AudioSource.PlayClipAtPoint(clip, playerStatController.transform.position);
+        }
     }
 
     private void OnNormalKillCountChanged(int normalKillCount)
@@ -117,6 +153,7 @@ public sealed class PlayerScreenHUDController : MonoBehaviour
             return;
         }
 
+        int clampedStage = Mathf.Clamp(stage, 0, PlayerRuntimeState.MaxSoulChargeStage);
         for (int i = 0; i < soulChargePips.Length; i++)
         {
             if (soulChargePips[i] == null)
@@ -124,7 +161,60 @@ public sealed class PlayerScreenHUDController : MonoBehaviour
                 continue;
             }
 
-            soulChargePips[i].color = i < stage ? chargedSoulColor : emptySoulColor;
+            bool isActive = i < clampedStage;
+            soulChargePips[i].gameObject.SetActive(isActive);
+            soulChargePips[i].color = isActive ? chargedSoulColor : emptySoulColor;
+        }
+
+        UpdateSoulChargePipFill();
+    }
+
+    // 핍을 기획서의 세로 와이프 방식으로 설정한다. 남은 시간이 줄면 아래쪽부터 비워진다.
+    private void ConfigureSoulChargePips()
+    {
+        if (soulChargePips == null)
+        {
+            return;
+        }
+
+        foreach (Image pip in soulChargePips)
+        {
+            if (pip == null)
+            {
+                continue;
+            }
+
+            pip.type = Image.Type.Filled;
+            pip.fillMethod = Image.FillMethod.Vertical;
+            pip.fillOrigin = (int)Image.OriginVertical.Bottom;
+            pip.fillClockwise = false;
+        }
+    }
+
+    private void UpdateSoulChargePipFill()
+    {
+        if (soulChargePips == null || playerStatController == null)
+        {
+            return;
+        }
+
+        float duration = playerStatController.SoulChargeDuration;
+        float fillAmount = playerStatController.CurrentSoulChargeStage > 0 && duration > 0f
+            ? Mathf.Clamp01(playerStatController.SoulChargeRemainingTime / duration)
+            : 0f;
+
+        int activePipCount = Mathf.Clamp(
+            playerStatController.CurrentSoulChargeStage,
+            0,
+            PlayerRuntimeState.MaxSoulChargeStage);
+        for (int i = 0; i < soulChargePips.Length; i++)
+        {
+            if (soulChargePips[i] == null || i >= activePipCount)
+            {
+                continue;
+            }
+
+            soulChargePips[i].fillAmount = fillAmount;
         }
     }
 

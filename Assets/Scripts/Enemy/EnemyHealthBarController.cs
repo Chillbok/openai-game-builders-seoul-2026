@@ -118,7 +118,7 @@ public sealed class EnemyHealthBarController : MonoBehaviour
         UpdateVisibility(currentHP);
     }
 
-    private void OnDied()
+    private void OnDied(EnemyDeathReason deathReason)
     {
         if (hideOnDeath)
         {

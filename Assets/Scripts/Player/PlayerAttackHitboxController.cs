@@ -25,6 +25,7 @@ public class PlayerAttackHitboxController : MonoBehaviour
     private HitboxController[] downAttackHitboxes;
 
     private Animator animator;
+    private PlayerExecutionController playerExecutionController;
     private int attackCounterParameterHash;
     private int attackXParameterHash;
     private int attackYParameterHash;
@@ -32,6 +33,7 @@ public class PlayerAttackHitboxController : MonoBehaviour
     private void Awake()
     {
         animator = GetComponent<Animator>();
+        playerExecutionController = GetComponent<PlayerExecutionController>();
         attackCounterParameterHash = Animator.StringToHash(AttackCounterParameterName);
         attackXParameterHash = Animator.StringToHash(AttackXParameterName);
         attackYParameterHash = Animator.StringToHash(AttackYParameterName);
@@ -40,6 +42,11 @@ public class PlayerAttackHitboxController : MonoBehaviour
     // 공격 애니메이션 이벤트에서 호출해 현재 공격 방향과 콤보 단계에 해당하는 히트박스를 활성화한다.
     public void ActivateHitbox()
     {
+        if (playerExecutionController != null && playerExecutionController.IsBusy)
+        {
+            return;
+        }
+
         HitboxController[] hitboxes = GetCurrentDirectionHitboxes();
         if (hitboxes == null)
         {
@@ -63,6 +70,31 @@ public class PlayerAttackHitboxController : MonoBehaviour
     public void DeactivateHitbox()
     {
         HitboxController[] hitboxes = GetCurrentDirectionHitboxes();
+        if (hitboxes == null)
+        {
+            return;
+        }
+
+        foreach (HitboxController hitbox in hitboxes)
+        {
+            if (hitbox != null)
+            {
+                hitbox.DisableHitbox();
+            }
+        }
+    }
+
+    // 처형 시작 또는 처형 종료 시 모든 일반 공격 히트박스를 끈다.
+    public void DisableAllHitboxes()
+    {
+        DisableHitboxes(rightAttackHitboxes);
+        DisableHitboxes(leftAttackHitboxes);
+        DisableHitboxes(upAttackHitboxes);
+        DisableHitboxes(downAttackHitboxes);
+    }
+
+    private static void DisableHitboxes(HitboxController[] hitboxes)
+    {
         if (hitboxes == null)
         {
             return;

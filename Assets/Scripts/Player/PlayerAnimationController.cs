@@ -35,6 +35,7 @@ public class PlayerAnimationController : MonoBehaviour
     private Animator animator;
     private PlayerMoveController playerMoveController;
     private PlayerStatController playerStatController;
+    private PlayerExecutionController playerExecutionController;
     private InputAction attackAction;
     private SpriteRenderer spriteRenderer;
     private int animatorMoveParameterHash;
@@ -58,6 +59,7 @@ public class PlayerAnimationController : MonoBehaviour
         animator = GetComponent<Animator>();
         playerMoveController = GetComponent<PlayerMoveController>();
         playerStatController = GetComponent<PlayerStatController>();
+        playerExecutionController = GetComponent<PlayerExecutionController>();
         attackAction = GetComponent<PlayerInput>().actions.FindAction(AttackActionName, true);
         spriteRenderer = GetComponent<SpriteRenderer>();
 
@@ -96,6 +98,11 @@ public class PlayerAnimationController : MonoBehaviour
     // 매 프레임 이동 방향, 이동 애니메이션, 공격 상태와 공격 입력을 갱신한다.
     private void Update()
     {
+        if (playerExecutionController != null && playerExecutionController.IsBusy)
+        {
+            return;
+        }
+
         UpdateFacingDirection();
         ChangePlayerMoveAnimationPerFrame();
         UpdateAttackAnimationState();
@@ -130,6 +137,7 @@ public class PlayerAnimationController : MonoBehaviour
         }
 
         isAttacking = false;
+        animator.speed = 1f;
         attackAnimationHasStarted = false;
         comboWindowRemaining = 0f;
         comboWindowWasOpened = false;
@@ -163,7 +171,7 @@ public class PlayerAnimationController : MonoBehaviour
     // 공격 입력을 읽고 신규 공격 또는 콤보 공격을 시작한다.
     private void ProcessAttackInput()
     {
-        if (isHit || playerStatController.IsDead)
+        if (isHit || playerStatController.IsDead || (playerExecutionController != null && playerExecutionController.IsBusy))
         {
             return;
         }
@@ -189,6 +197,7 @@ public class PlayerAnimationController : MonoBehaviour
     private void StartAttack()
     {
         isAttacking = true;
+        SetAttackAnimatorSpeed();
         playerMoveController.CanMove = false;
         attackAnimationHasStarted = false;
         playerStatController.SetAttackCount(1);
@@ -203,6 +212,7 @@ public class PlayerAnimationController : MonoBehaviour
     private void StartNextAttack()
     {
         playerStatController.SetAttackCount(playerStatController.CurrentAttackCount + 1);
+        SetAttackAnimatorSpeed();
         playerMoveController.CanMove = false;
         comboWindowRemaining = 0f;
         comboWindowWasOpened = false;
@@ -244,8 +254,11 @@ public class PlayerAnimationController : MonoBehaviour
     {
         if (!isAttacking)
         {
+            animator.speed = 1f;
             return;
         }
+
+        SetAttackAnimatorSpeed();
 
         AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
 
@@ -316,11 +329,34 @@ public class PlayerAnimationController : MonoBehaviour
     private void ResetAttackState()
     {
         isAttacking = false;
+        animator.speed = 1f;
         attackAnimationHasStarted = false;
         playerStatController.ResetAttackCount();
         comboWindowRemaining = 0f;
         comboWindowWasOpened = false;
         playerMoveController.CanMove = true;
         animator.SetInteger(attackCountParameterHash, playerStatController.CurrentAttackCount);
+    }
+
+    // 처형 시작 시 일반 공격과 콤보 상태를 중단한다.
+    public void CancelForExecution()
+    {
+        isAttacking = false;
+        animator.speed = 1f;
+        attackAnimationHasStarted = false;
+        comboWindowRemaining = 0f;
+        comboWindowWasOpened = false;
+        playerStatController.ResetAttackCount();
+        animator.ResetTrigger(attackTriggerParameterHash);
+        playerMoveController.CanMove = false;
+    }
+
+    // 영혼 충전 2단계부터 공격 모션의 재생 속도만 높인다.
+    private void SetAttackAnimatorSpeed()
+    {
+        float soulChargeMultiplier = playerStatController.CurrentSoulChargeStage >= 2
+            ? playerStatController.SoulChargeAttackSpeedMultiplier
+            : 1f;
+        animator.speed = Mathf.Max(0f, playerStatController.AttackSpeed) * soulChargeMultiplier;
     }
 }
