@@ -16,6 +16,7 @@ public sealed class PlayerStatController : MonoBehaviour
     private float damageInvincibilityRemaining;
     private float dodgeFillProgress;
     private bool isRecharging;
+    private bool executionInvulnerable;
     private PlayerDodge playerDodge;
     private float nextAttackDamageMultiplier = 1f;
 
@@ -51,6 +52,7 @@ public sealed class PlayerStatController : MonoBehaviour
     public int NormalKillCount => runtimeState != null ? runtimeState.NormalKillCount : 0;
     public float SoulChargeRemainingTime => runtimeState != null ? runtimeState.SoulChargeRemainingTime : 0f;
     public float DamageInvincibilityRemaining => damageInvincibilityRemaining;
+    public bool IsExecutionInvulnerable => executionInvulnerable;
     public float NextAttackDamageMultiplier => nextAttackDamageMultiplier;
     public bool IsPerfectDodgeAttackReady => nextAttackDamageMultiplier > 0f && !Mathf.Approximately(nextAttackDamageMultiplier, 1f);
 
@@ -161,6 +163,7 @@ public sealed class PlayerStatController : MonoBehaviour
         damageInvincibilityRemaining = 0f;
         isRecharging = false;
         dodgeFillProgress = 0f;
+        executionInvulnerable = false;
     }
 
     // 플레이어의 런타임 스탯을 초기 상태로 되돌린다.
@@ -175,12 +178,18 @@ public sealed class PlayerStatController : MonoBehaviour
         damageInvincibilityRemaining = 0f;
         isRecharging = false;
         dodgeFillProgress = 0f;
+        executionInvulnerable = false;
         RaiseRuntimeStateChanged();
     }
 
     // 피격 무적 여부를 확인한 뒤 플레이어에게 피해를 적용한다.
     public bool TryTakeDamage(float damage)
     {
+        if (executionInvulnerable)
+        {
+            return false;
+        }
+
         // 회피 중에는 무적이므로 모든 피해를 무효화한다. 인정 시간 안이면 완벽한 회피로 처리한다.
         if (playerDodge != null && playerDodge.IsDodging)
         {
@@ -222,6 +231,12 @@ public sealed class PlayerStatController : MonoBehaviour
 		Debug.Log($"플레이어에게 {previousHP - runtimeState.CurrentHP} 피해 입음, 남은 체력: {runtimeState.CurrentHP}");
 
         return true;
+    }
+
+    // 처형 연출 중 플레이어 피해 판정을 무효화한다.
+    public void SetExecutionInvulnerable(bool value)
+    {
+        executionInvulnerable = value;
     }
 
     // 플레이어의 현재 체력을 최대 HP까지 회복한다.

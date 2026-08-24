@@ -9,6 +9,10 @@ public class EnemyData : ScriptableObject
 	[SerializeField, Min(0f)]
 	private float maxHP = 30f;
 
+	[Tooltip("처형 시 보스 전용 보상을 적용할 적인지 여부")]
+	[SerializeField]
+	private bool isBoss;
+
 	[Header("기절 관련 스테이터스")]
 	[Tooltip("적이 최초 기절에 들어가는 현재 체력 비율(0~100)이다.")]
 	[SerializeField, Range(0f, 100f)]
@@ -46,6 +50,7 @@ public class EnemyData : ScriptableObject
 	private float knockbackDistance = 1.5f;
 
 	public float MaxHP => maxHP;
+	public bool IsBoss => isBoss;
 	public float StunThresholdPercent => stunThresholdPercent;
 	public float StunDuration => stunDuration;
 	public float MoveSpeed => moveSpeed;

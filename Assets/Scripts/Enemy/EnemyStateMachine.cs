@@ -12,6 +12,7 @@ public class EnemyStateMachine : MonoBehaviour
         Attack,
         Knockback,
         Stunned,
+        Executing,
         Dead
     }
 
@@ -130,6 +131,11 @@ public class EnemyStateMachine : MonoBehaviour
         if (state == EnemyState.Stunned)
         {
             UpdateStunnedState();
+            return;
+        }
+
+        if (state == EnemyState.Executing)
+        {
             return;
         }
 
@@ -356,7 +362,7 @@ public class EnemyStateMachine : MonoBehaviour
     }
 
     // 사망 처리 후 사망 애니메이션을 재생하고 일정 시간 뒤 제거한다.
-    private void HandleDied()
+    private void HandleDied(EnemyDeathReason deathReason)
     {
         if (diedHandled)
         {
@@ -380,7 +386,7 @@ public class EnemyStateMachine : MonoBehaviour
         PlayerStatController playerStats = playerStatController != null
             ? playerStatController
             : FindFirstObjectByType<PlayerStatController>();
-        if (playerStats != null && playerStats.IsInitialized)
+        if (deathReason == EnemyDeathReason.Normal && playerStats != null && playerStats.IsInitialized)
         {
             playerStats.RegisterNormalKill();
         }
@@ -590,4 +596,46 @@ public class EnemyStateMachine : MonoBehaviour
     public bool IsStunned => state == EnemyState.Stunned;
 
     public bool CanBeExecuted => IsStunned && enemyStatController != null && !enemyStatController.IsDead;
+
+    public bool IsExecuting => state == EnemyState.Executing && enemyStatController != null && enemyStatController.IsExecutionLocked;
+
+    public bool IsBoss => enemyStatController != null && enemyStatController.IsBoss;
+
+    // 기절한 적을 처형 연출 상태로 잠근다.
+    public bool TryBeginExecution()
+    {
+        if (!CanBeExecuted || !enemyStatController.TryBeginExecution())
+        {
+            return false;
+        }
+
+        HideAttackBeacon();
+        SetStunNotifierVisible(false);
+        ResetAttackAnimation();
+        attackPreparePaused = false;
+        attackHitTriggered = false;
+        enemyAnimationController.SetMoving(false);
+        state = EnemyState.Executing;
+        return true;
+    }
+
+    // 처형 타격을 적 스탯 컨트롤러에 전달한다.
+    public bool TryCompleteExecution()
+    {
+        return IsExecuting && enemyStatController.TryCompleteExecution();
+    }
+
+    // 처형 연출이 중단되면 적을 기절 상태로 되돌린다.
+    public bool CancelExecution()
+    {
+        if (!IsExecuting || !enemyStatController.CancelExecution())
+        {
+            return false;
+        }
+
+        state = EnemyState.Stunned;
+        stateTimer = enemyStatController.StunDuration;
+        SetStunNotifierVisible(true);
+        return true;
+    }
 }

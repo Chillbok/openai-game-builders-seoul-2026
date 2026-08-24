@@ -1,6 +1,12 @@
 using System;
 using UnityEngine;
 
+public enum EnemyDeathReason
+{
+    Normal,
+    Execution
+}
+
 [DisallowMultipleComponent]
 public sealed class EnemyStatController : MonoBehaviour
 {
@@ -10,13 +16,16 @@ public sealed class EnemyStatController : MonoBehaviour
     private EnemyData enemyData;
 
     private EnemyRuntimeState runtimeState;
+    private bool executionLocked;
 
     public EnemyData Data => enemyData;
     public bool IsInitialized => runtimeState != null;
     public bool IsDead => IsInitialized && runtimeState.CurrentHP <= 0f;
     public bool CanBeStunned => runtimeState != null && runtimeState.CanBeStunned;
+    public bool IsExecutionLocked => executionLocked;
 
     public float MaxHP => enemyData != null ? enemyData.MaxHP : 0f;
+    public bool IsBoss => enemyData != null && enemyData.IsBoss;
     public float CurrentHP => runtimeState != null ? runtimeState.CurrentHP : 0f;
     public float DefaultMoveSpeed => enemyData != null ? enemyData.MoveSpeed : 0f;
     public float AttackDamage => enemyData != null ? enemyData.AttackDamage : 0f;
@@ -32,7 +41,7 @@ public sealed class EnemyStatController : MonoBehaviour
     public event Action<float> CurrentHPChanged;
     public event Action<Vector2> Damaged;
     public event Action StunStarted;
-    public event Action Died;
+    public event Action<EnemyDeathReason> Died;
 
     // 컴포넌트가 활성화될 때 적의 런타임 스탯을 초기화한다.
     private void Awake()
@@ -73,12 +82,13 @@ public sealed class EnemyStatController : MonoBehaviour
         }
 
         runtimeState = enemyData.CreateRuntimeState();
+        executionLocked = false;
     }
 
     // 적의 현재 체력을 감소시키고 사망 또는 최초 기절 여부를 판정한다.
     public bool TryTakeDamage(float damage, Vector2 knockbackDirection)
     {
-        if (!IsInitialized || IsDead || damage <= 0f)
+        if (!IsInitialized || IsDead || executionLocked || damage <= 0f)
         {
             return false;
         }
@@ -96,7 +106,7 @@ public sealed class EnemyStatController : MonoBehaviour
         {
             // 기존 사망 흐름처럼 치명타에도 피해 이벤트를 먼저 알린다.
             Damaged?.Invoke(knockbackDirection);
-            Died?.Invoke();
+            Died?.Invoke(EnemyDeathReason.Normal);
         }
         else if (TryEnterStun())
         {
@@ -110,6 +120,44 @@ public sealed class EnemyStatController : MonoBehaviour
 
         Debug.Log($"적에게 {previousHP - runtimeState.CurrentHP} 피해 입음, 남은 체력: {runtimeState.CurrentHP}", this);
 
+        return true;
+    }
+
+    // 처형 연출 중 일반 피해와 상태 변경을 막는다.
+    public bool TryBeginExecution()
+    {
+        if (!IsInitialized || IsDead || executionLocked)
+        {
+            return false;
+        }
+
+        executionLocked = true;
+        return true;
+    }
+
+    // 처형 타격 시 HP를 즉시 0으로 만들고 처형 사망 이벤트를 한 번 발생시킨다.
+    public bool TryCompleteExecution()
+    {
+        if (!IsInitialized || IsDead || !executionLocked)
+        {
+            return false;
+        }
+
+        runtimeState.CurrentHP = 0f;
+        CurrentHPChanged?.Invoke(runtimeState.CurrentHP);
+        Died?.Invoke(EnemyDeathReason.Execution);
+        return true;
+    }
+
+    // 처형 연출이 중단되면 일반 전투 판정을 다시 허용한다.
+    public bool CancelExecution()
+    {
+        if (!IsInitialized || IsDead || !executionLocked)
+        {
+            return false;
+        }
+
+        executionLocked = false;
         return true;
     }
 
