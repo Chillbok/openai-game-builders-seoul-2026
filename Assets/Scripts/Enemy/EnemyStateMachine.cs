@@ -386,9 +386,19 @@ public class EnemyStateMachine : MonoBehaviour
         PlayerStatController playerStats = playerStatController != null
             ? playerStatController
             : FindFirstObjectByType<PlayerStatController>();
+        bool hadMaximumSoulCharge = playerStats != null
+            && playerStats.IsInitialized
+            && playerStats.CurrentSoulChargeStage >= PlayerRuntimeState.MaxSoulChargeStage;
         if (deathReason == EnemyDeathReason.Normal && playerStats != null && playerStats.IsInitialized)
         {
             playerStats.RegisterNormalKill();
+        }
+
+        if (hadMaximumSoulCharge
+            && deathReason != EnemyDeathReason.SoulChargeExplosion
+            && playerStats != null)
+        {
+            playerStats.TrySpawnSoulChargeExplosion(transform.position);
         }
 
         Destroy(gameObject, DeathAnimationDuration);

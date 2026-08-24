@@ -4,7 +4,8 @@ using UnityEngine;
 public enum EnemyDeathReason
 {
     Normal,
-    Execution
+    Execution,
+    SoulChargeExplosion
 }
 
 [DisallowMultipleComponent]
@@ -88,6 +89,12 @@ public sealed class EnemyStatController : MonoBehaviour
     // 적의 현재 체력을 감소시키고 사망 또는 최초 기절 여부를 판정한다.
     public bool TryTakeDamage(float damage, Vector2 knockbackDirection)
     {
+        return TryTakeDamage(damage, knockbackDirection, EnemyDeathReason.Normal);
+    }
+
+    // 지정한 사망 원인을 유지하면서 적에게 피해를 적용한다.
+    public bool TryTakeDamage(float damage, Vector2 knockbackDirection, EnemyDeathReason deathReason)
+    {
         if (!IsInitialized || IsDead || executionLocked || damage <= 0f)
         {
             return false;
@@ -106,7 +113,7 @@ public sealed class EnemyStatController : MonoBehaviour
         {
             // 기존 사망 흐름처럼 치명타에도 피해 이벤트를 먼저 알린다.
             Damaged?.Invoke(knockbackDirection);
-            Died?.Invoke(EnemyDeathReason.Normal);
+            Died?.Invoke(deathReason);
         }
         else if (TryEnterStun())
         {

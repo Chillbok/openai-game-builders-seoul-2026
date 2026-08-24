@@ -137,6 +137,7 @@ public class PlayerAnimationController : MonoBehaviour
         }
 
         isAttacking = false;
+        animator.speed = 1f;
         attackAnimationHasStarted = false;
         comboWindowRemaining = 0f;
         comboWindowWasOpened = false;
@@ -196,6 +197,7 @@ public class PlayerAnimationController : MonoBehaviour
     private void StartAttack()
     {
         isAttacking = true;
+        SetAttackAnimatorSpeed();
         playerMoveController.CanMove = false;
         attackAnimationHasStarted = false;
         playerStatController.SetAttackCount(1);
@@ -210,6 +212,7 @@ public class PlayerAnimationController : MonoBehaviour
     private void StartNextAttack()
     {
         playerStatController.SetAttackCount(playerStatController.CurrentAttackCount + 1);
+        SetAttackAnimatorSpeed();
         playerMoveController.CanMove = false;
         comboWindowRemaining = 0f;
         comboWindowWasOpened = false;
@@ -251,8 +254,11 @@ public class PlayerAnimationController : MonoBehaviour
     {
         if (!isAttacking)
         {
+            animator.speed = 1f;
             return;
         }
+
+        SetAttackAnimatorSpeed();
 
         AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
 
@@ -323,6 +329,7 @@ public class PlayerAnimationController : MonoBehaviour
     private void ResetAttackState()
     {
         isAttacking = false;
+        animator.speed = 1f;
         attackAnimationHasStarted = false;
         playerStatController.ResetAttackCount();
         comboWindowRemaining = 0f;
@@ -335,11 +342,21 @@ public class PlayerAnimationController : MonoBehaviour
     public void CancelForExecution()
     {
         isAttacking = false;
+        animator.speed = 1f;
         attackAnimationHasStarted = false;
         comboWindowRemaining = 0f;
         comboWindowWasOpened = false;
         playerStatController.ResetAttackCount();
         animator.ResetTrigger(attackTriggerParameterHash);
         playerMoveController.CanMove = false;
+    }
+
+    // 영혼 충전 2단계부터 공격 모션의 재생 속도만 높인다.
+    private void SetAttackAnimatorSpeed()
+    {
+        float soulChargeMultiplier = playerStatController.CurrentSoulChargeStage >= 2
+            ? playerStatController.SoulChargeAttackSpeedMultiplier
+            : 1f;
+        animator.speed = Mathf.Max(0f, playerStatController.AttackSpeed) * soulChargeMultiplier;
     }
 }

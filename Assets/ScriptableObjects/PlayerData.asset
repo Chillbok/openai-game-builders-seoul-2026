@@ -28,7 +28,6 @@ MonoBehaviour:
   attackAngle: 0
   soulChargeDuration: 12
   soulChargeDamageReductionRate: 30
-  soulChargeAttackSpeedIncreaseRate: 30
-  soulChargeAttackDamageMultiplier: 2
-  soulChargeExplosionDamage: 0
-  soulChargeExplosionRadius: 0
+  soulChargeAttackSpeedMultiplier: 2
+  soulChargeAttackDamageMultiplier: 1.5
+  soulChargeExplosionPrefab: {fileID: 100100000, guid: 74ed2417fa8e844989dfa5dff1134c00, type: 3}

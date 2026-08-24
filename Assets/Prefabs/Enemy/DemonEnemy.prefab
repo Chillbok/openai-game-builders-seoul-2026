@@ -362,6 +362,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: ExecutionBackgroundEffect
       objectReference: {fileID: 0}
+    - target: {fileID: 5883271643677043394, guid: 60a28ba4207454d1ba4d7184735a2c1c, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
