@@ -30,4 +30,4 @@ MonoBehaviour:
   soulChargeDamageReductionRate: 30
   soulChargeAttackSpeedMultiplier: 2
   soulChargeAttackDamageMultiplier: 1.5
-  soulChargeExplosionPrefab: {fileID: 100100000, guid: 74ed2417fa8e844989dfa5dff1134c00, type: 3}
+  soulChargeExplosionPrefab: {fileID: 1993078634942078940, guid: 9ddf949372ae4485292576bcf4cd7f52, type: 3}
