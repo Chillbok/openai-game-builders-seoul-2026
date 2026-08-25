@@ -113,6 +113,51 @@ public sealed class ScreenFadeController : MonoBehaviour
         yield return FadeIn();
     }
 
+    /// <summary>
+    /// StartMenu 전용: 페이드 아웃 → 비동기 씬 로드 대기 → 페이드 인.
+    /// StartMenuController가 파괴되어도 페이드가 유지되도록 ScreenFadeController에서 실행한다.
+    /// </summary>
+    public void FadeOutLoadAndIn(string sceneName, System.Action<bool> onComplete = null)
+    {
+        StartCoroutine(FadeOutLoadAndInRoutine(sceneName, onComplete));
+    }
+
+    private System.Collections.IEnumerator FadeOutLoadAndInRoutine(string sceneName, System.Action<bool> onComplete)
+    {
+        // 페이드 아웃 (검은 화면)
+        yield return FadeOut(null);
+        // 씬 로드
+        bool success = false;
+        UnityEngine.AsyncOperation op = null;
+        try
+        {
+            op = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(sceneName, UnityEngine.SceneManagement.LoadSceneMode.Single);
+            if (op == null)
+            {
+                Debug.LogError($"ScreenFadeController: LoadSceneAsync({sceneName}) 반환 null", this);
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"ScreenFadeController: LoadSceneAsync({sceneName}) 예외 — {e.Message}", this);
+            op = null;
+        }
+
+        if (op != null)
+        {
+            op.allowSceneActivation = true;
+            while (!op.isDone)
+            {
+                yield return null;
+            }
+            success = true;
+        }
+
+        yield return new WaitForSecondsRealtime(0.05f);
+        yield return FadeIn();
+        onComplete?.Invoke(success);
+    }
+
 #if UNITY_EDITOR
     private void OnValidate()
     {
