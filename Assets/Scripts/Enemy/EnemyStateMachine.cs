@@ -440,6 +440,17 @@ public class EnemyStateMachine : MonoBehaviour
             playerStats.TrySpawnSoulChargeExplosion(transform.position);
         }
 
+        // 보스 처치 시 다음 맵으로 전이 (MapGenerator가 있으면 재생성)
+        if (IsBoss)
+        {
+            MapGenerator mapGenerator = FindFirstObjectByType<MapGenerator>();
+            if (mapGenerator != null && mapGenerator.RegenerateOnBossKill)
+            {
+                mapGenerator.RegenerateNextMap();
+                Debug.Log($"보스 처치로 다음 맵 재생성: seed {mapGenerator.CurrentSeed}", mapGenerator);
+            }
+        }
+
         Destroy(gameObject, DeathAnimationDuration);
     }
 

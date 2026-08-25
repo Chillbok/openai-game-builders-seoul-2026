@@ -807,7 +807,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: left
+      name: cliff top left
       rect:
         serializedVersion: 2
         x: 320
@@ -829,7 +829,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: middle
+      name: cliff top middle
       rect:
         serializedVersion: 2
         x: 384
@@ -851,7 +851,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: right
+      name: cliff top right
       rect:
         serializedVersion: 2
         x: 448
@@ -1345,18 +1345,18 @@ TextureImporter:
       Tilemap_color1_8_5: 1245460641
       cliff middle: 95362859
       cliff right: 1159195913
+      cliff top left: -638242462
+      cliff top middle: 1401627456
+      cliff top right: -874685144
       cliffleft: 1356251603
-      left: -638242462
       left down: -1517668380
       left middle: 1094435248
       left up: 295392023
-      middle: 1401627456
       middle down: -1061765408
       middle middle: -1328760811
       middle up: 12962786
       pole_middle: -907205877
       pole_side: 1696349135
-      right: -874685144
       right down: -250796547
       right middle: 1416792582
       right up: -506334985
