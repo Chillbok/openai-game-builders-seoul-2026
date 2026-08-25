@@ -37,6 +37,11 @@ public sealed class GameOverController : MonoBehaviour
     [SerializeField]
     private Camera targetCamera;
 
+    [Header("폰트 (중앙 관리)")]
+    [Tooltip("비어 있으면 GameFontConfig 또는 TMP Settings 기본값을 사용한다")]
+    [SerializeField]
+    private GameFontConfig fontConfig;
+
     [Header("연출")]
     [SerializeField, Min(0f)]
     private float cameraZoomMultiplier = 0.7f;
@@ -240,6 +245,7 @@ public sealed class GameOverController : MonoBehaviour
         GameObject txtObj = new GameObject("Text");
         txtObj.transform.SetParent(btnObj.transform, false);
         TMP_Text btnText = txtObj.AddComponent<TextMeshProUGUI>();
+        btnText.font = ResolveFont();
         btnText.text = "다시 시작";
         btnText.fontSize = 22;
         btnText.alignment = TextAlignmentOptions.Center;
@@ -255,11 +261,19 @@ public sealed class GameOverController : MonoBehaviour
         panelRoot.SetActive(true);
     }
 
+    private TMP_FontAsset ResolveFont()
+    {
+        if (fontConfig != null && fontConfig.DefaultFont != null) return fontConfig.DefaultFont;
+        // TMP Settings가 GameFontConfigSync로 이미 DungGeunMo로 교체된 상태
+        return TMP_Settings.defaultFontAsset;
+    }
+
     private TMP_Text CreateText(Transform parent, string text, float size, FontStyles style, Color color)
     {
         GameObject go = new GameObject("Text");
         go.transform.SetParent(parent, false);
         TMP_Text tmp = go.AddComponent<TextMeshProUGUI>();
+        tmp.font = ResolveFont();
         tmp.text = text;
         tmp.fontSize = size;
         tmp.fontStyle = style;

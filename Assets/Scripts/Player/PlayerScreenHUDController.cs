@@ -55,6 +55,11 @@ public sealed class PlayerScreenHUDController : MonoBehaviour
     [Tooltip("HUD가 구독할 점수 컨트롤러. 비어 있으면 씬에서 탐색한다")]
     private ScoreController scoreController;
 
+    [Header("폰트 (중앙 관리)")]
+    [Tooltip("비어 있으면 GameFontConfig 또는 TMP Settings 기본값을 사용한다")]
+    [SerializeField]
+    private GameFontConfig fontConfig;
+
     private bool subscribed;
     private int displayedSoulChargeStage = -1;
 
@@ -68,6 +73,12 @@ public sealed class PlayerScreenHUDController : MonoBehaviour
         }
 
         if (scoreController == null) scoreController = FindFirstObjectByType<ScoreController>();
+        if (fontConfig == null) fontConfig = Resources.Load<GameFontConfig>("GameFontConfig");
+        if (fontConfig == null) fontConfig = FindFirstObjectByType<GameFontConfig>(); // fallback (씬 배치 시)
+        // 에디터에서 GameFontConfig.asset 경로 로드
+#if UNITY_EDITOR
+        if (fontConfig == null) fontConfig = UnityEditor.AssetDatabase.LoadAssetAtPath<GameFontConfig>("Assets/ScriptableObjects/UI/GameFontConfig.asset");
+#endif
         EnsureTotalScoreText();
 
         Subscribe();
@@ -253,9 +264,20 @@ public sealed class PlayerScreenHUDController : MonoBehaviour
         soulChargeProgressText.text = $"{playerStatController.NormalKillCount} / {PlayerStatController.NormalKillsRequiredForSoulCharge}";
     }
 
+    private TMP_FontAsset ResolveFont()
+    {
+        if (fontConfig != null && fontConfig.DefaultFont != null) return fontConfig.DefaultFont;
+        return TMP_Settings.defaultFontAsset;
+    }
+
     private void EnsureTotalScoreText()
     {
-        if (totalScoreText != null) return;
+        if (totalScoreText != null)
+        {
+            // 기존 인스펙터 지정 텍스트도 중앙 폰트로 보정
+            if (totalScoreText.font != ResolveFont()) totalScoreText.font = ResolveFont();
+            return;
+        }
 
         // HUD에 총점 텍스트가 없으면 우상단에 자동 생성
         GameObject go = new GameObject("TotalScoreText", typeof(RectTransform));
@@ -268,6 +290,7 @@ public sealed class PlayerScreenHUDController : MonoBehaviour
         rt.sizeDelta = new Vector2(200f, 40f);
 
         totalScoreText = go.AddComponent<TextMeshProUGUI>();
+        totalScoreText.font = ResolveFont();
         totalScoreText.fontSize = 28f;
         totalScoreText.alignment = TextAlignmentOptions.TopRight;
         totalScoreText.color = Color.white;
