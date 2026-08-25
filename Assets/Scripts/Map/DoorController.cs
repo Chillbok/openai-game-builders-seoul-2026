@@ -1,4 +1,6 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
+// Fix: Input System Only - Keyboard direct check, no PlayerInput reference
 
 /// <summary>
 /// 방 클리어 시 문 개방, 문 상호작용 시 다음 맵 전이를 담당한다.
@@ -46,6 +48,7 @@ public sealed class DoorController : MonoBehaviour
 
     private bool isOpen;
     private bool playerInsideTrigger;
+    private bool isTransitioning;
 
     public bool IsOpen => isOpen;
 
@@ -53,6 +56,16 @@ public sealed class DoorController : MonoBehaviour
     {
         CacheReferences();
         UpdateDoorVisual(true);
+    }
+
+    private void Start()
+    {
+        // 초기 문 위치를 방 내부 빈 셀 중 랜덤으로 배치 (반드시 방 안에 생성)
+        // MapGenerator.Awake에서 이미 Generate/Bake가 완료된 뒤이므로 1프레임 지연 후 시도
+        if (!TryPlaceDoorRandomly())
+        {
+            Invoke(nameof(TryPlaceDoorRandomly), 0.1f);
+        }
     }
 
     private void OnValidate()
@@ -81,6 +94,62 @@ public sealed class DoorController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 문을 방 내부 빈 셀 중 랜덤한 위치에 배치. 반드시 방 안에 생성되며 벽 위가 아니다.
+    /// 시드 결정론을 위해 MapGenerator.CurrentSeed 기반 System.Random을 사용한다.
+    /// </summary>
+    public bool TryPlaceDoorRandomly()
+    {
+        CacheReferences();
+        if (mapGenerator == null || mapGenerator.CurrentLayout == null || mapGenerator.WallsTilemap == null)
+            return false;
+
+        var spawnProvider = mapGenerator.SpawnProvider;
+        if (spawnProvider == null || !spawnProvider.HasBakedData)
+            return false;
+
+        // 빈 셀 목록에서 랜덤 선택. 가운데(플레이어 시작점) 근처 3셀은 제외해 겹침 방지.
+        var layout = mapGenerator.CurrentLayout;
+        Vector2Int center = layout.GetCenter();
+        var emptyCells = spawnProvider.EmptyCells;
+        if (emptyCells == null || emptyCells.Count == 0) return false;
+
+        System.Random rng = new System.Random(mapGenerator.CurrentSeed + 9999 + mapGenerator.MapIndex * 7919);
+        // 후보 필터링: 중심 반경 3셀 제외
+        System.Collections.Generic.List<Vector2Int> candidates = new System.Collections.Generic.List<Vector2Int>(emptyCells.Count);
+        float clearRadiusSq = 3f * 3f;
+        foreach (var cell in emptyCells)
+        {
+            float dx = cell.x - center.x;
+            float dy = cell.y - center.y;
+            if (dx * dx + dy * dy <= clearRadiusSq + 0.001f) continue;
+            candidates.Add(cell);
+        }
+        if (candidates.Count == 0) candidates.AddRange(emptyCells);
+
+        // 최대 10회 시도해 겹침 없는 위치 선택 (SpawnAreaProvider와 동일한 0.4 반경 검사 재사용)
+        for (int attempt = 0; attempt < 10; attempt++)
+        {
+            int idx = rng.Next(candidates.Count);
+            Vector2Int cell = candidates[idx];
+            Vector3 worldPos = mapGenerator.WallsTilemap.GetCellCenterWorld(new Vector3Int(cell.x, cell.y, 0));
+            worldPos.z = transform.position.z;
+            // 벽이 아닌 빈 셀 중심이므로 IsWall 검사 불필요하나, 안전하게 재확인
+            if (layout.IsWall(cell.x, cell.y)) continue;
+            transform.position = worldPos;
+            playerInsideTrigger = false;
+            return true;
+        }
+
+        // 폴백: 그냥 랜덤 하나 배치
+        Vector2Int fallback = candidates[rng.Next(candidates.Count)];
+        Vector3 fallbackWorld = mapGenerator.WallsTilemap.GetCellCenterWorld(new Vector3Int(fallback.x, fallback.y, 0));
+        fallbackWorld.z = transform.position.z;
+        transform.position = fallbackWorld;
+        playerInsideTrigger = false;
+        return true;
+    }
+
     private void Update()
     {
         // 활성 적 수 기반 잠금/개방 갱신
@@ -89,12 +158,6 @@ public sealed class DoorController : MonoBehaviour
         {
             isOpen = shouldOpen;
             UpdateDoorVisual(false);
-        }
-
-        // 플레이어가 트리거 안에 있고 개방 상태에서 상호작용 키 입력 시 전이
-        if (isOpen && playerInsideTrigger && WasInteractPressed())
-        {
-            TryTransitToNextMap();
         }
     }
 
@@ -139,24 +202,23 @@ public sealed class DoorController : MonoBehaviour
         }
     }
 
-    private bool WasInteractPressed()
+    private bool IsPlayerCollider(Collider2D other)
     {
-        // Input System과 레거시 모두 대응
-        // 1) InputSystem Actions: PlayerInput Interact 액션이 있으면 우선
-        // 2) 폴백: E 키 또는 Space
-#if ENABLE_INPUT_SYSTEM
-        // Keyboard 현재 상태로 E 키 감지 (WebGL 호환)
-        var keyboard = UnityEngine.InputSystem.Keyboard.current;
-        if (keyboard != null && keyboard.eKey.wasPressedThisFrame) return true;
-        if (keyboard != null && keyboard.enterKey.wasPressedThisFrame) return true;
-#endif
-        if (Input.GetKeyDown(KeyCode.E) || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
-            return true;
+        if (other == null) return false;
+        if (other.CompareTag("Player")) return true;
+        // TagManager에 Player 태그가 없을 때를 대비한 레이어 폴백
+        int playerLayer = LayerMask.NameToLayer("Player");
+        if (playerLayer >= 0 && other.gameObject.layer == playerLayer) return true;
+        // Player 프리팹이 Player 레이어가 아닌 경우 Transform 이름 폴백은 사용하지 않음
         return false;
     }
 
+    // 상호작용 키 없이 접촉 즉시 전이하므로 WasInteractPressed는 사용하지 않는다
+    // 과거 Input System Only 키 체크는 제거됨
+
     private void TryTransitToNextMap()
     {
+        if (isTransitioning) return;
         if (requireOpenToTransit && !isOpen) return;
         if (mapGenerator == null)
         {
@@ -169,6 +231,47 @@ public sealed class DoorController : MonoBehaviour
             return;
         }
 
+        isTransitioning = true;
+        // 입력 잠금 및 페이드 아웃 → 재생성 → 재배치 → 페이드 인
+        if (playerTransform != null)
+        {
+            var mover = playerTransform.GetComponent<PlayerMoveController>();
+            if (mover != null) mover.CanMove = false;
+        }
+
+        var fade = FindFirstObjectByType<ScreenFadeController>();
+        if (fade == null)
+        {
+            GameObject fadeObj = new GameObject("ScreenFade");
+            fade = fadeObj.AddComponent<ScreenFadeController>();
+        }
+        StartCoroutine(TransitWithFade(fade));
+    }
+
+    private System.Collections.IEnumerator TransitWithFade(ScreenFadeController fade)
+    {
+        // 페이드 아웃
+        yield return fade.FadeOut(null);
+        DoTransit();
+        // 한 프레임 대기 후 페이드 인 (TilemapCollider 리프레시 완료 보장)
+        yield return null;
+        yield return fade.FadeIn();
+        isTransitioning = false;
+        if (playerTransform != null)
+        {
+            var mover = playerTransform.GetComponent<PlayerMoveController>();
+            if (mover != null && mover.CanMove == false)
+            {
+                // Door가 다시 잠길 때까지는 이동 제한 유지, 이후 Update에서 자동 해제되지 않으므로 여기서 해제
+                // 단, 사망 상태가 아니면 이동 허용
+                var stat = playerTransform.GetComponent<PlayerStatController>();
+                if (stat == null || !stat.IsDead) mover.CanMove = true;
+            }
+        }
+    }
+
+    private void DoTransit()
+    {
         // 맵 재생성 (새 시드)
         bool regenerated = mapGenerator.TryRegenerateNextMap();
         if (!regenerated)
@@ -177,7 +280,7 @@ public sealed class DoorController : MonoBehaviour
         }
         Debug.Log($"DoorController: 다음 맵 전이 seed={mapGenerator.CurrentSeed} mapIndex={mapGenerator.MapIndex}", this);
 
-        // 플레이어 중앙 재배치 (페이드 아웃 흐름은 후속 연출에서 확장)
+        // 플레이어 중앙 재배치
         if (recenterPlayerOnTransit)
         {
             RecenterPlayer();
@@ -186,11 +289,12 @@ public sealed class DoorController : MonoBehaviour
         // 다음 웨이브 스폰 (SpawnAreaProvider Bake 이후)
         if (waveSpawner != null)
         {
-            // 다음 프레임에 스폰하여 Bake 완료 보장 (MapGenerator.Generate는 동기지만 물리 갱신 다음 프레임 반영)
             waveSpawner.Invoke(nameof(EnemyWaveSpawner.SpawnNextWave), 0f);
-            // 즉시도 시도
-            // waveSpawner.SpawnNextWave는 내부에서 HasBakedData 체크하므로 실패 시 Start의 지연 스폰이 커버
         }
+
+        // 새 맵에서는 문 위치도 랜덤 재배치 (반드시 방 내부 빈 셀)
+        Invoke(nameof(TryPlaceDoorRandomly), 0.05f);
+        TryPlaceDoorRandomly();
 
         // 문은 즉시 잠금으로 복귀 (새 웨이브가 스폰되면 Update에서 다시 개방 판단)
         isOpen = false;
@@ -225,13 +329,15 @@ public sealed class DoorController : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (!other.CompareTag("Player")) return;
+        if (!IsPlayerCollider(other)) return;
         playerInsideTrigger = true;
+        // 문이 개방된 상태에서 닿자마자 즉시 전이
+        if (isOpen) TryTransitToNextMap();
     }
 
     private void OnTriggerExit2D(Collider2D other)
     {
-        if (!other.CompareTag("Player")) return;
+        if (!IsPlayerCollider(other)) return;
         playerInsideTrigger = false;
     }
 

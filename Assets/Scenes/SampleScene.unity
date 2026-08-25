@@ -913,12 +913,12 @@ MonoBehaviour:
   spawnAreaProvider: {fileID: 645230471}
   mapGenerator: {fileID: 645230470}
   enemyPrefab: {fileID: 3378323041372675823, guid: 66312fd1123554e92992a8a58546a832, type: 3}
-  baseEnemyCount: 4
-  increasePerMap: 1
+  baseEnemyCount: 10
+  increasePerMap: 5
   maxEnemyCount: 12
   referenceArea: 504
-  enemiesPer100Cells: 5
-  minSpawnCount: 4
+  enemiesPer100Cells: 20
+  minSpawnCount: 10
   autoSpawnOnStart: 1
 --- !u!1 &645230473
 GameObject:
@@ -1001,7 +1001,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 10
+  m_SortingOrder: -5
   m_MaskInteraction: 0
   m_Sprite: {fileID: -618214316, guid: beb2e8d7281024010be377e6c0dc2821, type: 3}
   m_Color: {r: 0.3019608, g: 0.3019608, b: 0.3019608, a: 1}
@@ -2618,75 +2618,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b0964c641eca4113b91deee8b82b7ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStatController
---- !u!1001 &4498463168108062765
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 2461784454546473774, guid: bc2652931534944d0b867f85b11d98b9, type: 3}
-      propertyPath: m_Color.b
-      value: 0.3019608
-      objectReference: {fileID: 0}
-    - target: {fileID: 2461784454546473774, guid: bc2652931534944d0b867f85b11d98b9, type: 3}
-      propertyPath: m_Color.g
-      value: 0.3019608
-      objectReference: {fileID: 0}
-    - target: {fileID: 2461784454546473774, guid: bc2652931534944d0b867f85b11d98b9, type: 3}
-      propertyPath: m_Color.r
-      value: 0.3019608
-      objectReference: {fileID: 0}
-    - target: {fileID: 2465219641279266648, guid: bc2652931534944d0b867f85b11d98b9, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -1.45
-      objectReference: {fileID: 0}
-    - target: {fileID: 2465219641279266648, guid: bc2652931534944d0b867f85b11d98b9, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -0.09
-      objectReference: {fileID: 0}
-    - target: {fileID: 2465219641279266648, guid: bc2652931534944d0b867f85b11d98b9, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2465219641279266648, guid: bc2652931534944d0b867f85b11d98b9, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2465219641279266648, guid: bc2652931534944d0b867f85b11d98b9, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2465219641279266648, guid: bc2652931534944d0b867f85b11d98b9, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2465219641279266648, guid: bc2652931534944d0b867f85b11d98b9, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2465219641279266648, guid: bc2652931534944d0b867f85b11d98b9, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2465219641279266648, guid: bc2652931534944d0b867f85b11d98b9, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2465219641279266648, guid: bc2652931534944d0b867f85b11d98b9, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5824325791768959128, guid: bc2652931534944d0b867f85b11d98b9, type: 3}
-      propertyPath: m_Name
-      value: trapdoor
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: bc2652931534944d0b867f85b11d98b9, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -2697,4 +2628,3 @@ SceneRoots:
   - {fileID: 1668034148}
   - {fileID: 1971528484}
   - {fileID: 259548059}
-  - {fileID: 4498463168108062765}
