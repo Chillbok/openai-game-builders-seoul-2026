@@ -63,6 +63,16 @@ public sealed class EnemyWaveSpawner : MonoBehaviour
     public bool IsSpawning => isSpawning;
     public bool IsSurvivalComplete => elapsed >= survivalDuration;
     public float SurvivalProgress => survivalDuration > 0f ? Mathf.Clamp01(elapsed / survivalDuration) : 1f;
+    public float RemainingTime => Mathf.Max(0f, survivalDuration - elapsed);
+
+    // HUD 등에서 구독하는 생존/활성 적 이벤트 (초 경계/변화 시에만 발행)
+    public event System.Action<float, float> SurvivalRemainingChanged;
+    public event System.Action SurvivalCompleted;
+    public event System.Action<int> AliveCountChanged;
+
+    private int prevRemainingSec = -1;
+    private int prevAliveCount = -1;
+    private bool hasSurvivalCompletedFired;
 
     /// <summary>
     /// 현재 방의 살아있는 적 수. Destroy 직후 null 참조는 제외한다.
@@ -112,15 +122,25 @@ public sealed class EnemyWaveSpawner : MonoBehaviour
             return;
         }
 
-        if (!isSpawning) return;
+        if (!isSpawning)
+        {
+            // 대기 중에도 사망으로 인한 AliveCount 변화는 감지 (RemoveAll 및 이벤트로 커버되지만 폴링 보정)
+            TryNotifyAliveCountChanged();
+            return;
+        }
 
         elapsed += Time.deltaTime;
         spawnTimer += Time.deltaTime;
+
+        TryNotifySurvivalRemainingChanged();
+        TryNotifyAliveCountChanged();
 
         // 생존 시간 경과 시 생성 중단 (잔여 적 유지)
         if (elapsed >= survivalDuration)
         {
             isSpawning = false;
+            TryNotifySurvivalCompleted();
+            TryNotifySurvivalRemainingChanged(force: true);
             Debug.Log($"EnemyWaveSpawner: 생존 완료 elapsed={elapsed:F1} survival={survivalDuration:F1} mapIndex={mapGenerator?.MapIndex}", this);
             return;
         }
@@ -131,6 +151,34 @@ public sealed class EnemyWaveSpawner : MonoBehaviour
             spawnTimer -= spawnInterval;
             SpawnBatch(enemiesPerInterval);
         }
+    }
+
+    private void TryNotifySurvivalRemainingChanged(bool force = false)
+    {
+        int sec = Mathf.CeilToInt(RemainingTime);
+        if (!force && sec == prevRemainingSec) return;
+        prevRemainingSec = sec;
+        try { SurvivalRemainingChanged?.Invoke(RemainingTime, survivalDuration); } catch (System.Exception e) { Debug.LogWarning($"EnemyWaveSpawner: SurvivalRemainingChanged invoke 실패 {e}", this); }
+    }
+
+    private void TryNotifySurvivalCompleted()
+    {
+        if (hasSurvivalCompletedFired) return;
+        hasSurvivalCompletedFired = true;
+        try { SurvivalCompleted?.Invoke(); } catch (System.Exception e) { Debug.LogWarning($"EnemyWaveSpawner: SurvivalCompleted invoke 실패 {e}", this); }
+    }
+
+    private void TryNotifyAliveCountChanged(bool force = false)
+    {
+        int alive = AliveCount;
+        if (!force && alive == prevAliveCount) return;
+        prevAliveCount = alive;
+        try { AliveCountChanged?.Invoke(alive); } catch (System.Exception e) { Debug.LogWarning($"EnemyWaveSpawner: AliveCountChanged invoke 실패 {e}", this); }
+    }
+
+    private void OnEnemyDied(EnemyDeathReason _)
+    {
+        TryNotifyAliveCountChanged();
     }
 
     private void OnValidate()
@@ -201,12 +249,18 @@ public sealed class EnemyWaveSpawner : MonoBehaviour
         survivalDuration = CalculateSurvivalDuration();
         isSpawning = true;
 
+        // 이벤트 캐시 리셋
+        prevRemainingSec = -1;
+        prevAliveCount = -1;
+        hasSurvivalCompletedFired = false;
+
         // 게임플레이 BGM — 방 진입 시 루프 재생 (menuBgm은 스타트 메뉴 구현 시까지 대기)
         if (AudioService.Instance != null && AudioService.Instance.Config != null && AudioService.Instance.Config.BattleBgm != null)
         {
             AudioService.Instance.PlayBGM(AudioService.Instance.Config.BattleBgm, true, 0.3f);
         }
 
+        UnsubscribeFromAllSpawnedEnemies();
         spawnedEnemies.RemoveAll(go => go == null);
 
         // 즉시 첫 배치 생성 (생존 시간이 0이면 생성 없이 즉시 완료로 처리)
@@ -217,8 +271,14 @@ public sealed class EnemyWaveSpawner : MonoBehaviour
         else if (survivalDuration <= 0f)
         {
             isSpawning = false;
+            TryNotifySurvivalCompleted();
             Debug.Log($"EnemyWaveSpawner: 생존 시간 0으로 즉시 완료 mapIndex={mapGenerator?.MapIndex}", this);
         }
+
+        // 초기값 1회 발행 (HUD 즉시 갱신)
+        TryNotifySurvivalRemainingChanged(force: true);
+        TryNotifyAliveCountChanged(force: true);
+        if (isSpawning == false && survivalDuration <= 0f) TryNotifySurvivalCompleted();
 
         Debug.Log($"EnemyWaveSpawner: 생존 웨이브 시작 survival={survivalDuration:F1} interval={spawnInterval:F1} perBatch={enemiesPerInterval} seed={mapGenerator?.CurrentSeed} mapIndex={mapGenerator?.MapIndex}", this);
         return true;
@@ -244,8 +304,10 @@ public sealed class EnemyWaveSpawner : MonoBehaviour
             pos.z = 0f;
             GameObject instance = Instantiate(enemyPrefab, pos, Quaternion.identity);
             spawnedEnemies.Add(instance);
+            TrySubscribeToEnemy(instance);
         }
 
+        TryNotifyAliveCountChanged();
         Debug.Log($"EnemyWaveSpawner: 배치 생성 count={count} batch={batchIndex} seed={seed} mapIndex={mapGenerator?.MapIndex}", this);
     }
 
@@ -279,11 +341,40 @@ public sealed class EnemyWaveSpawner : MonoBehaviour
     /// </summary>
     public void ClearTracking()
     {
+        UnsubscribeFromAllSpawnedEnemies();
         spawnedEnemies.Clear();
+        TryNotifyAliveCountChanged(force: true);
     }
 
     public void StopSpawning()
     {
         isSpawning = false;
+        TryNotifySurvivalRemainingChanged(force: true);
+    }
+
+    private void OnDestroy()
+    {
+        UnsubscribeFromAllSpawnedEnemies();
+    }
+
+    private void TrySubscribeToEnemy(GameObject instance)
+    {
+        if (instance == null) return;
+        var stat = instance.GetComponent<EnemyStatController>();
+        if (stat == null) return;
+        // 중복 구독 방지: 먼저 제거 후 추가
+        stat.Died -= OnEnemyDied;
+        stat.Died += OnEnemyDied;
+    }
+
+    private void UnsubscribeFromAllSpawnedEnemies()
+    {
+        for (int i = spawnedEnemies.Count - 1; i >= 0; i--)
+        {
+            var go = spawnedEnemies[i];
+            if (go == null) continue;
+            var stat = go.GetComponent<EnemyStatController>();
+            if (stat != null) stat.Died -= OnEnemyDied;
+        }
     }
 }
