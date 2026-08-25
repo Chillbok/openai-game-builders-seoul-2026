@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.Tilemaps;
 
 /// <summary>
@@ -19,9 +20,50 @@ public sealed class MapGenerator : MonoBehaviour
     [SerializeField]
     private Tilemap wallsTilemap;
 
-    [Tooltip("외벽/장애물에 사용할 타일. 프로파일 wallTile보다 우선한다")]
+    [Tooltip("바닥 타일을 배치할 Ground Tilemap. 비어 있으면 자식에서 탐색한다")]
+    [SerializeField]
+    private Tilemap groundTilemap;
+
+    [Tooltip("외벽/장애물에 사용할 타일. 프로파일 wallTile보다 우선한다. Wall RuleTile 사용")]
     [SerializeField]
     private TileBase wallTile;
+
+    [Tooltip("바닥에 사용할 타일. Ground RuleTile 사용. 비어 있으면 Walls와 구분 없이 동작")]
+    [SerializeField]
+    private TileBase groundTile;
+
+    [Header("외벽 전용 타일 (방향별, 비어 있으면 wallTile RuleTile 사용)")]
+    [Tooltip("외벽 북쪽(상단) 타일")]
+    [SerializeField]
+    private TileBase outerWallNorthTile;
+
+    [Tooltip("외벽 남쪽(하단) 타일")]
+    [SerializeField]
+    private TileBase outerWallSouthTile;
+
+    [Tooltip("외벽 서쪽(좌측) 타일")]
+    [SerializeField]
+    private TileBase outerWallWestTile;
+
+    [Tooltip("외벽 동쪽(우측) 타일")]
+    [SerializeField]
+    private TileBase outerWallEastTile;
+
+    [Tooltip("외벽 북서 코너")]
+    [SerializeField]
+    private TileBase outerWallCornerNWTile;
+
+    [Tooltip("외벽 북동 코너")]
+    [SerializeField]
+    private TileBase outerWallCornerNETile;
+
+    [Tooltip("외벽 남서 코너")]
+    [SerializeField]
+    private TileBase outerWallCornerSWTile;
+
+    [Tooltip("외벽 남동 코너")]
+    [SerializeField]
+    private TileBase outerWallCornerSETile;
 
     [Header("시드")]
     [Tooltip("true면 fixedSeed를 사용해 같은 맵을 재현한다")]
@@ -36,22 +78,29 @@ public sealed class MapGenerator : MonoBehaviour
     private int currentSeed;
 
     [Header("맵 전이")]
-    [Tooltip("보스 처치 시 다음 맵으로 재생성하는지")]
+    [Tooltip("방 클리어 후 문 상호작용 시 다음 맵으로 재생성하는지 (기획: 게임 콘텐츠 세부 기획(맵))")]
+    [FormerlySerializedAs("regenerateOnBossKill")]
     [SerializeField]
-    private bool regenerateOnBossKill = true;
+    private bool regenerateOnRoomClear = true;
 
     private MapLayout currentLayout;
     private SpawnAreaProvider spawnProvider;
     private int mapIndex;
-    private Tilemap groundTilemap;
 
     public MapArenaProfile ArenaProfile => arenaProfile;
     public Tilemap WallsTilemap => wallsTilemap;
+    public Tilemap GroundTilemap => groundTilemap;
     public TileBase WallTile => wallTile;
+    public TileBase GroundTile => groundTile;
+    public TileBase OuterWallNorthTile => outerWallNorthTile;
+    public TileBase OuterWallSouthTile => outerWallSouthTile;
+    public TileBase OuterWallWestTile => outerWallWestTile;
+    public TileBase OuterWallEastTile => outerWallEastTile;
     public bool UseFixedSeed => useFixedSeed;
     public int FixedSeed => fixedSeed;
     public int CurrentSeed => currentSeed;
-    public bool RegenerateOnBossKill => regenerateOnBossKill;
+    public bool RegenerateOnRoomClear => regenerateOnRoomClear;
+    public bool RegenerateOnBossKill => regenerateOnRoomClear;
     public MapLayout CurrentLayout => currentLayout;
     public SpawnAreaProvider SpawnProvider => spawnProvider;
     public int MapIndex => mapIndex;
@@ -73,11 +122,17 @@ public sealed class MapGenerator : MonoBehaviour
 
     private void OnValidate()
     {
-        if (arenaProfile == null) return;
-        // 프로파일 값은 OnValidate에서 클램프됨
         if (wallsTilemap == null)
         {
             wallsTilemap = GetComponentInChildren<Tilemap>();
+        }
+        if (groundTilemap == null)
+        {
+            Tilemap[] all = GetComponentsInChildren<Tilemap>(true);
+            foreach (var tm in all)
+            {
+                if (tm.gameObject.name == "Ground") groundTilemap = tm;
+            }
         }
     }
 
@@ -98,15 +153,21 @@ public sealed class MapGenerator : MonoBehaviour
             if (wallsTilemap == null && tilemaps.Length > 0) wallsTilemap = tilemaps[0];
         }
 
+        if (groundTilemap == null)
+        {
+            Tilemap[] tilemaps = GetComponentsInChildren<Tilemap>(true);
+            foreach (var tm in tilemaps)
+            {
+                if (tm.gameObject.name == "Ground")
+                {
+                    groundTilemap = tm;
+                    break;
+                }
+            }
+        }
+
         spawnProvider = GetComponent<SpawnAreaProvider>();
         if (spawnProvider == null) spawnProvider = GetComponentInChildren<SpawnAreaProvider>(true);
-
-        // Ground 타일맵은 참고용으로 캐시 (선택)
-        Tilemap[] all = GetComponentsInChildren<Tilemap>(true);
-        foreach (var tm in all)
-        {
-            if (tm.gameObject.name == "Ground") groundTilemap = tm;
-        }
     }
 
     public void GenerateWithRandomSeed()
@@ -122,150 +183,33 @@ public sealed class MapGenerator : MonoBehaviour
         currentSeed = seed;
         MapArenaProfile profile = arenaProfile;
 
-        int width = profile != null ? profile.MapWidth : 30;
-        int height = profile != null ? profile.MapHeight : 20;
+        System.Random rng = new System.Random(seed);
+        Vector2Int size = profile != null ? profile.GetRandomMapSize(rng) : new Vector2Int(30, 20);
+        int width = size.x;
+        int height = size.y;
 
-        TileBase tile = ResolveWallTile();
+        TileBase wallTileResolved = ResolveWallTile();
+        TileBase groundTileResolved = ResolveGroundTile();
         if (wallsTilemap == null)
         {
             Debug.LogWarning("MapGenerator: Walls Tilemap이 할당되지 않았습니다.", this);
             return;
         }
-        if (tile == null)
+        if (wallTileResolved == null)
         {
-            Debug.LogWarning("MapGenerator: wallTile이 할당되지 않았습니다. 기본 타일을 지정하세요.", this);
+            Debug.LogWarning("MapGenerator: wallTile이 할당되지 않았습니다. Wall RuleTile을 지정하세요.", this);
             return;
         }
 
-        System.Random rng = new System.Random(seed);
         MapLayout layout = new MapLayout(width, height);
         layout.FillOuterWalls();
 
-        // 장애물 수량 결정 (variance 적용)
-        int baseCount = profile != null ? profile.ObstacleCount : 6;
-        int variance = profile != null ? profile.ObstacleCountVariance : 1;
-        int obstacleCount = baseCount;
-        if (variance > 0)
-        {
-            int delta = rng.Next(-variance, variance + 1);
-            obstacleCount = Mathf.Clamp(baseCount + delta, 0, 32);
-        }
-
-        float minDist = profile != null ? profile.MinObstacleDistance : 2f;
-        float clearRadius = profile != null ? profile.PlayerClearRadius : 3f;
-        int wallMargin = profile != null ? profile.WallMargin : 1;
-        int maxRetries = profile != null ? profile.MaxRetries : 30;
-
-        ObstaclePattern[] patterns = profile != null ? profile.ObstaclePatterns : null;
-        List<Vector2Int> placedOrigins = new List<Vector2Int>();
-        List<Vector2Int[]> placedCellsList = new List<Vector2Int[]>();
-        Vector2Int center = layout.GetCenter();
-
-        for (int i = 0; i < obstacleCount; i++)
-        {
-            bool placed = false;
-            for (int attempt = 0; attempt < maxRetries; attempt++)
-            {
-                ObstaclePattern pattern = PickPattern(patterns, rng);
-                int rot = pattern != null && pattern.AllowRotation ? rng.Next(0, 4) : 0;
-                bool mirrored = pattern != null && pattern.AllowMirror && rng.Next(0, 2) == 1;
-
-                Vector2Int[] cells;
-                Vector2Int size;
-                if (pattern != null)
-                {
-                    cells = pattern.GetTransformedCells(rot, mirrored);
-                    size = pattern.GetTransformedSize(rot, mirrored);
-                }
-                else
-                {
-                    // 기본 폴백: 3x2 직사각형
-                    size = new Vector2Int(3, 2);
-                    cells = CreateRectCells(size);
-                }
-
-                // 랜덤 위치 샘플링 (wallMargin 이격)
-                int minX = 1 + wallMargin;
-                int maxX = width - 1 - wallMargin - size.x;
-                int minY = 1 + wallMargin;
-                int maxY = height - 1 - wallMargin - size.y;
-                if (maxX < minX || maxY < minY) break;
-
-                int ox = rng.Next(minX, maxX + 1);
-                int oy = rng.Next(minY, maxY + 1);
-                Vector2Int origin = new Vector2Int(ox, oy);
-
-                // 시작점 금지구역 검사
-                bool inClear = false;
-                foreach (var c in cells)
-                {
-                    Vector2Int wp = origin + c;
-                    float dx = wp.x - center.x;
-                    float dy = wp.y - center.y;
-                    if (dx * dx + dy * dy <= clearRadius * clearRadius + 0.001f)
-                    {
-                        inClear = true;
-                        break;
-                    }
-                }
-                if (inClear) continue;
-
-                // 기존 장애물과 최소거리 검사 (원점 간 거리로 근사)
-                bool tooClose = false;
-                foreach (var prev in placedOrigins)
-                {
-                    float dx = origin.x - prev.x;
-                    float dy = origin.y - prev.y;
-                    if (Mathf.Sqrt(dx * dx + dy * dy) < minDist)
-                    {
-                        tooClose = true;
-                        break;
-                    }
-                    // 셀 단위 겹침도 추가 검사
-                    // 기존 패턴의 bounding box와 겹치면 tooClose로 간주 (셀 0거리)
-                    // 이미 IsWall로도 걸리지만 minDist가 0이어도 겹침은 방지
-                }
-                if (tooClose) continue;
-
-                // 셀 겹침 검사
-                bool overlap = false;
-                foreach (var c in cells)
-                {
-                    int wx = origin.x + c.x;
-                    int wy = origin.y + c.y;
-                    if (layout.IsWall(wx, wy))
-                    {
-                        overlap = true;
-                        break;
-                    }
-                }
-                if (overlap) continue;
-
-                // 임시 배치 후 연결성 검사
-                layout.TryPlacePattern(origin, cells);
-                bool connected = layout.IsFullyConnected(center);
-                if (!connected)
-                {
-                    layout.RemovePattern(origin, cells);
-                    continue;
-                }
-
-                placedOrigins.Add(origin);
-                placedCellsList.Add(cells);
-                placed = true;
-                break;
-            }
-
-            if (!placed)
-            {
-                // 이번 장애물은 배치 실패, 다음으로 넘어감
-                // 재시도 초과 시 장애물 수 1개 감소 효과와 동일
-                continue;
-            }
-        }
+        // 단일 직사각형 방: 내부 장애물 생성 제거 (요청: 내부 방 아예 없애기)
+        // 외벽 두께 1셀만 유지, 내부는 전체 빈 공간.
 
         currentLayout = layout;
-        ApplyToTilemap(layout, tile);
+        ApplyToTilemap(layout, wallTileResolved);
+        ApplyGroundTilemap(layout, groundTileResolved);
 
         if (spawnProvider != null)
         {
@@ -274,11 +218,12 @@ public sealed class MapGenerator : MonoBehaviour
     }
 
     /// <summary>
-    /// 보스 처치 시 다음 맵으로 전이. 새 시드로 재생성한다.
+    /// 방 클리어 후 문 상호작용 시 다음 맵으로 전이. 새 시드로 재생성한다.
+    /// 기획: 게임 콘텐츠 세부 기획(맵) - 방 진입 시 1회 일괄 생성, 문 개방 후 전이.
     /// </summary>
     public void RegenerateNextMap()
     {
-        if (!regenerateOnBossKill) return;
+        if (!regenerateOnRoomClear) return;
         mapIndex++;
         GenerateWithRandomSeed();
     }
@@ -289,10 +234,26 @@ public sealed class MapGenerator : MonoBehaviour
         Generate(seed);
     }
 
+    /// <summary>
+    /// 외부에서 호출하는 범용 맵 전이 진입점. DoorController/Escape 흐름에서 사용한다.
+    /// </summary>
+    public bool TryRegenerateNextMap()
+    {
+        if (!regenerateOnRoomClear) return false;
+        RegenerateNextMap();
+        return true;
+    }
+
     private TileBase ResolveWallTile()
     {
         if (wallTile != null) return wallTile;
         if (arenaProfile != null && arenaProfile.WallTile != null) return arenaProfile.WallTile;
+        return null;
+    }
+
+    private TileBase ResolveGroundTile()
+    {
+        if (groundTile != null) return groundTile;
         return null;
     }
 
@@ -305,15 +266,32 @@ public sealed class MapGenerator : MonoBehaviour
         List<Vector3Int> positions = new List<Vector3Int>(layout.Width * layout.Height);
         List<TileBase> tiles = new List<TileBase>(layout.Width * layout.Height);
 
-        for (int y = 0; y < layout.Height; y++)
+        int w = layout.Width;
+        int h = layout.Height;
+        for (int y = 0; y < h; y++)
         {
-            for (int x = 0; x < layout.Width; x++)
+            for (int x = 0; x < w; x++)
             {
-                if (layout.IsWall(x, y))
+                if (!layout.IsWall(x, y)) continue;
+
+                TileBase chosen = tile;
+
+                bool isOuter = x == 0 || x == w - 1 || y == 0 || y == h - 1;
+                if (isOuter)
                 {
-                    positions.Add(new Vector3Int(x, y, 0));
-                    tiles.Add(tile);
+                    // 모서리 우선
+                    if (x == 0 && y == h - 1 && outerWallCornerNWTile != null) chosen = outerWallCornerNWTile;
+                    else if (x == w - 1 && y == h - 1 && outerWallCornerNETile != null) chosen = outerWallCornerNETile;
+                    else if (x == 0 && y == 0 && outerWallCornerSWTile != null) chosen = outerWallCornerSWTile;
+                    else if (x == w - 1 && y == 0 && outerWallCornerSETile != null) chosen = outerWallCornerSETile;
+                    else if (y == h - 1 && outerWallNorthTile != null) chosen = outerWallNorthTile;
+                    else if (y == 0 && outerWallSouthTile != null) chosen = outerWallSouthTile;
+                    else if (x == 0 && outerWallWestTile != null) chosen = outerWallWestTile;
+                    else if (x == w - 1 && outerWallEastTile != null) chosen = outerWallEastTile;
                 }
+
+                positions.Add(new Vector3Int(x, y, 0));
+                tiles.Add(chosen);
             }
         }
 
@@ -324,9 +302,38 @@ public sealed class MapGenerator : MonoBehaviour
         wallsTilemap.CompressBounds();
 
         // 물리 갱신: TilemapCollider2D는 타일 변경 시 자동 반영되지만, 강제로 리프레시
+        // 기획: CompositeCollider2D Synchronous 재생성 (GeometryType Polygons)
         var col = wallsTilemap.GetComponent<TilemapCollider2D>();
+        var composite = wallsTilemap.GetComponent<CompositeCollider2D>();
         if (col != null) col.enabled = false;
+        if (composite != null) composite.enabled = false;
         if (col != null) col.enabled = true;
+        if (composite != null) composite.enabled = true;
+    }
+
+    private void ApplyGroundTilemap(MapLayout layout, TileBase tile)
+    {
+        if (groundTilemap == null || layout == null || tile == null) return;
+
+        groundTilemap.ClearAllTiles();
+
+        List<Vector3Int> positions = new List<Vector3Int>(layout.Width * layout.Height);
+        List<TileBase> tiles = new List<TileBase>(layout.Width * layout.Height);
+
+        for (int y = 0; y < layout.Height; y++)
+        {
+            for (int x = 0; x < layout.Width; x++)
+            {
+                positions.Add(new Vector3Int(x, y, 0));
+                tiles.Add(tile);
+            }
+        }
+
+        if (positions.Count > 0)
+        {
+            groundTilemap.SetTiles(positions.ToArray(), tiles.ToArray());
+        }
+        groundTilemap.CompressBounds();
     }
 
     private static ObstaclePattern PickPattern(ObstaclePattern[] patterns, System.Random rng)
