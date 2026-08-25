@@ -9,6 +9,7 @@ public class PlayerAnimationController : MonoBehaviour
     private const string AttackXParameterName = "AttackX";
     private const string AttackYParameterName = "AttackY";
     private const string HitParameterName = "Hit";
+    private const string DieParameterName = "Die";
 
     [Header("패러미터 이름들")]
     [Header("이동 관련")]
@@ -45,6 +46,7 @@ public class PlayerAnimationController : MonoBehaviour
     private int attackXParameterHash;
     private int attackYParameterHash;
     private int hitParameterHash;
+    private int dieParameterHash;
     private int hitStateHash;
     private float comboWindowRemaining;
     private bool comboWindowWasOpened;
@@ -70,6 +72,7 @@ public class PlayerAnimationController : MonoBehaviour
         attackXParameterHash = Animator.StringToHash(AttackXParameterName);
         attackYParameterHash = Animator.StringToHash(AttackYParameterName);
         hitParameterHash = Animator.StringToHash(HitParameterName);
+        dieParameterHash = Animator.StringToHash(DieParameterName);
         hitStateHash = Animator.StringToHash("player_hit 0");
 
         if (spriteRenderer != null)
@@ -98,6 +101,11 @@ public class PlayerAnimationController : MonoBehaviour
     // 매 프레임 이동 방향, 이동 애니메이션, 공격 상태와 공격 입력을 갱신한다.
     private void Update()
     {
+        if (playerStatController != null && playerStatController.IsDead)
+        {
+            return;
+        }
+
         if (playerExecutionController != null && playerExecutionController.IsBusy)
         {
             return;
@@ -349,6 +357,28 @@ public class PlayerAnimationController : MonoBehaviour
         playerStatController.ResetAttackCount();
         animator.ResetTrigger(attackTriggerParameterHash);
         playerMoveController.CanMove = false;
+    }
+
+    // 사망 시 Die 애니메이션을 재생하고 모든 공격 상태를 중단한다.
+    public void PlayDie()
+    {
+        isAttacking = false;
+        isHit = false;
+        animator.speed = 1f;
+        attackAnimationHasStarted = false;
+        comboWindowRemaining = 0f;
+        comboWindowWasOpened = false;
+        if (playerStatController != null)
+        {
+            playerStatController.ResetAttackCount();
+        }
+        animator.ResetTrigger(attackTriggerParameterHash);
+        animator.ResetTrigger(hitParameterHash);
+        animator.SetTrigger(dieParameterHash);
+        if (playerMoveController != null)
+        {
+            playerMoveController.CanMove = false;
+        }
     }
 
     // 영혼 충전 2단계부터 공격 모션의 재생 속도만 높인다.

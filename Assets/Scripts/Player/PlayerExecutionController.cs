@@ -189,6 +189,11 @@ public sealed class PlayerExecutionController : MonoBehaviour
 
     private void Update()
     {
+        if (GameOverController.IsGameOverStatic)
+        {
+            return;
+        }
+
         if (playerStatController == null || !playerStatController.IsInitialized)
         {
             return;
@@ -212,6 +217,11 @@ public sealed class PlayerExecutionController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (GameOverController.IsGameOverStatic)
+        {
+            return;
+        }
+
         if (state != ExecutionState.Approaching)
         {
             return;

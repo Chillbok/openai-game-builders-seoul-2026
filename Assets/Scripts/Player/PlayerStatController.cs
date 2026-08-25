@@ -80,6 +80,11 @@ public sealed class PlayerStatController : MonoBehaviour
             return;
         }
 
+        if (GameOverController.IsGameOverStatic || IsDead)
+        {
+            return;
+        }
+
         if (damageInvincibilityRemaining > 0f)
         {
             damageInvincibilityRemaining = Mathf.Max(0f, damageInvincibilityRemaining - Time.deltaTime);

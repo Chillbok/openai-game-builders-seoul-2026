@@ -686,6 +686,7 @@ MonoBehaviour:
   clampToMapBounds: 1
   mapGenerator: {fileID: 645230470}
   pauseDuringExecution: 1
+  pauseDuringGameOver: 1
 --- !u!1 &537532745
 GameObject:
   m_ObjectHideFlags: 0
@@ -2167,6 +2168,77 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &1662602103
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1662602104}
+  - component: {fileID: 1662602105}
+  - component: {fileID: 1662602106}
+  m_Layer: 0
+  m_Name: GameControllers
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1662602104
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1662602103}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1662602105
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1662602103}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8cee132a4986f4c3f83b7f86403ebddb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ScoreController
+  persistHighScore: 1
+--- !u!114 &1662602106
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1662602103}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7136892da74824a38baabac012bc6603, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameOverController
+  playerStatController: {fileID: 0}
+  playerAnimationController: {fileID: 0}
+  playerMoveController: {fileID: 0}
+  waveSpawner: {fileID: 0}
+  mapGenerator: {fileID: 0}
+  doorController: {fileID: 0}
+  scoreController: {fileID: 0}
+  targetCamera: {fileID: 0}
+  cameraZoomMultiplier: 0.7
+  cameraZoomDuration: 0.3
+  overlayFadeDuration: 0.3
+  panelFadeDuration: 0.2
+  overlayTargetAlpha: 0.5
 --- !u!1 &1668034144
 GameObject:
   m_ObjectHideFlags: 0
@@ -2297,6 +2369,8 @@ MonoBehaviour:
   emptySoulColor: {r: 1, g: 1, b: 1, a: 0.25}
   soulChargeStageUpSound: {fileID: 0}
   soulChargeStageDownSound: {fileID: 0}
+  totalScoreText: {fileID: 0}
+  scoreController: {fileID: 0}
 --- !u!1 &1768622973
 GameObject:
   m_ObjectHideFlags: 0
@@ -2764,3 +2838,4 @@ SceneRoots:
   - {fileID: 1668034148}
   - {fileID: 1971528484}
   - {fileID: 259548059}
+  - {fileID: 1662602104}

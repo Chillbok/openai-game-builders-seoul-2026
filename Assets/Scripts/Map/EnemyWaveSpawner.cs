@@ -106,6 +106,12 @@ public sealed class EnemyWaveSpawner : MonoBehaviour
 
     private void Update()
     {
+        if (GameOverController.IsGameOverStatic)
+        {
+            isSpawning = false;
+            return;
+        }
+
         if (!isSpawning) return;
 
         elapsed += Time.deltaTime;
@@ -176,6 +182,7 @@ public sealed class EnemyWaveSpawner : MonoBehaviour
     /// </summary>
     public bool TryBeginSurvivalWave()
     {
+        if (GameOverController.IsGameOverStatic) return false;
         CacheReferences();
         if (enemyPrefab == null)
         {
@@ -213,6 +220,7 @@ public sealed class EnemyWaveSpawner : MonoBehaviour
 
     private void SpawnBatch(int count)
     {
+        if (GameOverController.IsGameOverStatic) return;
         if (count <= 0) return;
         CacheReferences();
         if (enemyPrefab == null || spawnAreaProvider == null || !spawnAreaProvider.HasBakedData) return;

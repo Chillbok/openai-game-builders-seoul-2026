@@ -152,6 +152,16 @@ public sealed class DoorController : MonoBehaviour
 
     private void Update()
     {
+        if (GameOverController.IsGameOverStatic)
+        {
+            if (isOpen)
+            {
+                isOpen = false;
+                UpdateDoorVisual(false);
+            }
+            return;
+        }
+
         // 생존 완료 && 활성 적 0 기반 잠금/개방 갱신
         bool shouldOpen = ShouldBeOpen();
         if (shouldOpen != isOpen)
@@ -163,6 +173,8 @@ public sealed class DoorController : MonoBehaviour
 
     private bool ShouldBeOpen()
     {
+        if (GameOverController.IsGameOverStatic) return false;
+
         if (waveSpawner != null)
         {
             return waveSpawner.AliveCount == 0 && waveSpawner.IsSurvivalComplete;
@@ -218,6 +230,7 @@ public sealed class DoorController : MonoBehaviour
 
     private void TryTransitToNextMap()
     {
+        if (GameOverController.IsGameOverStatic) return;
         if (isTransitioning) return;
         if (requireOpenToTransit && !isOpen) return;
         if (mapGenerator == null)
@@ -327,8 +340,16 @@ public sealed class DoorController : MonoBehaviour
         }
     }
 
+    public void ForceLockedVisual()
+    {
+        isOpen = false;
+        UpdateDoorVisual(true);
+        playerInsideTrigger = false;
+    }
+
     private void OnTriggerEnter2D(Collider2D other)
     {
+        if (GameOverController.IsGameOverStatic) return;
         if (!IsPlayerCollider(other)) return;
         playerInsideTrigger = true;
         // 문이 개방된 상태에서 닿자마자 즉시 전이

@@ -139,6 +139,11 @@ public class EnemyStateMachine : MonoBehaviour
     // 상태 머신의 현재 상태에 따라 매 프레임 갱신한다.
     private void Update()
     {
+        if (GameOverController.IsGameOverStatic)
+        {
+            return;
+        }
+
         if (!enemyStatController.IsInitialized || state == EnemyState.Dead)
         {
             return;
@@ -186,6 +191,11 @@ public class EnemyStateMachine : MonoBehaviour
     // 물리 이동을 물리 갱신 주기에 맞춰 처리한다.
     private void FixedUpdate()
     {
+        if (GameOverController.IsGameOverStatic)
+        {
+            return;
+        }
+
         if (enemyStatController == null || !enemyStatController.IsInitialized || state == EnemyState.Dead)
         {
             return;
@@ -422,18 +432,29 @@ public class EnemyStateMachine : MonoBehaviour
             bodyCollider.enabled = false;
         }
 
+        // ScoreController 연동 — GameOver 동결 시 점수 증가 없음
+        if (!GameOverController.IsGameOverStatic)
+        {
+            ScoreController sc = FindFirstObjectByType<ScoreController>();
+            if (sc != null)
+            {
+                sc.AddKill(deathReason);
+            }
+        }
+
         PlayerStatController playerStats = playerStatController != null
             ? playerStatController
             : FindFirstObjectByType<PlayerStatController>();
         bool hadMaximumSoulCharge = playerStats != null
             && playerStats.IsInitialized
             && playerStats.CurrentSoulChargeStage >= PlayerRuntimeState.MaxSoulChargeStage;
-        if (deathReason == EnemyDeathReason.Normal && playerStats != null && playerStats.IsInitialized)
+        if (!GameOverController.IsGameOverStatic && deathReason == EnemyDeathReason.Normal && playerStats != null && playerStats.IsInitialized)
         {
             playerStats.RegisterNormalKill();
         }
 
-        if (hadMaximumSoulCharge
+        if (!GameOverController.IsGameOverStatic
+            && hadMaximumSoulCharge
             && deathReason != EnemyDeathReason.SoulChargeExplosion
             && playerStats != null)
         {

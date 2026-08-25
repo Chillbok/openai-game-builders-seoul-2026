@@ -36,6 +36,11 @@ public class PlayerDodge : MonoBehaviour
             return;
         }
 
+        if (GameOverController.IsGameOverStatic || playerStatController.IsDead)
+        {
+            return;
+        }
+
         if (playerExecutionController != null && playerExecutionController.IsBusy && !isDodging)
         {
             return;
@@ -133,7 +138,10 @@ public class PlayerDodge : MonoBehaviour
         isDodging = false;
         dodgeTimer = 0f;
         perfectDodgeConsumed = false;
-        playerMoveController.CanMove = true;
+        if (!GameOverController.IsGameOverStatic && (playerStatController == null || !playerStatController.IsDead))
+        {
+            playerMoveController.CanMove = true;
+        }
     }
 
     // 처형이 회피를 중단하고 시작할 때 호출한다. 회피 충전 회복 상태는 유지한다.

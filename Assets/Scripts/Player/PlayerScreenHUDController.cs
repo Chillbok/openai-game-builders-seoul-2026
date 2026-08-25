@@ -46,6 +46,15 @@ public sealed class PlayerScreenHUDController : MonoBehaviour
     [Tooltip("영혼 충전 단계 감소 시 재생할 짧은 효과음")]
     private AudioClip soulChargeStageDownSound;
 
+    [Header("점수")]
+    [SerializeField]
+    [Tooltip("총 점수를 표시하는 텍스트. 비어 있으면 자동 생성한다")]
+    private TMP_Text totalScoreText;
+
+    [SerializeField]
+    [Tooltip("HUD가 구독할 점수 컨트롤러. 비어 있으면 씬에서 탐색한다")]
+    private ScoreController scoreController;
+
     private bool subscribed;
     private int displayedSoulChargeStage = -1;
 
@@ -58,12 +67,16 @@ public sealed class PlayerScreenHUDController : MonoBehaviour
             return;
         }
 
+        if (scoreController == null) scoreController = FindFirstObjectByType<ScoreController>();
+        EnsureTotalScoreText();
+
         Subscribe();
         UpdateHP(playerStatController.CurrentHP);
         ConfigureSoulChargePips();
         UpdateSoulChargePips(playerStatController.CurrentSoulChargeStage);
         UpdateSoulChargeProgress();
         displayedSoulChargeStage = playerStatController.CurrentSoulChargeStage;
+        UpdateTotalScore();
     }
 
     private void Update()
@@ -91,19 +104,24 @@ public sealed class PlayerScreenHUDController : MonoBehaviour
         playerStatController.CurrentHPChanged += UpdateHP;
         playerStatController.SoulChargeStageChanged += OnSoulChargeStageChanged;
         playerStatController.NormalKillCountChanged += OnNormalKillCountChanged;
+        if (scoreController != null) scoreController.ScoreChanged += UpdateTotalScore;
         subscribed = true;
     }
 
     private void Unsubscribe()
     {
-        if (!subscribed || playerStatController == null)
+        if (!subscribed)
         {
             return;
         }
 
-        playerStatController.CurrentHPChanged -= UpdateHP;
-        playerStatController.SoulChargeStageChanged -= OnSoulChargeStageChanged;
-        playerStatController.NormalKillCountChanged -= OnNormalKillCountChanged;
+        if (playerStatController != null)
+        {
+            playerStatController.CurrentHPChanged -= UpdateHP;
+            playerStatController.SoulChargeStageChanged -= OnSoulChargeStageChanged;
+            playerStatController.NormalKillCountChanged -= OnNormalKillCountChanged;
+        }
+        if (scoreController != null) scoreController.ScoreChanged -= UpdateTotalScore;
         subscribed = false;
     }
 
@@ -233,5 +251,33 @@ public sealed class PlayerScreenHUDController : MonoBehaviour
         }
 
         soulChargeProgressText.text = $"{playerStatController.NormalKillCount} / {PlayerStatController.NormalKillsRequiredForSoulCharge}";
+    }
+
+    private void EnsureTotalScoreText()
+    {
+        if (totalScoreText != null) return;
+
+        // HUD에 총점 텍스트가 없으면 우상단에 자동 생성
+        GameObject go = new GameObject("TotalScoreText", typeof(RectTransform));
+        go.transform.SetParent(transform, false);
+        RectTransform rt = go.GetComponent<RectTransform>();
+        rt.anchorMin = new Vector2(1f, 1f);
+        rt.anchorMax = new Vector2(1f, 1f);
+        rt.pivot = new Vector2(1f, 1f);
+        rt.anchoredPosition = new Vector2(-20f, -20f);
+        rt.sizeDelta = new Vector2(200f, 40f);
+
+        totalScoreText = go.AddComponent<TextMeshProUGUI>();
+        totalScoreText.fontSize = 28f;
+        totalScoreText.alignment = TextAlignmentOptions.TopRight;
+        totalScoreText.color = Color.white;
+        totalScoreText.text = "0";
+        totalScoreText.raycastTarget = false;
+    }
+
+    private void UpdateTotalScore()
+    {
+        if (totalScoreText == null || scoreController == null) return;
+        totalScoreText.text = $"{scoreController.TotalScore}";
     }
 }
