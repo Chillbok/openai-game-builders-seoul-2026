@@ -189,6 +189,7 @@ public sealed class PlayerStatController : MonoBehaviour
         isRecharging = false;
         dodgeFillProgress = 0f;
         executionInvulnerable = false;
+        nextAttackDamageMultiplier = 1f;
         RaiseRuntimeStateChanged();
     }
 

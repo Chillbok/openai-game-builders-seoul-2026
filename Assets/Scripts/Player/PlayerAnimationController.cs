@@ -410,6 +410,76 @@ public class PlayerAnimationController : MonoBehaviour
         }
     }
 
+    // 재시작 시 Animator/상태변수/SpriteRenderer를 Idle로 복구한다.
+    // GameOverController.RestartSequence에서 ResetRuntimeStats() 직후 호출되어야 IsDead==false 상태에서 정상 동작한다.
+    public void ResetForRestart()
+    {
+        isAttacking = false;
+        isHit = false;
+        attackAnimationHasStarted = false;
+        comboWindowRemaining = 0f;
+        comboWindowWasOpened = false;
+        if (spriteRenderer != null)
+        {
+            isFacingRight = !spriteRenderer.flipX;
+        }
+        else
+        {
+            isFacingRight = true;
+        }
+
+        if (animator != null)
+        {
+            animator.ResetTrigger(dieParameterHash);
+            animator.ResetTrigger(hitParameterHash);
+            animator.ResetTrigger(attackTriggerParameterHash);
+
+            // WriteDefaultValues 복구를 위해 Rebind 후 강제 갱신 — 파라미터는 Rebind 이후에 재설정해야 유지된다
+            animator.Rebind();
+            animator.Update(0f);
+
+            if (attackCountParameterHash != 0)
+            {
+                animator.SetInteger(attackCountParameterHash, 0);
+            }
+            if (animatorMoveParameterHash != 0)
+            {
+                animator.SetBool(animatorMoveParameterHash, false);
+            }
+            animator.SetBool(moveRightParameterHash, isFacingRight);
+
+            int idleHash = Animator.StringToHash("player_idle");
+            if (animator.HasState(0, idleHash))
+            {
+                animator.Play(idleHash, 0, 0f);
+            }
+            else
+            {
+                animator.Play("player_idle", 0, 0f);
+            }
+
+            animator.speed = 1f;
+        }
+
+        if (playerStatController != null)
+        {
+            playerStatController.ResetAttackCount();
+        }
+
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.enabled = true;
+            Color c = spriteRenderer.color;
+            c.a = 1f;
+            spriteRenderer.color = c;
+        }
+
+        if (!gameObject.activeSelf)
+        {
+            gameObject.SetActive(true);
+        }
+    }
+
     // 영혼 충전 2단계부터 공격 모션의 재생 속도만 높인다.
     private void SetAttackAnimatorSpeed()
     {
