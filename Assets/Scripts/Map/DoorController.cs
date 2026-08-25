@@ -29,6 +29,11 @@ public sealed class DoorController : MonoBehaviour
     [SerializeField]
     private Collider2D doorCollider;
 
+    [Header("오디오")]
+    [SerializeField]
+    [Tooltip("중앙 오디오 설정 — 비어 있으면 AudioService 싱글턴을 사용한다")]
+    private AudioConfig audioConfig;
+
     [Tooltip("상호작용 트리거 콜라이더")]
     [SerializeField]
     private Collider2D interactTrigger;
@@ -168,7 +173,19 @@ public sealed class DoorController : MonoBehaviour
         {
             isOpen = shouldOpen;
             UpdateDoorVisual(false);
+            if (isOpen) PlayDoorOpenSfx();
         }
+    }
+
+    private void PlayDoorOpenSfx()
+    {
+        AudioConfig cfg = AudioService.Instance != null ? AudioService.Instance.Config : Resources.Load<AudioConfig>("DefaultAudioConfig");
+#if UNITY_EDITOR
+        if (cfg == null) cfg = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioConfig>("Assets/Resources/DefaultAudioConfig.asset");
+#endif
+        if (cfg == null || cfg.DoorOpenClip == null) return;
+        if (AudioService.Instance != null) AudioService.Instance.PlaySFX(cfg.DoorOpenClip, priority: AudioService.Priority.High);
+        else AudioSource.PlayClipAtPoint(cfg.DoorOpenClip, transform.position);
     }
 
     private bool ShouldBeOpen()

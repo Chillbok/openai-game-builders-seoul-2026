@@ -33,6 +33,11 @@ public class PlayerAnimationController : MonoBehaviour
     [Tooltip("공격 모션이 끝난 뒤 다음 타 입력을 받을 수 있는 시간(초)")]
     private float comboInputWindow = 0.5f;
 
+    [Header("오디오")]
+    [SerializeField]
+    [Tooltip("중앙 오디오 설정 — 비어 있으면 AudioService 싱글턴을 사용한다")]
+    private AudioConfig audioConfig;
+
     private Animator animator;
     private PlayerMoveController playerMoveController;
     private PlayerStatController playerStatController;
@@ -214,6 +219,7 @@ public class PlayerAnimationController : MonoBehaviour
         SetAttackDirection(playerMoveController.MovementInput);
         animator.SetInteger(attackCountParameterHash, playerStatController.CurrentAttackCount);
         animator.SetTrigger(attackTriggerParameterHash);
+        PlaySwingSfx();
     }
 
     // 콤보 공격을 시작하고 이번 타격의 입력 방향을 저장한다.
@@ -227,6 +233,29 @@ public class PlayerAnimationController : MonoBehaviour
         SetAttackDirection(playerMoveController.MovementInput);
         animator.SetInteger(attackCountParameterHash, playerStatController.CurrentAttackCount);
         animator.SetTrigger(attackTriggerParameterHash);
+        PlaySwingSfx();
+    }
+
+    private void PlaySwingSfx()
+    {
+        AudioConfig cfg = AudioService.Instance != null ? AudioService.Instance.Config : Resources.Load<AudioConfig>("DefaultAudioConfig");
+#if UNITY_EDITOR
+        if (cfg == null) cfg = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioConfig>("Assets/Resources/DefaultAudioConfig.asset");
+#endif
+        if (cfg == null) return;
+        bool isEmpowered = playerStatController != null && playerStatController.IsPerfectDodgeAttackReady;
+        int count = playerStatController != null ? playerStatController.CurrentAttackCount : 1;
+        AudioClip clip = cfg.GetSwingClip(count, isEmpowered);
+        if (clip == null) return;
+        float pitch = isEmpowered ? 1f : (count == 3 ? 1.15f : 1f + Random.Range(-0.05f, 0.05f));
+        if (AudioService.Instance != null)
+        {
+            AudioService.Instance.PlaySFX(clip, 1f, pitch, AudioService.Priority.Medium);
+        }
+        else
+        {
+            AudioSource.PlayClipAtPoint(clip, transform.position);
+        }
     }
 
     // 좌우 입력을 우선으로 판단하고, 좌우 입력이 없을 때만 위아래 방향을 선택한다.

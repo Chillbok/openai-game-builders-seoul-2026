@@ -919,6 +919,7 @@ MonoBehaviour:
   spawnInterval: 5
   enemiesPerInterval: 6
   autoSpawnOnStart: 1
+  audioConfig: {fileID: 0}
 --- !u!1 &645230473
 GameObject:
   m_ObjectHideFlags: 0
@@ -1074,6 +1075,7 @@ MonoBehaviour:
   waveSpawner: {fileID: 645230472}
   doorRenderer: {fileID: 645230475}
   doorCollider: {fileID: 645230476}
+  audioConfig: {fileID: 0}
   interactTrigger: {fileID: 645230476}
   playerTransform: {fileID: 0}
   requireOpenToTransit: 1
@@ -2214,6 +2216,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ScoreController
   persistHighScore: 1
+  audioConfig: {fileID: 0}
 --- !u!114 &1662602106
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2234,6 +2237,7 @@ MonoBehaviour:
   doorController: {fileID: 0}
   scoreController: {fileID: 0}
   targetCamera: {fileID: 0}
+  audioConfig: {fileID: 0}
   fontConfig: {fileID: 11400000, guid: 4bf6e8a5e040f47a8a668e69a9c53f15, type: 2}
   cameraZoomMultiplier: 0.7
   cameraZoomDuration: 0.3
@@ -2368,8 +2372,7 @@ MonoBehaviour:
   soulChargeProgressText: {fileID: 1116269885}
   chargedSoulColor: {r: 1, g: 1, b: 1, a: 1}
   emptySoulColor: {r: 1, g: 1, b: 1, a: 0.25}
-  soulChargeStageUpSound: {fileID: 0}
-  soulChargeStageDownSound: {fileID: 0}
+  audioConfig: {fileID: 0}
   totalScoreText: {fileID: 0}
   scoreController: {fileID: 0}
   fontConfig: {fileID: 11400000, guid: 4bf6e8a5e040f47a8a668e69a9c53f15, type: 2}
@@ -2770,6 +2773,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 5098000252934883261, guid: 28bc3bf3748434e1b9acf521d0eafd29, type: 3}
+      propertyPath: audioConfig
+      value: 
+      objectReference: {fileID: 11400000, guid: dbfe752776cd4d1ca2e7f328b5144d23, type: 2}
     - target: {fileID: 8500734385717815199, guid: 28bc3bf3748434e1b9acf521d0eafd29, type: 3}
       propertyPath: m_LocalPosition.x
       value: 1.06

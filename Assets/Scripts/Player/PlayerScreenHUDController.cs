@@ -37,14 +37,10 @@ public sealed class PlayerScreenHUDController : MonoBehaviour
     [Tooltip("영혼 충전 단계가 비어 있는 핍의 색상")]
     private Color emptySoulColor = new Color(1f, 1f, 1f, 0.25f);
 
-    [Header("단계 변화 사운드")]
+    [Header("오디오")]
     [SerializeField]
-    [Tooltip("영혼 충전 단계 상승 시 재생할 짧은 효과음")]
-    private AudioClip soulChargeStageUpSound;
-
-    [SerializeField]
-    [Tooltip("영혼 충전 단계 감소 시 재생할 짧은 효과음")]
-    private AudioClip soulChargeStageDownSound;
+    [Tooltip("중앙 오디오 설정 — 비어 있으면 Resources/DefaultAudioConfig 또는 AudioService를 사용한다")]
+    private AudioConfig audioConfig;
 
     [Header("점수")]
     [SerializeField]
@@ -79,6 +75,12 @@ public sealed class PlayerScreenHUDController : MonoBehaviour
 #if UNITY_EDITOR
         if (fontConfig == null) fontConfig = UnityEditor.AssetDatabase.LoadAssetAtPath<GameFontConfig>("Assets/ScriptableObjects/UI/GameFontConfig.asset");
 #endif
+        // 무조건 Resources/DefaultAudioConfig 사용 — 인스펙터 할당 무시
+        audioConfig = Resources.Load<AudioConfig>("DefaultAudioConfig");
+#if UNITY_EDITOR
+        if (audioConfig == null) audioConfig = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioConfig>("Assets/Resources/DefaultAudioConfig.asset");
+#endif
+        if (audioConfig == null && AudioService.Instance != null) audioConfig = AudioService.Instance.Config;
         EnsureTotalScoreText();
 
         Subscribe();
@@ -159,12 +161,31 @@ public sealed class PlayerScreenHUDController : MonoBehaviour
 
     private void PlaySoulChargeStageSound(int stage)
     {
-        AudioClip clip = stage > displayedSoulChargeStage
-            ? soulChargeStageUpSound
-            : soulChargeStageDownSound;
+        // 무조건 Resources/DefaultAudioConfig — 인스펙터 할당 무시
+        AudioConfig cfg = AudioService.Instance != null && AudioService.Instance.Config != null
+            ? AudioService.Instance.Config
+            : Resources.Load<AudioConfig>("DefaultAudioConfig");
+#if UNITY_EDITOR
+        if (cfg == null) cfg = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioConfig>("Assets/Resources/DefaultAudioConfig.asset");
+#endif
+
+        AudioClip clip = null;
+        if (cfg != null)
+        {
+            clip = stage > displayedSoulChargeStage
+                ? cfg.SoulChargeStageUpClip
+                : cfg.SoulChargeStageDownClip;
+        }
+
         displayedSoulChargeStage = stage;
 
-        if (clip != null)
+        if (clip == null) return;
+
+        if (AudioService.Instance != null)
+        {
+            AudioService.Instance.PlaySFX(clip, priority: AudioService.Priority.Medium);
+        }
+        else
         {
             AudioSource.PlayClipAtPoint(clip, playerStatController.transform.position);
         }

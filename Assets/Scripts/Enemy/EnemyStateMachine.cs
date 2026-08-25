@@ -31,6 +31,11 @@ public class EnemyStateMachine : MonoBehaviour
     [Tooltip("기절 상태에서만 활성화할 머리 위 표시의 SpriteRenderer")]
     private SpriteRenderer stunNotifierRenderer;
 
+    [Header("오디오")]
+    [SerializeField]
+    [Tooltip("중앙 오디오 설정 — 비어 있으면 AudioService 싱글턴을 사용한다")]
+    private AudioConfig audioConfig;
+
     private Rigidbody2D enemyRigidbody;
     private EnemyStatController enemyStatController;
     private EnemyAnimationController enemyAnimationController;
@@ -327,6 +332,7 @@ public class EnemyStateMachine : MonoBehaviour
 
         attackHitTriggered = true;
         HideAttackBeacon();
+        PlayEnemyAttackSfx();
         TryDealAttackDamage();
     }
 
@@ -357,6 +363,7 @@ public class EnemyStateMachine : MonoBehaviour
         state = EnemyState.Stunned;
         stateTimer = enemyStatController.StunDuration;
         SetStunNotifierVisible(true);
+        PlayEnemyStunSfx();
         Debug.Log($"적 기절 시작: {name}, 지속 시간 {stateTimer}초, Notifier 표시 상태 {stunNotifierRenderer != null && stunNotifierRenderer.enabled}", this);
     }
 
@@ -401,6 +408,7 @@ public class EnemyStateMachine : MonoBehaviour
         state = EnemyState.Knockback;
         stateTimer = DefaultKnockbackDuration;
         enemyAnimationController.PlayHurt();
+        PlayEnemyHurtSfx();
     }
 
     // 사망 처리 후 사망 애니메이션을 재생하고 일정 시간 뒤 제거한다.
@@ -465,6 +473,7 @@ public class EnemyStateMachine : MonoBehaviour
         // 기존 보스 처치 즉시 재생성 로직은 제거. DoorController가 담당한다.
         // 호환을 위해 보스 여부와 무관하게 개별 재생성을 수행하지 않는다.
 
+        PlayEnemyDieSfx(deathReason);
         Destroy(gameObject, DeathAnimationDuration);
     }
 
@@ -775,5 +784,51 @@ public class EnemyStateMachine : MonoBehaviour
         stateTimer = enemyStatController.StunDuration;
         SetStunNotifierVisible(true);
         return true;
+    }
+
+    private AudioConfig ResolveAudioConfig()
+    {
+        // 무조건 Resources/DefaultAudioConfig — 인스펙터 할당 무시
+        if (AudioService.Instance != null && AudioService.Instance.Config != null) return AudioService.Instance.Config;
+        var cfg = Resources.Load<AudioConfig>("DefaultAudioConfig");
+#if UNITY_EDITOR
+        if (cfg == null) cfg = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioConfig>("Assets/Resources/DefaultAudioConfig.asset");
+#endif
+        return cfg;
+    }
+
+    private void PlayEnemyAttackSfx()
+    {
+        AudioConfig cfg = ResolveAudioConfig();
+        if (cfg == null || cfg.EnemyAttackClip == null) return;
+        if (AudioService.Instance != null) AudioService.Instance.PlaySFX(cfg.EnemyAttackClip, priority: AudioService.Priority.Medium);
+        else AudioSource.PlayClipAtPoint(cfg.EnemyAttackClip, transform.position);
+    }
+
+    private void PlayEnemyHurtSfx()
+    {
+        AudioConfig cfg = ResolveAudioConfig();
+        if (cfg == null || cfg.EnemyHurtClip == null) return;
+        if (AudioService.Instance != null) AudioService.Instance.PlaySFX(cfg.EnemyHurtClip, "enemyHurt", 0.05f, AudioService.Priority.Medium);
+        else AudioSource.PlayClipAtPoint(cfg.EnemyHurtClip, transform.position);
+    }
+
+    private void PlayEnemyStunSfx()
+    {
+        AudioConfig cfg = ResolveAudioConfig();
+        if (cfg == null || cfg.EnemyStunClip == null) return;
+        if (AudioService.Instance != null) AudioService.Instance.PlaySFX(cfg.EnemyStunClip, priority: AudioService.Priority.High);
+        else AudioSource.PlayClipAtPoint(cfg.EnemyStunClip, transform.position);
+    }
+
+    private void PlayEnemyDieSfx(EnemyDeathReason reason)
+    {
+        AudioConfig cfg = ResolveAudioConfig();
+        if (cfg == null) return;
+        AudioClip clip = cfg.EnemyDieClip != null ? cfg.EnemyDieClip : cfg.EnemyHurtClip;
+        if (clip == null) return;
+        // 폭발/처형 사망도 동일 클립으로 처리 — reason별 분리는 필요 시 AudioConfig에 추가
+        if (AudioService.Instance != null) AudioService.Instance.PlaySFX(clip, priority: AudioService.Priority.Medium);
+        else AudioSource.PlayClipAtPoint(clip, transform.position);
     }
 }

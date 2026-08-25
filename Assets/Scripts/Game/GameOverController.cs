@@ -37,6 +37,11 @@ public sealed class GameOverController : MonoBehaviour
     [SerializeField]
     private Camera targetCamera;
 
+    [Header("오디오")]
+    [SerializeField]
+    [Tooltip("중앙 오디오 설정 — 비어 있으면 AudioService 싱글턴을 사용한다")]
+    private AudioConfig audioConfig;
+
     [Header("폰트 (중앙 관리)")]
     [Tooltip("비어 있으면 GameFontConfig 또는 TMP Settings 기본값을 사용한다")]
     [SerializeField]
@@ -325,11 +330,13 @@ public sealed class GameOverController : MonoBehaviour
         var hitbox = playerStatController != null ? playerStatController.GetComponent<PlayerAttackHitboxController>() : null;
         if (hitbox != null) hitbox.DisableAllHitboxes();
 
-        // Die 애니
+        // Die 애니 + 사망 SFX
         if (playerAnimationController != null)
         {
             playerAnimationController.PlayDie();
         }
+        PlayDieSfx();
+        PlayGameOverStingAndBgm();
 
         // 점수/스폰 동결
         if (scoreController != null) scoreController.Freeze();
@@ -625,6 +632,36 @@ public sealed class GameOverController : MonoBehaviour
             // 이미 위에서 파괴된 경우 스킵
             if (s.GetComponent<EnemyStateMachine>() != null) continue;
             Destroy(s.gameObject);
+        }
+    }
+
+    private AudioConfig ResolveAudioConfig()
+    {
+        // 무조건 Resources/DefaultAudioConfig — 인스펙터 할당 무시
+        if (AudioService.Instance != null && AudioService.Instance.Config != null) return AudioService.Instance.Config;
+        var cfg = Resources.Load<AudioConfig>("DefaultAudioConfig");
+#if UNITY_EDITOR
+        if (cfg == null) cfg = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioConfig>("Assets/Resources/DefaultAudioConfig.asset");
+#endif
+        return cfg;
+    }
+
+    private void PlayDieSfx()
+    {
+        AudioConfig cfg = ResolveAudioConfig();
+        if (cfg == null || cfg.DieClip == null) return;
+        if (AudioService.Instance != null) AudioService.Instance.PlaySFX(cfg.DieClip, priority: AudioService.Priority.High);
+        else AudioSource.PlayClipAtPoint(cfg.DieClip, transform.position);
+    }
+
+    private void PlayGameOverStingAndBgm()
+    {
+        AudioConfig cfg = ResolveAudioConfig();
+        if (cfg == null) return;
+        if (AudioService.Instance != null)
+        {
+            if (cfg.GameOverStingClip != null) AudioService.Instance.PlaySFX(cfg.GameOverStingClip, priority: AudioService.Priority.High);
+            if (cfg.GameOverBgm != null) AudioService.Instance.PlayBGM(cfg.GameOverBgm, true, 0.3f);
         }
     }
 }

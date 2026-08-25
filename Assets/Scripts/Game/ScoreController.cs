@@ -19,6 +19,11 @@ public sealed class ScoreController : MonoBehaviour
     [SerializeField]
     private bool persistHighScore = true;
 
+    [Header("오디오")]
+    [SerializeField]
+    [Tooltip("중앙 오디오 설정 — 비어 있으면 AudioService 싱글턴을 사용한다")]
+    private AudioConfig audioConfig;
+
     private int killScore;
     private int executionScore;
     private int killCount;
@@ -83,6 +88,18 @@ public sealed class ScoreController : MonoBehaviour
         }
 
         ScoreChanged?.Invoke();
+        PlayScoreTickSfx();
+    }
+
+    private void PlayScoreTickSfx()
+    {
+        AudioConfig cfg = AudioService.Instance != null ? AudioService.Instance.Config : Resources.Load<AudioConfig>("DefaultAudioConfig");
+#if UNITY_EDITOR
+        if (cfg == null) cfg = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioConfig>("Assets/Resources/DefaultAudioConfig.asset");
+#endif
+        if (cfg == null || cfg.ScoreTickClip == null) return;
+        if (AudioService.Instance != null) AudioService.Instance.PlaySFX(cfg.ScoreTickClip, "scoreTick", 0.08f, AudioService.Priority.Low);
+        else AudioSource.PlayClipAtPoint(cfg.ScoreTickClip, transform.position);
     }
 
     /// <summary>

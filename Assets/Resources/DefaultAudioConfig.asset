@@ -1,0 +1,55 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1cd4b790ef524fe983ed11fe833640c3, type: 3}
+  m_Name: DefaultAudioConfig
+  m_EditorClassIdentifier: Assembly-CSharp::AudioConfig
+  menuBgm: {fileID: 8300000, guid: 0084eda5201ee4a588c7f1c2597cd59f, type: 3}
+  battleBgm: {fileID: 8300000, guid: a81f3b936b8df4002a3bf9abe61293e2, type: 3}
+  gameOverBgm: {fileID: 8300000, guid: 40ab5f6a4ec8345c0a6830110bd3817f, type: 3}
+  attackSwingClips:
+  - {fileID: 8300000, guid: 8aad5d5285d13453c997035527f333d0, type: 3}
+  - {fileID: 8300000, guid: 5ee1b5ed18aa84914be3383d8f4355e9, type: 3}
+  - {fileID: 8300000, guid: 2136c7ed8c2144adb8ea7a75cdd263c0, type: 3}
+  empoweredAttackClips:
+  - {fileID: 8300000, guid: a7030c8bcd4c04b669d15772c7ee5210, type: 3}
+  - {fileID: 8300000, guid: d0e57e2537d3047cf8ed9fd61e2e46f5, type: 3}
+  - {fileID: 8300000, guid: 35a89c0ae230c4f11bf2166d06628463, type: 3}
+  hitClip: {fileID: 0}
+  executionDashClip: {fileID: 8300000, guid: 58044da7451dc4538aa8a1de7ea5882e, type: 3}
+  executionImpactClip: {fileID: 0}
+  executionParryClip: {fileID: 8300000, guid: 6adc78513680f4a3faac8901d2008097, type: 3}
+  executionStabClip: {fileID: 8300000, guid: 9d90e097ed08f47e6bb728cddd783949, type: 3}
+  dodgeClip: {fileID: 8300000, guid: 58044da7451dc4538aa8a1de7ea5882e, type: 3}
+  perfectDodgeClip: {fileID: 8300000, guid: 613c09413eb5c43ef943587b54b9cfd4, type: 3}
+  hurtClip: {fileID: 8300000, guid: 36744f5f5c3a447059ec32ea242934e4, type: 3}
+  dieClip: {fileID: 0}
+  healClip: {fileID: 0}
+  soulChargeStageUpClip: {fileID: 8300000, guid: 381478c180e094037b30356321708157, type: 3}
+  soulChargeStageDownClip: {fileID: 8300000, guid: 3c7f5fa183502493e96f744b3a54a468, type: 3}
+  soulExplosionClip: {fileID: 8300000, guid: cefcef09a243f49d3a69d2395063fd2d, type: 3}
+  progressTickClip: {fileID: 8300000, guid: c27078076da8b491dbe342026e404477, type: 3}
+  lowHpClip: {fileID: 8300000, guid: a1c419acfb5bf4e2eabf973fc9be7bb5, type: 3}
+  enemyAttackClip: {fileID: 8300000, guid: a3530cdcd5fa94bd6b6dc4bacbf807bb, type: 3}
+  enemyHurtClip: {fileID: 8300000, guid: a004b2254b7954d9f9ad01ca2ecd7e46, type: 3}
+  enemyStunClip: {fileID: 8300000, guid: 70866472c2880421d920b63f7a7e49b6, type: 3}
+  enemyDieClip: {fileID: 8300000, guid: c8ea8202e632546d596616fcf272e47a, type: 3}
+  doorOpenClip: {fileID: 8300000, guid: 5a76411f82b1e41fda774975e0c1ab09, type: 3}
+  mapTransitClip: {fileID: 8300000, guid: 77379ed303c64479c97348b4efa7080a, type: 3}
+  waveHornClip: {fileID: 0}
+  scoreTickClip: {fileID: 0}
+  gameOverStingClip: {fileID: 0}
+  buttonClickClip: {fileID: 8300000, guid: 17ad085b64f7f4503891e9c9f0c9e4dd, type: 3}
+  hoverClip: {fileID: 0}
+  masterVolume: 1
+  bgmVolume: 0.8
+  sfxVolume: 1
+  uiVolume: 1
