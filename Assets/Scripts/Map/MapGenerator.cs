@@ -4,7 +4,8 @@ using UnityEngine.Serialization;
 using UnityEngine.Tilemaps;
 
 /// <summary>
-/// 시드 기반 절차적 아레나 맵 생성기. Tilemap에 외벽과 내부 장애물을 일괄 배치한다.
+/// 시드 기반 절차적 아레나 맵 생성기. Tilemap에 외벽 단일 직사각형을 일괄 배치한다.
+/// 내부 장애물은 생성하지 않는다(8f666a6 단순화, Legacy 필드 유지).
 /// 지형지물 수치는 MapArenaProfile에서 조절한다.
 /// </summary>
 [DisallowMultipleComponent]
@@ -204,8 +205,8 @@ public sealed class MapGenerator : MonoBehaviour
         MapLayout layout = new MapLayout(width, height);
         layout.FillOuterWalls();
 
-        // 단일 직사각형 방: 내부 장애물 생성 제거 (요청: 내부 방 아예 없애기)
-        // 외벽 두께 1셀만 유지, 내부는 전체 빈 공간.
+        // 단일 직사각형 방: 내부 장애물 생성 없음 (8f666a6 단순화 결정, 구현 우선)
+        // 외벽 두께 1셀만 유지, 내부는 전체 빈 공간. Legacy 장애물 로직은 위키에서 N/A 처리.
 
         currentLayout = layout;
         ApplyToTilemap(layout, wallTileResolved);
@@ -336,6 +337,7 @@ public sealed class MapGenerator : MonoBehaviour
         groundTilemap.CompressBounds();
     }
 
+    // Legacy: 장애물 제거로 미사용. 재도입 시 복원.
     private static ObstaclePattern PickPattern(ObstaclePattern[] patterns, System.Random rng)
     {
         if (patterns == null || patterns.Length == 0) return null;
@@ -358,6 +360,7 @@ public sealed class MapGenerator : MonoBehaviour
         return patterns[patterns.Length - 1];
     }
 
+    // Legacy: 장애물 제거로 미사용.
     private static Vector2Int[] CreateRectCells(Vector2Int size)
     {
         List<Vector2Int> list = new List<Vector2Int>(size.x * size.y);

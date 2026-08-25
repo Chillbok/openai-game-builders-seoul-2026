@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 526e6472ae2c54d8f8ab9ae9f9b6c5e7
+guid: beb2e8d7281024010be377e6c0dc2821
 TextureImporter:
   internalIDToNameTable:
   - first:
@@ -1260,7 +1260,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Dungeon_Tileset_50
+      name: right to down wall 1
       rect:
         serializedVersion: 2
         x: 0
@@ -1326,7 +1326,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Dungeon_Tileset_53
+      name: down to left 1
       rect:
         serializedVersion: 2
         x: 48
@@ -1348,7 +1348,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Dungeon_Tileset_54
+      name: right to down 2
       rect:
         serializedVersion: 2
         x: 64
@@ -1370,7 +1370,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Dungeon_Tileset_55
+      name: down to left 2
       rect:
         serializedVersion: 2
         x: 80
@@ -2389,12 +2389,8 @@ TextureImporter:
       Dungeon_Tileset_47: 715497456
       Dungeon_Tileset_48: -1543045142
       Dungeon_Tileset_49: -964991725
-      Dungeon_Tileset_50: 1506585871
       Dungeon_Tileset_51: 118820337
       Dungeon_Tileset_52: 1895096186
-      Dungeon_Tileset_53: -1501065912
-      Dungeon_Tileset_54: -1569238324
-      Dungeon_Tileset_55: 941557696
       Dungeon_Tileset_56: 273888450
       Dungeon_Tileset_57: 1010134082
       Dungeon_Tileset_58: 1530367341
@@ -2443,6 +2439,8 @@ TextureImporter:
       Dungeon_Tileset_97: -683952906
       Dungeon_Tileset_98: -1120648832
       Dungeon_Tileset_99: 1481140954
+      down to left 1: -1501065912
+      down to left 2: 941557696
       ground D1: -1788571185
       ground D2: -205384062
       ground L: 568314718
@@ -2456,6 +2454,8 @@ TextureImporter:
       ground U1: 1558959487191823921
       ground U2: 595508747133529673
       ladder: -1342430726
+      right to down 2: -1569238324
+      right to down wall 1: 1506585871
       trapdoor: -618214316
       wall down 1: 1509968645
       wall down 2: 2100563325
