@@ -34,6 +34,14 @@ public class SpriteFlip : MonoBehaviour
 
     private void DefineSpriteDirection()
     {
+        if (flipXOverride.HasValue)
+        {
+            isFacingRight = !flipXOverride.Value;
+            spriteRenderer.flipX = flipXOverride.Value;
+            animator.SetBool(rightAnimatorParameterName, isFacingRight);
+            return;
+        }
+
         float horizontalInput = playerMoveController.MovementInput.x;
 
         if (horizontalInput > 0f)
@@ -46,16 +54,12 @@ public class SpriteFlip : MonoBehaviour
         }
 
         FlipSpriteToMoveDirection(isFacingRight);
-
-        if (flipXOverride.HasValue)
-        {
-            spriteRenderer.flipX = flipXOverride.Value;
-        }
     }
 
     public void SetFlipXOverride(bool flipX)
     {
         flipXOverride = flipX;
+        isFacingRight = !flipX;
     }
 
     public void ClearFlipXOverride()
