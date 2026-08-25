@@ -18,6 +18,11 @@ public class PlayerDodge : MonoBehaviour
     private float dodgeStartTime;
     private bool perfectDodgeConsumed;
 
+    [Header("오디오")]
+    [SerializeField]
+    [Tooltip("중앙 오디오 설정 — 비어 있으면 AudioService 싱글턴을 사용한다")]
+    private AudioConfig audioConfig;
+
     // 컴포넌트 참조와 입력 액션을 초기화한다.
     private void Awake()
     {
@@ -32,6 +37,11 @@ public class PlayerDodge : MonoBehaviour
     private void Update()
     {
         if (!playerStatController.IsInitialized)
+        {
+            return;
+        }
+
+        if (GameOverController.IsGameOverStatic || playerStatController.IsDead)
         {
             return;
         }
@@ -107,6 +117,47 @@ public class PlayerDodge : MonoBehaviour
         dodgeStartTime = Time.time;
         perfectDodgeConsumed = false;
         playerMoveController.CanMove = false;
+        PlayDodgeSfx();
+    }
+
+    private void PlayDodgeSfx()
+    {
+        AudioConfig cfg = AudioService.Instance != null && AudioService.Instance.Config != null
+            ? AudioService.Instance.Config
+            : Resources.Load<AudioConfig>("DefaultAudioConfig");
+#if UNITY_EDITOR
+        if (cfg == null) cfg = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioConfig>("Assets/Resources/DefaultAudioConfig.asset");
+#endif
+        if (cfg == null || cfg.DodgeClip == null)
+        {
+            Debug.LogWarning($"PlayDodgeSfx: cfg={cfg} clip={(cfg != null ? (object)cfg.DodgeClip : "null cfg")}", this);
+            return;
+        }
+        if (AudioService.Instance != null)
+        {
+            AudioService.Instance.PlaySFX(cfg.DodgeClip, priority: AudioService.Priority.High);
+        }
+        else
+        {
+            AudioSource.PlayClipAtPoint(cfg.DodgeClip, transform.position);
+        }
+    }
+
+    private void PlayPerfectDodgeSfx()
+    {
+        AudioConfig cfg = AudioService.Instance != null ? AudioService.Instance.Config : Resources.Load<AudioConfig>("DefaultAudioConfig");
+#if UNITY_EDITOR
+        if (cfg == null) cfg = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioConfig>("Assets/Resources/DefaultAudioConfig.asset");
+#endif
+        if (cfg == null || cfg.PerfectDodgeClip == null) return;
+        if (AudioService.Instance != null)
+        {
+            AudioService.Instance.PlaySFX(cfg.PerfectDodgeClip, priority: AudioService.Priority.High);
+        }
+        else
+        {
+            AudioSource.PlayClipAtPoint(cfg.PerfectDodgeClip, transform.position);
+        }
     }
 
     // 회피 시작 후 완벽한 회피 인정 시간이 지났는지 확인한다.
@@ -124,6 +175,7 @@ public class PlayerDodge : MonoBehaviour
         }
 
         perfectDodgeConsumed = true;
+        PlayPerfectDodgeSfx();
         return true;
     }
 
@@ -133,7 +185,10 @@ public class PlayerDodge : MonoBehaviour
         isDodging = false;
         dodgeTimer = 0f;
         perfectDodgeConsumed = false;
-        playerMoveController.CanMove = true;
+        if (!GameOverController.IsGameOverStatic && (playerStatController == null || !playerStatController.IsDead))
+        {
+            playerMoveController.CanMove = true;
+        }
     }
 
     // 처형이 회피를 중단하고 시작할 때 호출한다. 회피 충전 회복 상태는 유지한다.

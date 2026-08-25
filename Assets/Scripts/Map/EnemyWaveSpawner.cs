@@ -106,6 +106,12 @@ public sealed class EnemyWaveSpawner : MonoBehaviour
 
     private void Update()
     {
+        if (GameOverController.IsGameOverStatic)
+        {
+            isSpawning = false;
+            return;
+        }
+
         if (!isSpawning) return;
 
         elapsed += Time.deltaTime;
@@ -176,6 +182,7 @@ public sealed class EnemyWaveSpawner : MonoBehaviour
     /// </summary>
     public bool TryBeginSurvivalWave()
     {
+        if (GameOverController.IsGameOverStatic) return false;
         CacheReferences();
         if (enemyPrefab == null)
         {
@@ -193,6 +200,12 @@ public sealed class EnemyWaveSpawner : MonoBehaviour
         batchIndex = 0;
         survivalDuration = CalculateSurvivalDuration();
         isSpawning = true;
+
+        // 게임플레이 BGM — 방 진입 시 루프 재생 (menuBgm은 스타트 메뉴 구현 시까지 대기)
+        if (AudioService.Instance != null && AudioService.Instance.Config != null && AudioService.Instance.Config.BattleBgm != null)
+        {
+            AudioService.Instance.PlayBGM(AudioService.Instance.Config.BattleBgm, true, 0.3f);
+        }
 
         spawnedEnemies.RemoveAll(go => go == null);
 
@@ -213,6 +226,7 @@ public sealed class EnemyWaveSpawner : MonoBehaviour
 
     private void SpawnBatch(int count)
     {
+        if (GameOverController.IsGameOverStatic) return;
         if (count <= 0) return;
         CacheReferences();
         if (enemyPrefab == null || spawnAreaProvider == null || !spawnAreaProvider.HasBakedData) return;

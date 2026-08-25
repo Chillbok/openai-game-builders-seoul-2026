@@ -53,6 +53,10 @@ public sealed class CameraFollowController : MonoBehaviour
     [Tooltip("true면 PlayerExecutionController가 처형 연출 중일 때 추적을 일시 정지한다.")]
     private bool pauseDuringExecution = true;
 
+    [SerializeField]
+    [Tooltip("true면 GameOverController가 게임오버 연출 중일 때 추적을 일시 정지한다.")]
+    private bool pauseDuringGameOver = true;
+
     private Camera cachedCamera;
     private Vector3 velocity;
     private float fixedZ;
@@ -121,6 +125,11 @@ public sealed class CameraFollowController : MonoBehaviour
         }
 
         if (pauseDuringExecution && targetExecutionController != null && targetExecutionController.IsPresenting)
+        {
+            return;
+        }
+
+        if (pauseDuringGameOver && GameOverController.IsGameOverStatic)
         {
             return;
         }

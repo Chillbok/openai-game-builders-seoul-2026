@@ -20,6 +20,11 @@ public sealed class PlayerStatController : MonoBehaviour
     private PlayerDodge playerDodge;
     private float nextAttackDamageMultiplier = 1f;
 
+    [Header("오디오")]
+    [SerializeField]
+    [Tooltip("중앙 오디오 설정 — 비어 있으면 AudioService 싱글턴을 사용한다")]
+    private AudioConfig audioConfig;
+
     public PlayerData Data => playerData;
     public bool IsInitialized => runtimeState != null;
     public bool IsDead => IsInitialized && runtimeState.CurrentHP <= 0f;
@@ -76,6 +81,11 @@ public sealed class PlayerStatController : MonoBehaviour
     private void Update()
     {
         if (!IsInitialized)
+        {
+            return;
+        }
+
+        if (GameOverController.IsGameOverStatic || IsDead)
         {
             return;
         }
@@ -223,10 +233,16 @@ public sealed class PlayerStatController : MonoBehaviour
         }
 
         Damaged?.Invoke();
+        PlayHurtSfx();
 
         if (previousHP > 0f && runtimeState.CurrentHP <= 0f)
         {
             Died?.Invoke();
+        }
+        else if (previousHP > runtimeState.CurrentHP)
+        {
+            // 저체력 경고는 별도 이벤트 없이 여기서 체크
+            TryPlayLowHpSfx();
         }
         
         Debug.Log($"플레이어에게 {previousHP - runtimeState.CurrentHP} 피해 입음, 남은 체력: {runtimeState.CurrentHP}");
@@ -362,6 +378,41 @@ public sealed class PlayerStatController : MonoBehaviour
         }
 
         Instantiate(SoulChargeExplosionPrefab, position, Quaternion.identity);
+        PlaySoulExplosionSfx();
+    }
+
+    private void PlaySoulExplosionSfx()
+    {
+        AudioConfig cfg = AudioService.Instance != null ? AudioService.Instance.Config : Resources.Load<AudioConfig>("DefaultAudioConfig");
+#if UNITY_EDITOR
+        if (cfg == null) cfg = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioConfig>("Assets/Resources/DefaultAudioConfig.asset");
+#endif
+        if (cfg == null || cfg.SoulExplosionClip == null) return;
+        if (AudioService.Instance != null) AudioService.Instance.PlaySFX(cfg.SoulExplosionClip, "soulExplosion", cfg.SoulExplosionCooldown, AudioService.Priority.High);
+        else AudioSource.PlayClipAtPoint(cfg.SoulExplosionClip, transform.position);
+    }
+
+    private void PlayHurtSfx()
+    {
+        AudioConfig cfg = AudioService.Instance != null ? AudioService.Instance.Config : Resources.Load<AudioConfig>("DefaultAudioConfig");
+#if UNITY_EDITOR
+        if (cfg == null) cfg = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioConfig>("Assets/Resources/DefaultAudioConfig.asset");
+#endif
+        if (cfg == null || cfg.HurtClip == null) return;
+        if (AudioService.Instance != null) AudioService.Instance.PlaySFX(cfg.HurtClip, priority: AudioService.Priority.High);
+        else AudioSource.PlayClipAtPoint(cfg.HurtClip, transform.position);
+    }
+
+    private void TryPlayLowHpSfx()
+    {
+        if (CurrentHP > MaxHP * 0.25f) return;
+        AudioConfig cfg = AudioService.Instance != null ? AudioService.Instance.Config : Resources.Load<AudioConfig>("DefaultAudioConfig");
+#if UNITY_EDITOR
+        if (cfg == null) cfg = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioConfig>("Assets/Resources/DefaultAudioConfig.asset");
+#endif
+        if (cfg == null || cfg.LowHpClip == null) return;
+        if (AudioService.Instance != null) AudioService.Instance.PlaySFX(cfg.LowHpClip, "lowHp", 1f, AudioService.Priority.High);
+        else AudioSource.PlayClipAtPoint(cfg.LowHpClip, transform.position);
     }
 
     // 일반 처치 누적 수를 올리고 조건을 충족하면 영혼 충전 단계를 올린다.

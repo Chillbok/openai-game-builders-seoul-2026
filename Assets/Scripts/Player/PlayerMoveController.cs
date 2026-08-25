@@ -46,6 +46,12 @@ public class PlayerMoveController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (GameOverController.IsGameOverStatic || (playerStatController != null && playerStatController.IsDead))
+        {
+            MovementInput = Vector2.zero;
+            return;
+        }
+
         MovementInput = Vector2.ClampMagnitude(moveAction.ReadValue<Vector2>(), 1f);
 
         if (!CanMove)

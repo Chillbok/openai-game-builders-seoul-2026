@@ -88,6 +88,11 @@ public sealed class PlayerExecutionController : MonoBehaviour
     [Tooltip("일반 적 처형 성공 시 회복하는 체력")]
     private float executionHealAmount = 25f;
 
+    [Header("오디오")]
+    [SerializeField]
+    [Tooltip("중앙 오디오 설정 — 비어 있으면 AudioService 싱글턴을 사용한다")]
+    private AudioConfig audioConfig;
+
     [Header("기존 씬 연결")]
     [SerializeField]
     [Tooltip("비워 두면 현재 씬에서 이름이 ExecutionBackgroundEffect인 오브젝트를 찾는다")]
@@ -189,6 +194,11 @@ public sealed class PlayerExecutionController : MonoBehaviour
 
     private void Update()
     {
+        if (GameOverController.IsGameOverStatic)
+        {
+            return;
+        }
+
         if (playerStatController == null || !playerStatController.IsInitialized)
         {
             return;
@@ -212,6 +222,11 @@ public sealed class PlayerExecutionController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (GameOverController.IsGameOverStatic)
+        {
+            return;
+        }
+
         if (state != ExecutionState.Approaching)
         {
             return;
@@ -405,7 +420,33 @@ public sealed class PlayerExecutionController : MonoBehaviour
                 animator.Play(ExecutionAnimationStateName, 0, 0f);
             }
         }
+
+        PlayExecutionParrySfx();
     }
+
+    private void PlayExecutionParrySfx()
+    {
+        AudioConfig cfg = AudioService.Instance != null ? AudioService.Instance.Config : Resources.Load<AudioConfig>("DefaultAudioConfig");
+#if UNITY_EDITOR
+        if (cfg == null) cfg = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioConfig>("Assets/Resources/DefaultAudioConfig.asset");
+#endif
+        if (cfg == null || cfg.ExecutionParryClip == null) return;
+        if (AudioService.Instance != null) AudioService.Instance.PlaySFX(cfg.ExecutionParryClip, priority: AudioService.Priority.High);
+        else AudioSource.PlayClipAtPoint(cfg.ExecutionParryClip, transform.position);
+    }
+
+    private void PlayExecutionStabSfx()
+    {
+        AudioConfig cfg = AudioService.Instance != null ? AudioService.Instance.Config : Resources.Load<AudioConfig>("DefaultAudioConfig");
+#if UNITY_EDITOR
+        if (cfg == null) cfg = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioConfig>("Assets/Resources/DefaultAudioConfig.asset");
+#endif
+        if (cfg == null || cfg.ExecutionStabClip == null) return;
+        if (AudioService.Instance != null) AudioService.Instance.PlaySFX(cfg.ExecutionStabClip, priority: AudioService.Priority.High);
+        else AudioSource.PlayClipAtPoint(cfg.ExecutionStabClip, transform.position);
+    }
+
+
 
     private void UpdatePresentation(float deltaTime)
     {
@@ -440,6 +481,7 @@ public sealed class PlayerExecutionController : MonoBehaviour
                 executionApplied = target.TryCompleteExecution();
                 if (executionApplied)
                 {
+                    PlayExecutionStabSfx();
                     playerStatController.Heal(target.IsBoss ? playerStatController.MaxHP : executionHealAmount);
                     playerStatController.RegisterExecutionKill();
                     MoveThroughTarget();

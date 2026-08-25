@@ -173,9 +173,27 @@ public sealed class MapGenerator : MonoBehaviour
 
     public void GenerateWithRandomSeed()
     {
-        int seed = useFixedSeed ? fixedSeed + mapIndex : System.Environment.TickCount + mapIndex * 7919;
-        // TickCount가 0일 수 있으므로 보정
+        int seed = GenerateRandomSeed();
+        Generate(seed);
+    }
+
+    private int GenerateRandomSeed()
+    {
+        // 항상 랜덤 시드 사용 — useFixedSeed 무시, TickCount + mapIndex*7919 + Unity Random 보정
+        // 빠른 연속 재시작 시 TickCount 동일 충돌 방지
+        int seed = System.Environment.TickCount + mapIndex * 7919 + UnityEngine.Random.Range(0, 9999);
         if (seed == 0) seed = 12345 + mapIndex;
+        return seed;
+    }
+
+    /// <summary>
+    /// 게임오버 재시작용: mapIndex=0 리셋 후 항상 랜덤 시드로 재생성.
+    /// 연속 재시작 시 난이도 누적 없음.
+    /// </summary>
+    public void ResetForRestart()
+    {
+        mapIndex = 0;
+        int seed = GenerateRandomSeed();
         Generate(seed);
     }
 
