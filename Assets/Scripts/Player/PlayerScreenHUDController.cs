@@ -214,7 +214,8 @@ public sealed class PlayerScreenHUDController : MonoBehaviour
                 continue;
             }
 
-            soulChargePips[i].fillAmount = fillAmount;
+            bool isTopPip = i == activePipCount - 1;
+            soulChargePips[i].fillAmount = isTopPip ? fillAmount : 1f;
         }
     }
 
