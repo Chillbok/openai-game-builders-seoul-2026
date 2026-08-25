@@ -440,6 +440,10 @@ public class EnemyStateMachine : MonoBehaviour
             playerStats.TrySpawnSoulChargeExplosion(transform.position);
         }
 
+        // 맵 전이는 방 클리어(활성 적 0) 후 문 상호작용으로 처리한다.
+        // 기존 보스 처치 즉시 재생성 로직은 제거. DoorController가 담당한다.
+        // 호환을 위해 보스 여부와 무관하게 개별 재생성을 수행하지 않는다.
+
         Destroy(gameObject, DeathAnimationDuration);
     }
 

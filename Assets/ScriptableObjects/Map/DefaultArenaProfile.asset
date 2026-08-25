@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ceff39909c684efb9abee231cb0c383, type: 3}
+  m_Name: DefaultArenaProfile
+  m_EditorClassIdentifier: Assembly-CSharp::MapArenaProfile
+  mapWidth: 30
+  mapHeight: 20
+  useVariableSize: 1
+  minMapWidth: 24
+  maxMapWidth: 36
+  minMapHeight: 16
+  maxMapHeight: 24
+  obstacleCount: 6
+  obstacleCountVariance: 1
+  minObstacleDistance: 2
+  playerClearRadius: 3
+  wallMargin: 1
+  obstaclePatterns:
+  - {fileID: 11400000, guid: a703b1a181cd4b679427fd0146eba762, type: 2}
+  - {fileID: 11400000, guid: 0786d869ee4842e5b04d5be848c8e2e2, type: 2}
+  - {fileID: 11400000, guid: 93638becab594467ba22d3e1d3877608, type: 2}
+  wallTile: {fileID: 11400000, guid: 7c638622cb3b74afea0d72ff66715812, type: 2}
+  maxRetries: 30
