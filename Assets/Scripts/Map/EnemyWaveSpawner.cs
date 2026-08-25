@@ -2,8 +2,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 방 단위 적 일괄 생성기. SpawnAreaProvider의 빈 셀 캐시에서만 스폰한다.
-/// 기획: 게임 시스템 세부 기획(게임 핵심 순환) - 방 진입 시 1회 일괄 생성, 추가 생성 없음.
+/// 생존 시간 기반 주기적 적 생성기. SpawnAreaProvider의 빈 셀 캐시에서만 스폰한다.
+/// 기획: 게임 시스템 세부 기획(게임 핵심 순환) - 30초+5초/방 생존, 5초마다 6마리 주기 생성, 시간 경과 후 중단.
 /// </summary>
 [DisallowMultipleComponent]
 public sealed class EnemyWaveSpawner : MonoBehaviour
@@ -21,31 +21,23 @@ public sealed class EnemyWaveSpawner : MonoBehaviour
     [SerializeField]
     private GameObject enemyPrefab;
 
-    [Header("웨이브 규칙 (Inspector 조정)")]
-    [Tooltip("기본 스폰 수 (1회차)")]
-    [SerializeField, Min(1)]
-    private int baseEnemyCount = 4;
+    [Header("생존 시간 (Inspector 조정, Min 0)")]
+    [Tooltip("기본 생존 시간(초). 0이면 즉시 생존 완료")]
+    [SerializeField, Min(0f)]
+    private float survivalBaseDuration = 30f;
 
-    [Tooltip("맵 인덱스당 증가량")]
+    [Tooltip("맵 인덱스당 증가 시간(초)")]
+    [SerializeField, Min(0f)]
+    private float survivalIncreasePerMap = 5f;
+
+    [Header("주기 생성 (Inspector 조정, Min 0)")]
+    [Tooltip("생성 주기(초). 0이면 주기 생성 없음")]
+    [SerializeField, Min(0f)]
+    private float spawnInterval = 5f;
+
+    [Tooltip("주기당 생성 수. 0이면 생성 없음")]
     [SerializeField, Min(0)]
-    private int increasePerMap = 1;
-
-    [Tooltip("최대 스폰 수")]
-    [SerializeField, Min(1)]
-    private int maxEnemyCount = 12;
-
-    [Header("면적 비례")]
-    [Tooltip("기준 내부 면적 (w-2)*(h-2). 30x20 기준 504")]
-    [SerializeField, Min(100)]
-    private int referenceArea = 504;
-
-    [Tooltip("100셀당 추가 적 수")]
-    [SerializeField, Min(0)]
-    private int enemiesPer100Cells = 5;
-
-    [Tooltip("작은 방 하한. 면적이 작아도 최소 이 수만큼 스폰")]
-    [SerializeField, Min(1)]
-    private int minSpawnCount = 4;
+    private int enemiesPerInterval = 6;
 
     [Tooltip("게임 시작 시 자동으로 첫 웨이브 스폰")]
     [SerializeField]
@@ -53,13 +45,24 @@ public sealed class EnemyWaveSpawner : MonoBehaviour
 
     private readonly List<GameObject> spawnedEnemies = new List<GameObject>();
 
-    public int BaseEnemyCount => baseEnemyCount;
-    public int IncreasePerMap => increasePerMap;
-    public int MaxEnemyCount => maxEnemyCount;
-    public int ReferenceArea => referenceArea;
-    public int EnemiesPer100Cells => enemiesPer100Cells;
-    public int MinSpawnCount => minSpawnCount;
+    // 생존 타이머 상태
+    private float elapsed;
+    private float survivalDuration;
+    private float spawnTimer;
+    private bool isSpawning;
+    private int batchIndex;
+
+    public float SurvivalBaseDuration => survivalBaseDuration;
+    public float SurvivalIncreasePerMap => survivalIncreasePerMap;
+    public float SpawnInterval => spawnInterval;
+    public int EnemiesPerInterval => enemiesPerInterval;
+    public bool AutoSpawnOnStart => autoSpawnOnStart;
     public IReadOnlyList<GameObject> SpawnedEnemies => spawnedEnemies;
+    public float Elapsed => elapsed;
+    public float SurvivalDuration => survivalDuration;
+    public bool IsSpawning => isSpawning;
+    public bool IsSurvivalComplete => elapsed >= survivalDuration;
+    public float SurvivalProgress => survivalDuration > 0f ? Mathf.Clamp01(elapsed / survivalDuration) : 1f;
 
     /// <summary>
     /// 현재 방의 살아있는 적 수. Destroy 직후 null 참조는 제외한다.
@@ -79,8 +82,6 @@ public sealed class EnemyWaveSpawner : MonoBehaviour
                 }
                 var stat = go.GetComponent<EnemyStatController>();
                 if (stat != null && stat.IsDead) continue;
-                // 파괴 예약된 오브젝트도 카운트에서 제외 (EnemyStateMachine은 Destroy(gameObject, 1f)로 지연)
-                // IsDead가 true면 제외하므로 충분
                 cnt++;
             }
             return cnt;
@@ -96,24 +97,42 @@ public sealed class EnemyWaveSpawner : MonoBehaviour
     {
         if (autoSpawnOnStart)
         {
-            // MapGenerator Awake에서 이미 Generate가 호출된 뒤이므로 Bake가 완료된 상태
-            // 한 프레임 지연 후 스폰하여 Bake 완료 보장
-            // 동기적으로 바로 시도하고, 실패 시 다음 프레임에 재시도
-            if (!TrySpawnWave())
+            if (!TryBeginSurvivalWave())
             {
                 Invoke(nameof(DelayedSpawn), 0.1f);
             }
         }
     }
 
+    private void Update()
+    {
+        if (!isSpawning) return;
+
+        elapsed += Time.deltaTime;
+        spawnTimer += Time.deltaTime;
+
+        // 생존 시간 경과 시 생성 중단 (잔여 적 유지)
+        if (elapsed >= survivalDuration)
+        {
+            isSpawning = false;
+            Debug.Log($"EnemyWaveSpawner: 생존 완료 elapsed={elapsed:F1} survival={survivalDuration:F1} mapIndex={mapGenerator?.MapIndex}", this);
+            return;
+        }
+
+        // 주기 생성
+        if (spawnInterval > 0.001f && enemiesPerInterval > 0 && spawnTimer >= spawnInterval)
+        {
+            spawnTimer -= spawnInterval;
+            SpawnBatch(enemiesPerInterval);
+        }
+    }
+
     private void OnValidate()
     {
-        baseEnemyCount = Mathf.Max(1, baseEnemyCount);
-        increasePerMap = Mathf.Max(0, increasePerMap);
-        maxEnemyCount = Mathf.Max(baseEnemyCount, maxEnemyCount);
-        referenceArea = Mathf.Max(100, referenceArea);
-        enemiesPer100Cells = Mathf.Max(0, enemiesPer100Cells);
-        minSpawnCount = Mathf.Clamp(minSpawnCount, 1, maxEnemyCount);
+        survivalBaseDuration = Mathf.Max(0f, survivalBaseDuration);
+        survivalIncreasePerMap = Mathf.Max(0f, survivalIncreasePerMap);
+        spawnInterval = Mathf.Max(0f, spawnInterval);
+        enemiesPerInterval = Mathf.Max(0, enemiesPerInterval);
         if (spawnAreaProvider == null) spawnAreaProvider = GetComponent<SpawnAreaProvider>();
         if (spawnAreaProvider == null) spawnAreaProvider = GetComponentInChildren<SpawnAreaProvider>(true);
         if (mapGenerator == null) mapGenerator = GetComponent<MapGenerator>();
@@ -143,47 +162,19 @@ public sealed class EnemyWaveSpawner : MonoBehaviour
 
     private void DelayedSpawn()
     {
-        TrySpawnWave();
+        TryBeginSurvivalWave();
     }
 
-    /// <summary>
-    /// 현재 맵 인덱스와 면적에 따른 스폰 수를 계산한다.
-    /// 100셀당 5명 증가, 작은 방 하한 minSpawnCount 보호.
-    /// </summary>
-    public int CalculateSpawnCount()
+    private float CalculateSurvivalDuration()
     {
         int mapIdx = mapGenerator != null ? mapGenerator.MapIndex : 0;
-        int baseCount = baseEnemyCount + mapIdx * increasePerMap;
-
-        int area = 504;
-        if (mapGenerator != null && mapGenerator.CurrentLayout != null)
-        {
-            var layout = mapGenerator.CurrentLayout;
-            area = (layout.Width - 2) * (layout.Height - 2);
-        }
-        else if (mapGenerator != null && mapGenerator.ArenaProfile != null)
-        {
-            var p = mapGenerator.ArenaProfile;
-            area = (p.MapWidth - 2) * (p.MapHeight - 2);
-        }
-
-        int areaExtra = 0;
-        if (enemiesPer100Cells > 0)
-        {
-            float delta = area - referenceArea;
-            areaExtra = Mathf.FloorToInt(delta / 100f * enemiesPer100Cells);
-            areaExtra = Mathf.Max(0, areaExtra);
-        }
-
-        int count = baseCount + areaExtra;
-        count = Mathf.Max(count, minSpawnCount);
-        return Mathf.Clamp(count, minSpawnCount, maxEnemyCount);
+        return Mathf.Max(0f, survivalBaseDuration + mapIdx * survivalIncreasePerMap);
     }
 
     /// <summary>
-    /// 방 진입 시 1회 일괄 생성. 성공 시 true.
+    /// 생존 타이머를 시작하고 첫 배치(6마리)를 즉시 생성한다. 성공 시 true.
     /// </summary>
-    public bool TrySpawnWave()
+    public bool TryBeginSurvivalWave()
     {
         CacheReferences();
         if (enemyPrefab == null)
@@ -197,35 +188,76 @@ public sealed class EnemyWaveSpawner : MonoBehaviour
             return false;
         }
 
-        int count = CalculateSpawnCount();
-        int seed = mapGenerator != null ? mapGenerator.CurrentSeed : System.Environment.TickCount;
-        System.Random rng = new System.Random(seed + 7919);
+        elapsed = 0f;
+        spawnTimer = 0f;
+        batchIndex = 0;
+        survivalDuration = CalculateSurvivalDuration();
+        isSpawning = true;
 
-        // 기존 추적 리스트 정리 (이전 방 잔류 제거)
+        spawnedEnemies.RemoveAll(go => go == null);
+
+        // 즉시 첫 배치 생성 (생존 시간이 0이면 생성 없이 즉시 완료로 처리)
+        if (survivalDuration > 0f && enemiesPerInterval > 0)
+        {
+            SpawnBatch(enemiesPerInterval);
+        }
+        else if (survivalDuration <= 0f)
+        {
+            isSpawning = false;
+            Debug.Log($"EnemyWaveSpawner: 생존 시간 0으로 즉시 완료 mapIndex={mapGenerator?.MapIndex}", this);
+        }
+
+        Debug.Log($"EnemyWaveSpawner: 생존 웨이브 시작 survival={survivalDuration:F1} interval={spawnInterval:F1} perBatch={enemiesPerInterval} seed={mapGenerator?.CurrentSeed} mapIndex={mapGenerator?.MapIndex}", this);
+        return true;
+    }
+
+    private void SpawnBatch(int count)
+    {
+        if (count <= 0) return;
+        CacheReferences();
+        if (enemyPrefab == null || spawnAreaProvider == null || !spawnAreaProvider.HasBakedData) return;
+
+        int seed = mapGenerator != null ? mapGenerator.CurrentSeed : System.Environment.TickCount;
+        // 배치별 결정론: 시드 + 맵 인덱스 + 배치 인덱스
+        System.Random rng = new System.Random(seed + 7919 + batchIndex * 9973 + (mapGenerator != null ? mapGenerator.MapIndex * 7919 : 0));
+        batchIndex++;
+
         spawnedEnemies.RemoveAll(go => go == null);
 
         for (int i = 0; i < count; i++)
         {
             Vector3 pos = spawnAreaProvider.GetRandomSpawnPosition(rng);
-            // Z는 0으로 고정
             pos.z = 0f;
             GameObject instance = Instantiate(enemyPrefab, pos, Quaternion.identity);
             spawnedEnemies.Add(instance);
         }
 
-        Debug.Log($"EnemyWaveSpawner: 웨이브 스폰 완료 count={count} seed={seed} mapIndex={mapGenerator?.MapIndex}", this);
-        return true;
+        Debug.Log($"EnemyWaveSpawner: 배치 생성 count={count} batch={batchIndex} seed={seed} mapIndex={mapGenerator?.MapIndex}", this);
+    }
+
+    // --- 호환 래퍼 (기존 DoorController 등에서 호출) ---
+
+    /// <summary>
+    /// 호환용: 기존 일괄 생성 호출을 생존 웨이브 시작로 위임한다.
+    /// </summary>
+    public bool TrySpawnWave()
+    {
+        return TryBeginSurvivalWave();
     }
 
     /// <summary>
-    /// 다음 방 진입 시 호출. 기존 추적만 정리하고 새 웨이브 스폰.
+    /// 다음 방 진입 시 호출. 생존 타이머를 리셋하고 새 웨이브를 시작한다.
     /// MapGenerator가 재생성된 뒤 호출해야 한다.
     /// </summary>
     public void SpawnNextWave()
     {
-        // 이전 방 적은 이미 DoorController가 클리어를 확인한 뒤이므로 리스트만 정리
         spawnedEnemies.RemoveAll(go => go == null);
-        TrySpawnWave();
+        TryBeginSurvivalWave();
+    }
+
+    public void BeginSurvivalWave()
+    {
+        TryBeginSurvivalWave();
     }
 
     /// <summary>
@@ -234,5 +266,10 @@ public sealed class EnemyWaveSpawner : MonoBehaviour
     public void ClearTracking()
     {
         spawnedEnemies.Clear();
+    }
+
+    public void StopSpawning()
+    {
+        isSpawning = false;
     }
 }

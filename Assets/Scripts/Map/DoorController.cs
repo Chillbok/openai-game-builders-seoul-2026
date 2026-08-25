@@ -3,8 +3,8 @@ using UnityEngine.InputSystem;
 // Fix: Input System Only - Keyboard direct check, no PlayerInput reference
 
 /// <summary>
-/// 방 클리어 시 문 개방, 문 상호작용 시 다음 맵 전이를 담당한다.
-/// 기획: 게임 시스템 세부 기획(게임 핵심 순환) - 활성 적 0개면 문 개방, EnterTrigger 상호작용으로 전이.
+/// 생존 완료 + 잔여 적 0 시 문 개방, 문 상호작용 시 다음 맵 전이를 담당한다.
+/// 기획: 게임 시스템 세부 기획(게임 핵심 순환) - 생존(30+5*mapIndex) 완료 && 활성 적 0이면 문 개방, EnterTrigger 상호작용으로 전이.
 /// </summary>
 [DisallowMultipleComponent]
 public sealed class DoorController : MonoBehaviour
@@ -152,7 +152,7 @@ public sealed class DoorController : MonoBehaviour
 
     private void Update()
     {
-        // 활성 적 수 기반 잠금/개방 갱신
+        // 생존 완료 && 활성 적 0 기반 잠금/개방 갱신
         bool shouldOpen = ShouldBeOpen();
         if (shouldOpen != isOpen)
         {
@@ -165,7 +165,7 @@ public sealed class DoorController : MonoBehaviour
     {
         if (waveSpawner != null)
         {
-            return waveSpawner.AliveCount == 0;
+            return waveSpawner.AliveCount == 0 && waveSpawner.IsSurvivalComplete;
         }
         // 폴백: 씬의 EnemyStateMachine 수로 판정
         var enemies = FindObjectsByType<EnemyStateMachine>(FindObjectsSortMode.None);
@@ -286,7 +286,7 @@ public sealed class DoorController : MonoBehaviour
             RecenterPlayer();
         }
 
-        // 다음 웨이브 스폰 (SpawnAreaProvider Bake 이후)
+        // 다음 웨이브 스폰 (SpawnAreaProvider Bake 이후) - 생존 타이머 리셋
         if (waveSpawner != null)
         {
             waveSpawner.Invoke(nameof(EnemyWaveSpawner.SpawnNextWave), 0f);
