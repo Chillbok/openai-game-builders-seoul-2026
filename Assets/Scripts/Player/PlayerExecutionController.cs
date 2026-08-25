@@ -238,6 +238,16 @@ public sealed class PlayerExecutionController : MonoBehaviour
         }
 
         Vector2 direction = (executionAnchor - playerRigidbody.position).normalized;
+        if (spriteFlip != null)
+        {
+            const float deadZone = 0.001f;
+            if (direction.x > deadZone || direction.x < -deadZone)
+            {
+                bool faceRight = direction.x > 0f;
+                spriteFlip.SetFlipXOverride(!faceRight);
+            }
+        }
+
         approachMover.Move(direction * approachSpeed * Time.fixedDeltaTime);
         playerMoveController.CanMove = false;
     }
@@ -280,10 +290,6 @@ public sealed class PlayerExecutionController : MonoBehaviour
 
         playerAnimationController.CancelForExecution();
         playerAttackHitboxController.DisableAllHitboxes();
-        if (spriteFlip != null)
-        {
-            spriteFlip.SetFlipXOverride(false);
-        }
 
         previousAnimatorSpeed = animator != null ? animator.speed : 1f;
         playerMoveController.CanMove = false;
@@ -584,7 +590,15 @@ public sealed class PlayerExecutionController : MonoBehaviour
 
         if (spriteFlip != null)
         {
-            spriteFlip.ClearFlipXOverride();
+            if (state == ExecutionState.Presenting)
+            {
+                spriteFlip.SetFlipXOverride(false);
+                spriteFlip.ClearFlipXOverride();
+            }
+            else
+            {
+                spriteFlip.ClearFlipXOverride();
+            }
         }
 
         presentationElapsed = 0f;
