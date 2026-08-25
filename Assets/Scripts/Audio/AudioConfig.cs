@@ -68,6 +68,10 @@ public sealed class AudioConfig : ScriptableObject
     [SerializeField]
     private AudioClip soulExplosionClip;
 
+    [Tooltip("영혼 충전 폭발음 쿨다운(초) — 동시 다발 폭발 시 겹침 방지")]
+    [SerializeField, Min(0f)]
+    private float soulExplosionCooldown = 0.15f;
+
     [Tooltip("일반 처치 누적 팝업 틱 — 1/4마다 재생, 최대 단계 미재생")]
     [SerializeField]
     private AudioClip progressTickClip;
@@ -92,6 +96,10 @@ public sealed class AudioConfig : ScriptableObject
     [Tooltip("적 사망음 — 일반/폭발/처형 reason별 분리 가능")]
     [SerializeField]
     private AudioClip enemyDieClip;
+
+    [Tooltip("적 사망음 쿨다운(초) — 동시 다발 사망 시 겹침 방지")]
+    [SerializeField, Min(0f)]
+    private float enemyDieCooldown = 0.1f;
 
     [Header("SFX - 시스템/맵")]
     [Tooltip("문 개방음 — Door Open 1.wav")]
@@ -138,12 +146,14 @@ public sealed class AudioConfig : ScriptableObject
     public AudioClip SoulChargeStageUpClip => soulChargeStageUpClip;
     public AudioClip SoulChargeStageDownClip => soulChargeStageDownClip;
     public AudioClip SoulExplosionClip => soulExplosionClip;
+    public float SoulExplosionCooldown => soulExplosionCooldown;
     public AudioClip ProgressTickClip => progressTickClip;
     public AudioClip LowHpClip => lowHpClip;
     public AudioClip EnemyAttackClip => enemyAttackClip;
     public AudioClip EnemyHurtClip => enemyHurtClip;
     public AudioClip EnemyStunClip => enemyStunClip;
     public AudioClip EnemyDieClip => enemyDieClip;
+    public float EnemyDieCooldown => enemyDieCooldown;
     public AudioClip DoorOpenClip => doorOpenClip;
     public AudioClip MapTransitClip => mapTransitClip;
     public AudioClip ButtonClickClip => buttonClickClip;

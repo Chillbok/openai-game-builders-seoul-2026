@@ -388,7 +388,7 @@ public sealed class PlayerStatController : MonoBehaviour
         if (cfg == null) cfg = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioConfig>("Assets/Resources/DefaultAudioConfig.asset");
 #endif
         if (cfg == null || cfg.SoulExplosionClip == null) return;
-        if (AudioService.Instance != null) AudioService.Instance.PlaySFX(cfg.SoulExplosionClip, priority: AudioService.Priority.High);
+        if (AudioService.Instance != null) AudioService.Instance.PlaySFX(cfg.SoulExplosionClip, "soulExplosion", cfg.SoulExplosionCooldown, AudioService.Priority.High);
         else AudioSource.PlayClipAtPoint(cfg.SoulExplosionClip, transform.position);
     }
 

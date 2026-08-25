@@ -32,12 +32,14 @@ MonoBehaviour:
   soulChargeStageUpClip: {fileID: 8300000, guid: 381478c180e094037b30356321708157, type: 3}
   soulChargeStageDownClip: {fileID: 8300000, guid: 3c7f5fa183502493e96f744b3a54a468, type: 3}
   soulExplosionClip: {fileID: 8300000, guid: cefcef09a243f49d3a69d2395063fd2d, type: 3}
+  soulExplosionCooldown: 0.15
   progressTickClip: {fileID: 8300000, guid: c27078076da8b491dbe342026e404477, type: 3}
   lowHpClip: {fileID: 8300000, guid: a1c419acfb5bf4e2eabf973fc9be7bb5, type: 3}
   enemyAttackClip: {fileID: 8300000, guid: a3530cdcd5fa94bd6b6dc4bacbf807bb, type: 3}
   enemyHurtClip: {fileID: 8300000, guid: a004b2254b7954d9f9ad01ca2ecd7e46, type: 3}
   enemyStunClip: {fileID: 8300000, guid: 70866472c2880421d920b63f7a7e49b6, type: 3}
   enemyDieClip: {fileID: 8300000, guid: c8ea8202e632546d596616fcf272e47a, type: 3}
+  enemyDieCooldown: 0.1
   doorOpenClip: {fileID: 8300000, guid: 5a76411f82b1e41fda774975e0c1ab09, type: 3}
   mapTransitClip: {fileID: 8300000, guid: 77379ed303c64479c97348b4efa7080a, type: 3}
   buttonClickClip: {fileID: 8300000, guid: 17ad085b64f7f4503891e9c9f0c9e4dd, type: 3}

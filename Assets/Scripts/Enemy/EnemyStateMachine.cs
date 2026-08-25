@@ -828,7 +828,7 @@ public class EnemyStateMachine : MonoBehaviour
         AudioClip clip = cfg.EnemyDieClip != null ? cfg.EnemyDieClip : cfg.EnemyHurtClip;
         if (clip == null) return;
         // 폭발/처형 사망도 동일 클립으로 처리 — reason별 분리는 필요 시 AudioConfig에 추가
-        if (AudioService.Instance != null) AudioService.Instance.PlaySFX(clip, priority: AudioService.Priority.Medium);
+        if (AudioService.Instance != null) AudioService.Instance.PlaySFX(clip, "enemyDie", cfg.EnemyDieCooldown, AudioService.Priority.Medium);
         else AudioSource.PlayClipAtPoint(clip, transform.position);
     }
 }
