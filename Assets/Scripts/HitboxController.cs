@@ -90,31 +90,7 @@ public class HitboxController : MonoBehaviour
 
         float damage = playerStatController.CalculateNextAttackDamage();
         Vector2 knockbackDirection = other.transform.position - transform.position;
-        bool hitApplied = target.TryTakeDamage(damage, knockbackDirection.normalized);
-        if (hitApplied)
-        {
-            PlayHitSfx();
-        }
-    }
-
-    private void PlayHitSfx()
-    {
-        AudioConfig cfg = null;
-        if (playerStatController != null)
-        {
-            // PlayerStatController의 audioConfig via reflection 대신 AudioService 우선
-            cfg = AudioService.Instance != null ? AudioService.Instance.Config : Resources.Load<AudioConfig>("DefaultAudioConfig");
-#if UNITY_EDITOR
-        if (cfg == null) cfg = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioConfig>("Assets/Resources/DefaultAudioConfig.asset");
-#endif
-        }
-        if (cfg == null) cfg = Resources.Load<AudioConfig>("DefaultAudioConfig");
-#if UNITY_EDITOR
-        if (cfg == null) cfg = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioConfig>("Assets/Resources/DefaultAudioConfig.asset");
-#endif
-        if (cfg == null || cfg.HitClip == null) return;
-        if (AudioService.Instance != null) AudioService.Instance.PlaySFX(cfg.HitClip, "playerHit", 0.04f, AudioService.Priority.High);
-        else AudioSource.PlayClipAtPoint(cfg.HitClip, transform.position);
+        target.TryTakeDamage(damage, knockbackDirection.normalized);
     }
 
     // 적 히트박스는 대상 플레이어에게 피해를 적용한다.

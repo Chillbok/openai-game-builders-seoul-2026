@@ -43,11 +43,6 @@ public sealed class EnemyWaveSpawner : MonoBehaviour
     [SerializeField]
     private bool autoSpawnOnStart = true;
 
-    [Header("오디오")]
-    [SerializeField]
-    [Tooltip("중앙 오디오 설정 — 비어 있으면 AudioService 싱글턴을 사용한다")]
-    private AudioConfig audioConfig;
-
     private readonly List<GameObject> spawnedEnemies = new List<GameObject>();
 
     // 생존 타이머 상태
@@ -246,18 +241,6 @@ public sealed class EnemyWaveSpawner : MonoBehaviour
         }
 
         Debug.Log($"EnemyWaveSpawner: 배치 생성 count={count} batch={batchIndex} seed={seed} mapIndex={mapGenerator?.MapIndex}", this);
-        PlayWaveHornSfx();
-    }
-
-    private void PlayWaveHornSfx()
-    {
-        AudioConfig cfg = AudioService.Instance != null ? AudioService.Instance.Config : Resources.Load<AudioConfig>("DefaultAudioConfig");
-#if UNITY_EDITOR
-        if (cfg == null) cfg = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioConfig>("Assets/Resources/DefaultAudioConfig.asset");
-#endif
-        if (cfg == null || cfg.WaveHornClip == null) return;
-        if (AudioService.Instance != null) AudioService.Instance.PlaySFX(cfg.WaveHornClip, priority: AudioService.Priority.Medium);
-        else AudioSource.PlayClipAtPoint(cfg.WaveHornClip, transform.position);
     }
 
     // --- 호환 래퍼 (기존 DoorController 등에서 호출) ---

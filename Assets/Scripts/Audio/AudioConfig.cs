@@ -16,10 +16,6 @@ public sealed class AudioConfig : ScriptableObject
     [SerializeField]
     private AudioClip battleBgm;
 
-    [Tooltip("게임 오버 BGM — 연출 징과 크로스페이드 (the_field_of_dreams.mp3)")]
-    [SerializeField]
-    private AudioClip gameOverBgm;
-
     [Header("SFX - 플레이어 공격")]
     [Tooltip("3연격 타별 휘두르기음 — Sword Attack 1~3.wav")]
     [SerializeField]
@@ -28,10 +24,6 @@ public sealed class AudioConfig : ScriptableObject
     [Tooltip("강화 공격(완벽 회피 2배/패링 3배) 휘두르기음 — Sword Impact Hit 1~3.wav")]
     [SerializeField]
     private AudioClip[] empoweredAttackClips = new AudioClip[3];
-
-    [Tooltip("공격 명중음 — 여러 적 동시 판정 시 1회만 재생")]
-    [SerializeField]
-    private AudioClip hitClip;
 
     [Header("SFX - 처형")]
     [Tooltip("처형 돌진음 — Stone Land.wav (회피음 재사용 가능)")]
@@ -62,14 +54,6 @@ public sealed class AudioConfig : ScriptableObject
     [Tooltip("플레이어 피격음 — Spell Impact 1.wav (사망과 구분, 무적 0.1초 동안 미재생)")]
     [SerializeField]
     private AudioClip hurtClip;
-
-    [Tooltip("플레이어 사망음")]
-    [SerializeField]
-    private AudioClip dieClip;
-
-    [Tooltip("처형 보상 체력 회복음")]
-    [SerializeField]
-    private AudioClip healClip;
 
     [Header("SFX - 영혼 충전")]
     [Tooltip("영혼 충전 단계 상승음 — power_up.wav")]
@@ -118,26 +102,10 @@ public sealed class AudioConfig : ScriptableObject
     [SerializeField]
     private AudioClip mapTransitClip;
 
-    [Tooltip("웨이브 시작 호른 — 5초 주기 1회")]
-    [SerializeField]
-    private AudioClip waveHornClip;
-
-    [Tooltip("점수 획득 틱 — 처치 100점/처형 보너스 50점")]
-    [SerializeField]
-    private AudioClip scoreTickClip;
-
-    [Tooltip("게임오버 연출 징 — BGM과 별개 스팅")]
-    [SerializeField]
-    private AudioClip gameOverStingClip;
-
     [Header("UI")]
     [Tooltip("버튼 누름음 — menu_blip.wav (기본 확인음)")]
     [SerializeField]
     private AudioClip buttonClickClip;
-
-    [Tooltip("호버음 — Interface Sounds 팩 이동음")]
-    [SerializeField]
-    private AudioClip hoverClip;
 
     [Header("볼륨 버스 — 인스펙터 노출, PlayerPrefs 저장")]
     [Tooltip("마스터 볼륨 (0~1)")]
@@ -158,10 +126,8 @@ public sealed class AudioConfig : ScriptableObject
 
     public AudioClip MenuBgm => menuBgm;
     public AudioClip BattleBgm => battleBgm;
-    public AudioClip GameOverBgm => gameOverBgm;
     public AudioClip[] AttackSwingClips => attackSwingClips;
     public AudioClip[] EmpoweredAttackClips => empoweredAttackClips;
-    public AudioClip HitClip => hitClip;
     public AudioClip ExecutionDashClip => executionDashClip;
     public AudioClip ExecutionImpactClip => executionImpactClip;
     public AudioClip ExecutionParryClip => executionParryClip;
@@ -169,8 +135,6 @@ public sealed class AudioConfig : ScriptableObject
     public AudioClip DodgeClip => dodgeClip;
     public AudioClip PerfectDodgeClip => perfectDodgeClip;
     public AudioClip HurtClip => hurtClip;
-    public AudioClip DieClip => dieClip;
-    public AudioClip HealClip => healClip;
     public AudioClip SoulChargeStageUpClip => soulChargeStageUpClip;
     public AudioClip SoulChargeStageDownClip => soulChargeStageDownClip;
     public AudioClip SoulExplosionClip => soulExplosionClip;
@@ -182,11 +146,7 @@ public sealed class AudioConfig : ScriptableObject
     public AudioClip EnemyDieClip => enemyDieClip;
     public AudioClip DoorOpenClip => doorOpenClip;
     public AudioClip MapTransitClip => mapTransitClip;
-    public AudioClip WaveHornClip => waveHornClip;
-    public AudioClip ScoreTickClip => scoreTickClip;
-    public AudioClip GameOverStingClip => gameOverStingClip;
     public AudioClip ButtonClickClip => buttonClickClip;
-    public AudioClip HoverClip => hoverClip;
     public float MasterVolume => masterVolume;
     public float BgmVolume => bgmVolume;
     public float SfxVolume => sfxVolume;

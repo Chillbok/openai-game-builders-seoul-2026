@@ -446,16 +446,7 @@ public sealed class PlayerExecutionController : MonoBehaviour
         else AudioSource.PlayClipAtPoint(cfg.ExecutionStabClip, transform.position);
     }
 
-    private void PlayHealSfx()
-    {
-        AudioConfig cfg = AudioService.Instance != null ? AudioService.Instance.Config : Resources.Load<AudioConfig>("DefaultAudioConfig");
-#if UNITY_EDITOR
-        if (cfg == null) cfg = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioConfig>("Assets/Resources/DefaultAudioConfig.asset");
-#endif
-        if (cfg == null || cfg.HealClip == null) return;
-        if (AudioService.Instance != null) AudioService.Instance.PlaySFX(cfg.HealClip, priority: AudioService.Priority.Medium);
-        else AudioSource.PlayClipAtPoint(cfg.HealClip, transform.position);
-    }
+
 
     private void UpdatePresentation(float deltaTime)
     {
@@ -492,7 +483,6 @@ public sealed class PlayerExecutionController : MonoBehaviour
                 {
                     PlayExecutionStabSfx();
                     playerStatController.Heal(target.IsBoss ? playerStatController.MaxHP : executionHealAmount);
-                    PlayHealSfx();
                     playerStatController.RegisterExecutionKill();
                     MoveThroughTarget();
                 }
