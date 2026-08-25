@@ -42,6 +42,6 @@ MonoBehaviour:
   mapTransitClip: {fileID: 8300000, guid: 77379ed303c64479c97348b4efa7080a, type: 3}
   buttonClickClip: {fileID: 8300000, guid: 17ad085b64f7f4503891e9c9f0c9e4dd, type: 3}
   masterVolume: 1
-  bgmVolume: 0.8
-  sfxVolume: 1
-  uiVolume: 1
+  bgmVolume: 0.254
+  sfxVolume: 0.345
+  uiVolume: 0.43

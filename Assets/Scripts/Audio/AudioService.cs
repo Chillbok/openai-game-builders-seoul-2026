@@ -356,6 +356,8 @@ public sealed class AudioService : MonoBehaviour
     public void PlayBGM(AudioClip clip, bool loop = true, float fadeDuration = -1f)
     {
         if (clip == null) return;
+        if (!audioUnlocked) TryUnlockAudio();
+        if (AudioListener.pause) AudioListener.pause = false;
         if (bgmSource == null) EnsureAudioSources();
 
         if (bgmSource.clip == clip && bgmSource.isPlaying) return;

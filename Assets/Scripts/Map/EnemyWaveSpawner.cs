@@ -201,6 +201,12 @@ public sealed class EnemyWaveSpawner : MonoBehaviour
         survivalDuration = CalculateSurvivalDuration();
         isSpawning = true;
 
+        // 게임플레이 BGM — 방 진입 시 루프 재생 (menuBgm은 스타트 메뉴 구현 시까지 대기)
+        if (AudioService.Instance != null && AudioService.Instance.Config != null && AudioService.Instance.Config.BattleBgm != null)
+        {
+            AudioService.Instance.PlayBGM(AudioService.Instance.Config.BattleBgm, true, 0.3f);
+        }
+
         spawnedEnemies.RemoveAll(go => go == null);
 
         // 즉시 첫 배치 생성 (생존 시간이 0이면 생성 없이 즉시 완료로 처리)
