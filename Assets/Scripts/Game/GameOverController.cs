@@ -558,6 +558,34 @@ public sealed class GameOverController : MonoBehaviour
                 worldCenter.z = playerStatController.transform.position.z;
                 playerStatController.transform.position = worldCenter;
             }
+
+            // 애니메이터/렌더러 복구 — IsDead==false가 된 직후 호출해야 Update early return이 해제됨
+            if (playerAnimationController != null)
+            {
+                playerAnimationController.ResetForRestart();
+            }
+            else
+            {
+                var animCtrl = playerStatController.GetComponent<PlayerAnimationController>();
+                if (animCtrl != null) animCtrl.ResetForRestart();
+            }
+
+            // 처형 중 사망 시 잔류할 수 있는 SpriteFlip 오버라이드 해제
+            var flip = playerStatController.GetComponent<SpriteFlip>();
+            if (flip != null) flip.ClearFlipXOverride();
+
+            // 방어: 렌더러/오브젝트/콜라이더 활성 보장
+            var sr = playerStatController.GetComponent<SpriteRenderer>();
+            if (sr != null)
+            {
+                sr.enabled = true;
+                Color c = sr.color;
+                c.a = 1f;
+                sr.color = c;
+            }
+            if (!playerStatController.gameObject.activeSelf) playerStatController.gameObject.SetActive(true);
+            var col = playerStatController.GetComponent<Collider2D>();
+            if (col != null) col.enabled = true;
         }
 
         // 4. 카메라 복구
