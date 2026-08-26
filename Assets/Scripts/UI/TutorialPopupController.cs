@@ -174,32 +174,39 @@ public sealed class TutorialPopupController : MonoBehaviour
 
     private void EnsureDefaultPages()
     {
-        bool needDefault = pages == null || pages.Length != 3;
-        if (!needDefault)
+        // 기존 씬에 저장된 구버전(방어 포함, F/Space 표기, 10초 기절)도 직관적인 신버전으로 교체
+        bool needRefresh = pages == null || pages.Length != 3;
+        if (!needRefresh)
         {
-            bool anyEmpty = false;
-            for (int i = 0; i < 3; i++)
+            // 구버전 식별: 제목이 "조작법"이거나 본문에 "방어:" 또는 "처형: F"가 포함된 경우
+            string b0 = pages[0].body ?? "";
+            if (pages[0].title == "조작법" || b0.Contains("방어:") || b0.Contains("처형: F") || b0.Contains("회피: Space"))
+                needRefresh = true;
+            else
             {
-                if (string.IsNullOrEmpty(pages[i].title) || string.IsNullOrEmpty(pages[i].body)) anyEmpty = true;
+                bool anyEmpty = false;
+                for (int i = 0; i < 3; i++)
+                    if (string.IsNullOrEmpty(pages[i].title) || string.IsNullOrEmpty(pages[i].body)) anyEmpty = true;
+                if (anyEmpty) needRefresh = true;
             }
-            if (!anyEmpty) return;
         }
+        if (!needRefresh) return;
 
         pages = new TutorialPage[3];
         pages[0] = new TutorialPage
         {
-            title = "조작법",
-            body = "이동: W / A / S / D\n공격: 좌클릭 (이동 방향으로 공격)\n회피: Space (이동 방향, 완벽 회피 시 시간 감속)\n방어: 우클릭\n처형: F"
+            title = "이동 & 공격 — 가장 기본!",
+            body = "[W][A][S][D] 이동 — 누른 방향으로 달려요\n[좌클릭] 공격 — 이동 방향으로 3타 콤보!\n콤보는 0.5초 안에 다시 클릭하면 이어집니다\n팁: 대각선은 좌/우 중 하나로 공격 방향이 보정돼요"
         };
         pages[1] = new TutorialPage
         {
-            title = "게임 메커니즘",
-            body = "체력 10% 이하 10초간 기절 → 처형 가능\n처형: 회피 거리 2배 이내 가장 가까운 대상에게 돌진\n처형 연출 2초 동안 무적\n보상: 체력 25 회복, 영혼 충전 1단계"
+            title = "회피 & 처형 — 위기를 기회로!",
+            body = "[우클릭] 회피 — 짧게 돌진하며 무적! (최대 3회, 2초마다 1회 회복)\n완벽 타이밍 회피 성공 → 다음 공격이 2배 강해집니다!\n[노란 깜빡임] 기절한 적 → [E] 처형으로 마무리!\n처형: 돌진 → 2초 연출(무적) → 체력 +25 & 영혼 충전 +1"
         };
         pages[2] = new TutorialPage
         {
-            title = "게임 목표",
-            body = "한 판은 사망까지 생존 — 승리 조건 없음\n방 생존 타이머: 30초 + 맵 인덱스 × 5초\n5초마다 6마리 생성, 남은 적 전멸 시 문 개방\n점수: 처치 100점 + 처형 50점"
+            title = "강해지고 오래 살아남기",
+            body = "영혼 충전: 일반 처치 4번 또는 처형 1번 = 1단계 (최대 4단계)\n1단계 피해 -30% / 2단계 공격 빨라짐 / 3단계 공격 1.5배 / 4단계 처치 시 폭발!\n12초마다 1단계씩 사라지니 계속 처치·처형하세요\n목표: 죽기 전까지 최고 점수 도전! 지속 시간 동안 버티고, 남은 적을 모두 잡으면 문이 열립니다.\n문 위에 올라가 다음 방으로 넘어가세요.\n점수: 처치 100점 / 처형 150점(100+50)"
         };
     }
 
